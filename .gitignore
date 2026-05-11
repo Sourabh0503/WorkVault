@@ -1,1 +1,17 @@
+# .gitignore for .NET
+[Bb]in/
+[Oo]bj/
+*.dll
+*.pdb
+*.exe
+*.cache
+*.json
+!appsettings.json
 appsettings.Development.json
+.idea/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.DS_Store
