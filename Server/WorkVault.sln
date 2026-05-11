@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{318EC838-ADC7-41D6-85F3-37CF3B95DBA7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkVault.API", "src\WorkVault.API\WorkVault.API.csproj", "{0420C050-13FB-4623-9916-C36388001369}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkVault.Application", "src\WorkVault.Application\WorkVault.Application.csproj", "{C0B87D05-231C-4803-9FBB-27068CE54AF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkVault.Domain", "src\WorkVault.Domain\WorkVault.Domain.csproj", "{3C5DFF58-9A7A-4F75-AE96-12EC50CF8F5B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkVault.Infrastructure", "src\WorkVault.Infrastructure\WorkVault.Infrastructure.csproj", "{724F9AA2-DDF8-43B4-9C26-DC0ED2F0E854}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkVault.SharedKernel", "src\WorkVault.SharedKernel\WorkVault.SharedKernel.csproj", "{42C92B84-7AC9-4FD2-9D96-4EAC8D057549}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0420C050-13FB-4623-9916-C36388001369}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0420C050-13FB-4623-9916-C36388001369}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0420C050-13FB-4623-9916-C36388001369}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0420C050-13FB-4623-9916-C36388001369}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0B87D05-231C-4803-9FBB-27068CE54AF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0B87D05-231C-4803-9FBB-27068CE54AF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0B87D05-231C-4803-9FBB-27068CE54AF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0B87D05-231C-4803-9FBB-27068CE54AF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C5DFF58-9A7A-4F75-AE96-12EC50CF8F5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C5DFF58-9A7A-4F75-AE96-12EC50CF8F5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C5DFF58-9A7A-4F75-AE96-12EC50CF8F5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C5DFF58-9A7A-4F75-AE96-12EC50CF8F5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{724F9AA2-DDF8-43B4-9C26-DC0ED2F0E854}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{724F9AA2-DDF8-43B4-9C26-DC0ED2F0E854}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{724F9AA2-DDF8-43B4-9C26-DC0ED2F0E854}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{724F9AA2-DDF8-43B4-9C26-DC0ED2F0E854}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42C92B84-7AC9-4FD2-9D96-4EAC8D057549}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42C92B84-7AC9-4FD2-9D96-4EAC8D057549}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42C92B84-7AC9-4FD2-9D96-4EAC8D057549}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42C92B84-7AC9-4FD2-9D96-4EAC8D057549}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0420C050-13FB-4623-9916-C36388001369} = {318EC838-ADC7-41D6-85F3-37CF3B95DBA7}
+		{C0B87D05-231C-4803-9FBB-27068CE54AF8} = {318EC838-ADC7-41D6-85F3-37CF3B95DBA7}
+		{3C5DFF58-9A7A-4F75-AE96-12EC50CF8F5B} = {318EC838-ADC7-41D6-85F3-37CF3B95DBA7}
+		{724F9AA2-DDF8-43B4-9C26-DC0ED2F0E854} = {318EC838-ADC7-41D6-85F3-37CF3B95DBA7}
+		{42C92B84-7AC9-4FD2-9D96-4EAC8D057549} = {318EC838-ADC7-41D6-85F3-37CF3B95DBA7}
+	EndGlobalSection
+EndGlobal

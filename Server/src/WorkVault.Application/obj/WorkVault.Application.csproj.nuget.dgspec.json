@@ -1,0 +1,217 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Application/WorkVault.Application.csproj": {}
+  },
+  "projects": {
+    "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Application/WorkVault.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Application/WorkVault.Application.csproj",
+        "projectName": "WorkVault.Application",
+        "projectPath": "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Application/WorkVault.Application.csproj",
+        "packagesPath": "/Users/sourabh/.nuget/packages/",
+        "outputPath": "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Application/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/sourabh/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "/opt/homebrew/Cellar/dotnet/9.0.8/libexec/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/WorkVault.Domain.csproj": {
+                "projectPath": "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/WorkVault.Domain.csproj"
+              },
+              "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.SharedKernel/WorkVault.SharedKernel.csproj": {
+                "projectPath": "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.SharedKernel/WorkVault.SharedKernel.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[16.1.1, )"
+            },
+            "FluentValidation": {
+              "target": "Package",
+              "version": "[12.1.1, )"
+            },
+            "FluentValidation.DependencyInjectionExtensions": {
+              "target": "Package",
+              "version": "[12.1.1, )"
+            },
+            "MediatR": {
+              "target": "Package",
+              "version": "[14.1.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet/9.0.8/libexec/sdk/9.0.109/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/WorkVault.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/WorkVault.Domain.csproj",
+        "projectName": "WorkVault.Domain",
+        "projectPath": "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/WorkVault.Domain.csproj",
+        "packagesPath": "/Users/sourabh/.nuget/packages/",
+        "outputPath": "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/sourabh/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "/opt/homebrew/Cellar/dotnet/9.0.8/libexec/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.SharedKernel/WorkVault.SharedKernel.csproj": {
+                "projectPath": "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.SharedKernel/WorkVault.SharedKernel.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet/9.0.8/libexec/sdk/9.0.109/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.SharedKernel/WorkVault.SharedKernel.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.SharedKernel/WorkVault.SharedKernel.csproj",
+        "projectName": "WorkVault.SharedKernel",
+        "projectPath": "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.SharedKernel/WorkVault.SharedKernel.csproj",
+        "packagesPath": "/Users/sourabh/.nuget/packages/",
+        "outputPath": "/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.SharedKernel/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/sourabh/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "/opt/homebrew/Cellar/dotnet/9.0.8/libexec/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet/9.0.8/libexec/sdk/9.0.109/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

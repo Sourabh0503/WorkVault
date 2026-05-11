@@ -1,0 +1,16 @@
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/bin/Debug/net9.0/WorkVault.Domain.deps.json
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/bin/Debug/net9.0/WorkVault.Domain.dll
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/bin/Debug/net9.0/WorkVault.Domain.pdb
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/obj/Debug/net9.0/WorkVault.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/obj/Debug/net9.0/WorkVault.Domain.AssemblyInfoInputs.cache
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/obj/Debug/net9.0/WorkVault.Domain.AssemblyInfo.cs
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/obj/Debug/net9.0/WorkVault.Domain.csproj.CoreCompileInputs.cache
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/obj/Debug/net9.0/WorkVault.Domain.sourcelink.json
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/obj/Debug/net9.0/WorkVault.Domain.dll
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/obj/Debug/net9.0/refint/WorkVault.Domain.dll
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/obj/Debug/net9.0/WorkVault.Domain.pdb
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/obj/Debug/net9.0/ref/WorkVault.Domain.dll
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/bin/Debug/net9.0/WorkVault.SharedKernel.dll
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/bin/Debug/net9.0/WorkVault.SharedKernel.pdb
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/obj/Debug/net9.0/WorkVault.Domain.csproj.AssemblyReference.cache
+/Users/sourabh/Desktop/WorkVault/Server/src/WorkVault.Domain/obj/Debug/net9.0/WorkVaul.002C441E.Up2Date

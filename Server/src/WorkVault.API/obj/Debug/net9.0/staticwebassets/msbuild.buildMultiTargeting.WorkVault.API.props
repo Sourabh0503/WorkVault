@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../build/WorkVault.API.props" />
+</Project>

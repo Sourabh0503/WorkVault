@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "WorkVault.Domain/1.0.0": {
+        "dependencies": {
+          "WorkVault.SharedKernel": "1.0.0"
+        },
+        "runtime": {
+          "WorkVault.Domain.dll": {}
+        }
+      },
+      "WorkVault.SharedKernel/1.0.0": {
+        "runtime": {
+          "WorkVault.SharedKernel.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "WorkVault.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "WorkVault.SharedKernel/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
