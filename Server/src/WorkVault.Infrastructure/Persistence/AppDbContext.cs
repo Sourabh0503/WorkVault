@@ -34,11 +34,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         var seedDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         modelBuilder.Entity<Role>().HasData(
-            new Role { Id = SystemRoles.SuperAdmin, Name = "SuperAdmin", IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate },
-            new Role { Id = SystemRoles.CompanyAdmin, Name = "CompanyAdmin", IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate },
-            new Role { Id = SystemRoles.HR, Name = "HR", IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate },
-            new Role { Id = SystemRoles.Manager, Name = "Manager", IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate },
-            new Role { Id = SystemRoles.Employee, Name = "Employee", IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate }
+            new Role { Id = SystemRoles.SuperAdmin, Name = SystemRoles.SuperAdminRole, IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate },
+            new Role { Id = SystemRoles.CompanyAdmin, Name = SystemRoles.CompanyAdminRole, IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate },
+            new Role { Id = SystemRoles.HR, Name = SystemRoles.HRRole, IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate },
+            new Role { Id = SystemRoles.Manager, Name = SystemRoles.ManagerRole, IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate },
+            new Role { Id = SystemRoles.Employee, Name = SystemRoles.EmployeeRole, IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate }
         );
         
         modelBuilder.Entity<User>().HasIndex(u => new { u.Email, u.CompanyId }).IsUnique();

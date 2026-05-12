@@ -1,7 +1,9 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WorkVault.Application.Modules.Identity.Commands.RegisterCompany;
 using WorkVault.Application.Modules.Identity.Queries.GetCompanyById;
+using WorkVault.SharedKernel.Constants;
 
 namespace WorkVault.API.Controllers;
 
@@ -10,6 +12,7 @@ namespace WorkVault.API.Controllers;
 public class CompaniesController(IMediator mediator) : ControllerBase
 {
     [HttpPost]
+    [Authorize(Roles = SystemRoles.SuperAdminRole)]
     public async Task<IActionResult> Register(
         RegisterCompanyCommand command,
         CancellationToken cancellationToken)

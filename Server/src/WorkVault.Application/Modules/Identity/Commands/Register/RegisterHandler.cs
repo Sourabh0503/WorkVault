@@ -34,7 +34,7 @@ public class RegisterHandler(
         await userRepository.AddAsync(user, cancellationToken);
 
         // Generate tokens
-        var accessToken = jwtTokenService.GenerateAccessToken(user, "CompanyAdmin");
+        var accessToken = jwtTokenService.GenerateAccessToken(user, SystemRoles.CompanyAdminRole);
         var refreshTokenString = jwtTokenService.GenerateRefreshToken();
 
         // Save refresh token to database
