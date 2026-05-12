@@ -1,6 +1,34 @@
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using WorkVault.Application.Modules.Identity.Commands.RegisterCompany;
+using WorkVault.Application.Modules.Identity.Queries.GetCompanyById;
+
 namespace WorkVault.API.Controllers;
 
-public class CompaniesController
+[ApiController]
+[Route("api/[controller]")]
+public class CompaniesController(IMediator mediator) : ControllerBase
 {
+    [HttpPost]
+    public async Task<IActionResult> Register(
+        RegisterCompanyCommand command,
+        CancellationToken cancellationToken)
+    {
+        var id = await mediator.Send(command, cancellationToken);
+        return Ok(new { id });
+    }
     
+    
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var company = await mediator.Send(
+            new GetCompanyByIdQuery(id), cancellationToken);
+
+        if (company is null) return NotFound();
+
+        return Ok(company);
+    }
 }

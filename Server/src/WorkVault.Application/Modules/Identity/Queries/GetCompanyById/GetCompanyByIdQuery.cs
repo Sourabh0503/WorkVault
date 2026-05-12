@@ -1,6 +1,5 @@
+using MediatR;
+
 namespace WorkVault.Application.Modules.Identity.Queries.GetCompanyById;
 
-public class GetCompanyByIdQuery
-{
-    
-}
+public record GetCompanyByIdQuery(Guid Id) : IRequest<CompanyDto?>;

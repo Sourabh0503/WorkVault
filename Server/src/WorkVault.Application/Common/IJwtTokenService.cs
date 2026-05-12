@@ -1,6 +1,8 @@
+using WorkVault.Domain.Modules.Identity;
+
 namespace WorkVault.Application.Common;
 
-public class IJwtTokenService
+public interface IJwtTokenService
 {
-    
+    string GenerateAccessToken(User user, string roleName);
 }

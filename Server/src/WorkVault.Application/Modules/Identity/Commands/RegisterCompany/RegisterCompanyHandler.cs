@@ -1,17 +1,10 @@
 using MediatR;
 using WorkVault.Domain.Modules.Identity;
-using WorkVault.SharedKernel.Interfaces;
+using WorkVault.Domain.Modules.Identity.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Commands.RegisterCompany;
 
-public class RegisterCompanyHandler : IRequestHandler<RegisterCompanyCommand, Guid>
-{
-    private readonly ICompanyRepository _repository;
-
-    public RegisterCompanyHandler(ICompanyRepository repository)
-    {
-        _repository = repository;
-    }
+public class RegisterCompanyHandler(ICompanyRepository repository): IRequestHandler<RegisterCompanyCommand, Guid>{
 
     public async Task<Guid> Handle(
         RegisterCompanyCommand request,
@@ -26,7 +19,7 @@ public class RegisterCompanyHandler : IRequestHandler<RegisterCompanyCommand, Gu
             Timezone = request.Timezone
         };
 
-        await _repository.AddAsync(company, cancellationToken);
+        await repository.AddAsync(company, cancellationToken);
         return company.Id;
     }
 }
