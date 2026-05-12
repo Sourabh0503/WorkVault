@@ -149,7 +149,7 @@ public abstract class BaseEntity
 }
 ```
 
-**Current tables:** `Companies` · `Users` · `Roles` (5 seeded system roles)
+**Current tables:** `Companies` · `Users` · `Roles` (5 seeded system roles) · `RefreshTokens`
 
 <br/>
 
@@ -218,6 +218,103 @@ http://localhost:5080/swagger
 
 <br/>
 
+## 🔌 API Endpoints
+
+### Authentication (`/api/auth`)
+
+| Method | Endpoint | Description |
+|:---:|---|---|
+| POST | `/api/auth/register` | Register new company + admin user |
+| POST | `/api/auth/login` | Login with email & password |
+| POST | `/api/auth/refresh` | Refresh access token |
+
+### Companies (`/api/companies`)
+
+| Method | Endpoint | Description |
+|:---:|---|---|
+| POST | `/api/companies` | Create a new company |
+| GET | `/api/companies/{id}` | Get company by ID |
+
+<details>
+<summary><b>Example: Register Company + Admin</b></summary>
+
+```bash
+POST /api/auth/register
+```
+
+```json
+{
+  "companyName": "Acme Corp",
+  "domain": "acme.com",
+  "industry": "Technology",
+  "timezone": "Asia/Kolkata",
+  "gstNumber": "22AAAAA0000A1Z5",
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@acme.com",
+  "password": "SecureP@ss123"
+}
+```
+
+**Response:**
+```json
+{
+  "companyId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "refreshToken": "dGhpcyBpcyBhIHJlZnJlc2..."
+}
+```
+</details>
+
+<details>
+<summary><b>Example: Login</b></summary>
+
+```bash
+POST /api/auth/login
+```
+
+```json
+{
+  "email": "john@acme.com",
+  "password": "SecureP@ss123"
+}
+```
+
+**Response:**
+```json
+{
+  "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "companyId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "refreshToken": "dGhpcyBpcyBhIHJlZnJlc2..."
+}
+```
+</details>
+
+<details>
+<summary><b>Example: Refresh Token</b></summary>
+
+```bash
+POST /api/auth/refresh
+```
+
+```json
+{
+  "refreshToken": "dGhpcyBpcyBhIHJlZnJlc2..."
+}
+```
+
+**Response:**
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "refreshToken": "bmV3IHJlZnJlc2ggdG9rZW4..."
+}
+```
+</details>
+
+<br/>
+
 ## 🗺️ Roadmap
 
 ### Phase 1 — Identity & Employees `In Progress`
@@ -228,8 +325,8 @@ http://localhost:5080/swagger
 - [x] Role entity with 5 seeded system roles
 - [x] User entity with email uniqueness per tenant
 - [x] JWT token generation service
-- [ ] Refresh token rotation flow
-- [ ] Register / Login / Refresh endpoints
+- [x] Refresh token rotation flow
+- [x] Register / Login / Refresh endpoints
 - [ ] `CompanyId` global query filter (tenant isolation)
 - [ ] Employee CRUD + invite flow
 - [ ] Employee ID card with QR code

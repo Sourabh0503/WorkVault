@@ -10,6 +10,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -40,9 +41,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             new Role { Id = SystemRoles.Employee, Name = "Employee", IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate }
         );
         
-        modelBuilder.Entity<User>()
-            .HasIndex(u => new { u.Email, u.CompanyId })
-            .IsUnique();
+        modelBuilder.Entity<User>().HasIndex(u => new { u.Email, u.CompanyId }).IsUnique();
+        modelBuilder.Entity<RefreshToken>().HasQueryFilter(rt => !rt.User.IsDeleted);
     }
 
     private static void ApplySoftDeleteFilter<T>(ModelBuilder modelBuilder)

@@ -5,4 +5,5 @@ namespace WorkVault.Application.Common;
 public interface IJwtTokenService
 {
     string GenerateAccessToken(User user, string roleName);
+    string GenerateRefreshToken();
 }
