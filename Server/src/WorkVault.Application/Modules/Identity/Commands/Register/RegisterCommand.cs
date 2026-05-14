@@ -7,7 +7,6 @@ public record RegisterCommand(
     string CompanyName,
     string Domain,
     string Industry,
-    string Timezone,
     string? GstNumber,
     
     // Admin user fields

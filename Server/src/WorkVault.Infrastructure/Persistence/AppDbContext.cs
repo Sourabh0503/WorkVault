@@ -1,12 +1,15 @@
 using Microsoft.EntityFrameworkCore;
+using WorkVault.Application.Common;
 using WorkVault.Domain.Modules.Identity;
 using WorkVault.SharedKernel;
 using WorkVault.SharedKernel.Constants;
 
 namespace WorkVault.Infrastructure.Persistence;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options,
+    ICurrentUserService currentUserService) : DbContext(options)
 {
+    private readonly ICurrentUserService _currentUserService = currentUserService;
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<User> Users => Set<User>();
@@ -24,12 +27,20 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 var method = typeof(AppDbContext)
                     .GetMethod(nameof(ApplySoftDeleteFilter),
                         System.Reflection.BindingFlags.NonPublic |
-                        System.Reflection.BindingFlags.Static)!
+                        System.Reflection.BindingFlags.Instance)!
                     .MakeGenericMethod(entityType.ClrType);
 
-                method.Invoke(null, [modelBuilder]);
+                method.Invoke(this, [modelBuilder]);
             }
         }
+        
+        // Company is special: its Id is the tenant ID (not CompanyId).
+        // Override the generic filter for Company entity.
+        modelBuilder.Entity<Company>().HasQueryFilter(c =>
+            !c.IsDeleted &&
+            (_currentUserService.IsSuperAdmin ||
+             _currentUserService.CompanyId == null ||
+             c.Id == _currentUserService.CompanyId));
         
         var seedDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -45,10 +56,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<RefreshToken>().HasQueryFilter(rt => !rt.User.IsDeleted);
     }
 
-    private static void ApplySoftDeleteFilter<T>(ModelBuilder modelBuilder)
+    private void ApplySoftDeleteFilter<T>(ModelBuilder modelBuilder)
         where T : BaseEntity
     {
-        modelBuilder.Entity<T>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<T>().HasQueryFilter(e => !e.IsDeleted && (_currentUserService.IsSuperAdmin ||
+                                                                      _currentUserService.CompanyId == null ||
+                                                                      e.CompanyId == _currentUserService.CompanyId));
     }
     
 }

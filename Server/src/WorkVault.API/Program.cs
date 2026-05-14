@@ -2,7 +2,9 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using WorkVault.API.Services;
 using WorkVault.Application;
+using WorkVault.Application.Common;
 using WorkVault.Infrastructure;
 using WorkVault.Infrastructure.Persistence;
 
@@ -11,8 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpContextAccessor();
 
 //services DI
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -32,12 +36,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!))
         };
     });
-
-// PostgreSQL
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-    ));
 
 // CORS
 builder.Services.AddCors(options =>

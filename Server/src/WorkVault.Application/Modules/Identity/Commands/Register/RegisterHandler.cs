@@ -19,7 +19,7 @@ public class RegisterHandler(
         CancellationToken cancellationToken)
     {
         var companyRegisterCommand = new RegisterCompanyCommand(
-            request.CompanyName, request.Domain, request.Industry, request.GstNumber, request.Timezone);
+            request.CompanyName, request.Domain, request.Industry, request.GstNumber);
         var companyGuid = await mediator.Send(companyRegisterCommand, cancellationToken);
 
         var user = new User

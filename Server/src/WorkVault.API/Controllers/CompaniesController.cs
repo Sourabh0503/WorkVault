@@ -23,6 +23,7 @@ public class CompaniesController(IMediator mediator) : ControllerBase
     
     
     [HttpGet("{id:guid}")]
+    [Authorize]
     public async Task<IActionResult> GetById(
         Guid id,
         CancellationToken cancellationToken)
