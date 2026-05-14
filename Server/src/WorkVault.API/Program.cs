@@ -1,12 +1,11 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using WorkVault.API.Middleware;
 using WorkVault.API.Services;
 using WorkVault.Application;
-using WorkVault.Application.Common;
+using WorkVault.Application.Common.Interfaces;
 using WorkVault.Infrastructure;
-using WorkVault.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +49,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSwagger();

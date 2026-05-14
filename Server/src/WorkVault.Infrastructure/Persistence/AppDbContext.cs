@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using WorkVault.Application.Common;
+using WorkVault.Application.Common.Interfaces;
 using WorkVault.Domain.Modules.Identity;
 using WorkVault.SharedKernel;
 using WorkVault.SharedKernel.Constants;

@@ -1,5 +1,8 @@
+using System.Reflection;
+using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using WorkVault.Application.Modules.Identity.Commands.RegisterCompany;
+using WorkVault.Application.Common.Behaviors;
 
 namespace WorkVault.Application;
 
@@ -8,11 +11,15 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(
         this IServiceCollection services)
     {
+        var assembly = Assembly.GetExecutingAssembly();
+        
         services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssembly(
-                typeof(RegisterCompanyCommand).Assembly
-            ));
-
+            cfg.RegisterServicesFromAssembly(assembly));
+        
+        services.AddValidatorsFromAssembly(assembly);
+        
+        services.AddTransient(typeof(IPipelineBehavior<,>),typeof(ValidationBehavior<,>));
+        
         return services;
     }
 }

@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using WorkVault.Application.Common;
+using WorkVault.Application.Common.Interfaces;
+using WorkVault.Application.Common.Settings;
 using WorkVault.Domain.Modules.Identity.Interfaces;
 using WorkVault.Infrastructure.Auth;
 using WorkVault.Infrastructure.Modules.Identity;

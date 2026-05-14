@@ -1,5 +1,5 @@
 using MediatR;
-using WorkVault.Application.Common;
+using WorkVault.Application.Common.Interfaces;
 using WorkVault.Domain.Modules.Identity.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Commands.RefreshTokens;

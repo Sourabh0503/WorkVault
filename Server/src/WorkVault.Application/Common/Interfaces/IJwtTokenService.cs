@@ -1,6 +1,6 @@
 using WorkVault.Domain.Modules.Identity;
 
-namespace WorkVault.Application.Common;
+namespace WorkVault.Application.Common.Interfaces;
 
 public interface IJwtTokenService
 {

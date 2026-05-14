@@ -4,7 +4,8 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using WorkVault.Application.Common;
+using WorkVault.Application.Common.Interfaces;
+using WorkVault.Application.Common.Settings;
 using WorkVault.Domain.Modules.Identity;
 
 namespace WorkVault.Infrastructure.Auth;

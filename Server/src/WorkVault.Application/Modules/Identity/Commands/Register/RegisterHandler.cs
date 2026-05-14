@@ -1,5 +1,5 @@
 using MediatR;
-using WorkVault.Application.Common;
+using WorkVault.Application.Common.Interfaces;
 using WorkVault.Application.Modules.Identity.Commands.RegisterCompany;
 using WorkVault.Domain.Modules.Identity;
 using WorkVault.Domain.Modules.Identity.Interfaces;

@@ -1,20 +1,14 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using WorkVault.Application.Common;
+using WorkVault.Application.Common.Interfaces;
 using WorkVault.SharedKernel.Constants;
 
 namespace WorkVault.API.Services;
 
-public class CurrentUserService : ICurrentUserService
+public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUserService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public CurrentUserService(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
-
-    private ClaimsPrincipal? User => _httpContextAccessor.HttpContext?.User;
+    private ClaimsPrincipal? User => httpContextAccessor.HttpContext?.User;
 
     public Guid? UserId
     {

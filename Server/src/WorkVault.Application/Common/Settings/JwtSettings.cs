@@ -1,4 +1,4 @@
-namespace WorkVault.Application.Common;
+namespace WorkVault.Application.Common.Settings;
 
 public class JwtSettings
 {
