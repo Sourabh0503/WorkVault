@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WorkVault.Application.Common.Interfaces;
+using WorkVault.Domain.Modules.Employees;
 using WorkVault.Domain.Modules.Identity;
 using WorkVault.SharedKernel;
 using WorkVault.SharedKernel.Constants;
@@ -14,6 +15,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options,
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<User> Users => Set<User>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<Employee> Employees => Set<Employee>();
+    public DbSet<Department> Departments => Set<Department>();
+    public DbSet<Designation> Designations => Set<Designation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,6 +46,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options,
              _currentUserService.CompanyId == null ||
              c.Id == _currentUserService.CompanyId));
         
+        SeedRolesData(modelBuilder);
+        
+        modelBuilder.Entity<User>().HasIndex(u => new { u.Email, u.CompanyId }).IsUnique();
+        modelBuilder.Entity<RefreshToken>().HasQueryFilter(rt => !rt.User.IsDeleted);
+    }
+
+    private void SeedRolesData(ModelBuilder modelBuilder)
+    {
         var seedDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         modelBuilder.Entity<Role>().HasData(
@@ -51,11 +63,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options,
             new Role { Id = SystemRoles.Manager, Name = SystemRoles.ManagerRole, IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate },
             new Role { Id = SystemRoles.Employee, Name = SystemRoles.EmployeeRole, IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate }
         );
-        
-        modelBuilder.Entity<User>().HasIndex(u => new { u.Email, u.CompanyId }).IsUnique();
-        modelBuilder.Entity<RefreshToken>().HasQueryFilter(rt => !rt.User.IsDeleted);
     }
-
     private void ApplySoftDeleteFilter<T>(ModelBuilder modelBuilder)
         where T : BaseEntity
     {
