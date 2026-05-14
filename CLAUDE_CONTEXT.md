@@ -15,7 +15,7 @@
 - Architecture: Clean Architecture + Modular Monolith
 - Auth: JWT + Refresh Tokens + BCrypt
 - CQRS: MediatR
-- Validation: FluentValidation (configured, not yet implemented)
+- Validation: FluentValidation with MediatR pipeline behavior
 
 ---
 
@@ -39,15 +39,18 @@ Server/src/
 │           ├── Commands/
 │           │   ├── Login/
 │           │   │   ├── LoginCommand.cs
+│           │   │   ├── LoginCommandValidator.cs
 │           │   │   └── LoginHandler.cs
 │           │   ├── Register/
 │           │   │   ├── RegisterCommand.cs    # Company + Admin registration
+│           │   │   ├── RegisterCommandValidator.cs
 │           │   │   └── RegisterHandler.cs
 │           │   ├── RegisterCompany/
 │           │   │   ├── RegisterCompanyCommand.cs
 │           │   │   └── RegisterCompanyHandler.cs
 │           │   └── RefreshTokens/
 │           │       ├── RefreshTokenCommand.cs
+│           │       ├── RefreshTokenCommandValidator.cs
 │           │       └── RefreshTokenHandler.cs
 │           ├── Queries/
 │           │   └── GetCompanyById/
@@ -77,7 +80,7 @@ Server/src/
 │   │       ├── UserRepository.cs
 │   │       └── RefreshTokenRepository.cs
 │   ├── Persistence/
-│   │   ├── AppDbContext.cs           # DbContext with soft delete filters, role seeding
+│   │   ├── AppDbContext.cs           # DbContext with soft delete filters, role seeding, audit fields
 │   │   └── Migrations/
 │   │       └── *_InitialCreate.cs    # Single migration with all tables
 │   └── DependencyInjection.cs        # Infrastructure DI registration
@@ -161,12 +164,17 @@ Global query filter applied to all `BaseEntity` types:
 modelBuilder.Entity<T>().HasQueryFilter(e => !e.IsDeleted);
 ```
 
-### 3. CQRS with MediatR
+### 3. Automatic Audit Fields
+`AppDbContext.SaveChangesAsync` automatically populates:
+- **Added entities**: `CreatedAt`, `UpdatedAt`, `CreatedBy` (from current user)
+- **Modified entities**: `UpdatedAt`
+
+### 4. CQRS with MediatR
 - **Commands**: Write operations (Register, Login, RefreshToken)
 - **Queries**: Read operations (GetCompanyById)
 - All handlers in `Application/Modules/{Module}/Commands|Queries/`
 
-### 4. Role-Based Authorization
+### 5. Role-Based Authorization
 ```csharp
 // Use const strings for [Authorize] attributes
 [Authorize(Roles = SystemRoles.SuperAdminRole)]
@@ -282,9 +290,11 @@ services.AddScoped<IUserRepository, UserRepository>();
 services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 ```
 
-### Application (via MediatR)
+### Application/DependencyInjection.cs
 ```csharp
-services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(RegisterCommand).Assembly));
+services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
+services.AddValidatorsFromAssembly(assembly);
+services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 ```
 
 ---
@@ -350,6 +360,24 @@ dotnet ef migrations has-pending-model-changes --project ../WorkVault.Infrastruc
 
 ---
 
+## Validation Rules
+
+### Password Requirements (RegisterCommandValidator)
+- Minimum 8 characters
+- At least one uppercase letter
+- At least one lowercase letter
+- At least one digit
+- At least one special character
+
+### Validation Pipeline
+All MediatR commands pass through `ValidationBehavior` which:
+1. Finds all validators for the request type
+2. Runs validators in parallel
+3. Throws `ValidationException` if any failures
+4. `ExceptionHandlingMiddleware` returns 400 with grouped errors
+
+---
+
 ## Notes for AI Assistants
 
 1. **Always use `SystemRoles` constants** for role names and IDs
@@ -358,4 +386,6 @@ dotnet ef migrations has-pending-model-changes --project ../WorkVault.Infrastruc
 4. **Repository pattern**: Interfaces in Domain, implementations in Infrastructure
 5. **Soft deletes**: Set `IsDeleted = true`, never hard delete
 6. **Multi-tenancy**: Always include `CompanyId` in operations
-7. **JWT**: Access token = 15 min, Refresh token = 7 days with rotation
+7. **JWT**: Access token = 15 min, Refresh token = configurable days with rotation
+8. **Audit fields**: Auto-populated by `SaveChangesAsync` - no manual setting needed
+9. **Validators**: Create `{Command}Validator.cs` alongside command files - auto-registered

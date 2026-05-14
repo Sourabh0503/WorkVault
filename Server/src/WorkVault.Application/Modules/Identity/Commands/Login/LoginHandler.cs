@@ -1,5 +1,7 @@
 using MediatR;
+using Microsoft.Extensions.Options;
 using WorkVault.Application.Common.Interfaces;
+using WorkVault.Application.Common.Settings;
 using WorkVault.Domain.Modules.Identity;
 using WorkVault.Domain.Modules.Identity.Interfaces;
 
@@ -8,7 +10,8 @@ namespace WorkVault.Application.Modules.Identity.Commands.Login;
 public class LoginHandler(
     IUserRepository userRepository,
     IJwtTokenService jwtTokenService,
-    IRefreshTokenRepository refreshTokenRepository)
+    IRefreshTokenRepository refreshTokenRepository,
+    IOptions<JwtSettings> jwtSettings)
     : IRequestHandler<LoginCommand, LoginResponse?>
 {
     public async Task<LoginResponse?> Handle(
@@ -32,7 +35,7 @@ public class LoginHandler(
         {
             UserId = user.Id,
             Token = refreshTokenString,
-            ExpiresAt = DateTime.UtcNow.AddDays(7)
+            ExpiresAt = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationDays)
         };
         await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
 

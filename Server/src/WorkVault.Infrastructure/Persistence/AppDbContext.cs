@@ -63,5 +63,27 @@ public class AppDbContext(DbContextOptions<AppDbContext> options,
                                                                       _currentUserService.CompanyId == null ||
                                                                       e.CompanyId == _currentUserService.CompanyId));
     }
-    
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+        var currentUserId = _currentUserService.UserId ?? Guid.Empty;
+
+        foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entry.Entity.CreatedAt = now;
+                    entry.Entity.UpdatedAt = now;
+                    entry.Entity.CreatedBy = currentUserId;
+                    break;
+                case EntityState.Modified:
+                    entry.Entity.UpdatedAt = now;
+                    break;
+            }
+        }
+
+        return await base.SaveChangesAsync(cancellationToken);
+    }
 }
