@@ -26,7 +26,7 @@ public class Employee : BaseEntity
 
     public string? Phone { get; set; }
     public string? PhotoUrl { get; set; }
-    public DateTime? DateOfBirth { get; set; }
+    public DateOnly? DateOfBirth { get; set; }
 
     // ---- Organization placement ----
 
@@ -50,10 +50,9 @@ public class Employee : BaseEntity
     public ICollection<Employee> DirectReports { get; set; } = new List<Employee>();
 
     // ---- Employment lifecycle ----
-
-    public DateTime JoinDate { get; set; }
-    public DateTime? ResignationDate { get; set; }
-    public DateTime? LastWorkingDay { get; set; }
+    public DateOnly JoinDate { get; set; }
+    public DateOnly? ResignationDate { get; set; }
+    public DateOnly? LastWorkingDay { get; set; }
 
     public EmployeeStatus Status { get; set; } = EmployeeStatus.Pending;
 }

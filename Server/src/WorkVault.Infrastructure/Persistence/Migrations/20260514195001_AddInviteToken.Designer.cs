@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WorkVault.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using WorkVault.Infrastructure.Persistence;
 namespace WorkVault.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260514195001_AddInviteToken")]
+    partial class AddInviteToken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -116,8 +119,8 @@ namespace WorkVault.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<DateOnly?>("DateOfBirth")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("DepartmentId")
                         .HasColumnType("uuid");
@@ -132,11 +135,11 @@ namespace WorkVault.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<DateOnly>("JoinDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("JoinDate")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateOnly?>("LastWorkingDay")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("LastWorkingDay")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ManagerId")
                         .HasColumnType("uuid");
@@ -147,8 +150,8 @@ namespace WorkVault.Infrastructure.Persistence.Migrations
                     b.Property<string>("PhotoUrl")
                         .HasColumnType("text");
 
-                    b.Property<DateOnly?>("ResignationDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("ResignationDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -260,7 +263,7 @@ namespace WorkVault.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("InviteTokens");
+                    b.ToTable("InviteToken");
                 });
 
             modelBuilder.Entity("WorkVault.Domain.Modules.Identity.RefreshToken", b =>

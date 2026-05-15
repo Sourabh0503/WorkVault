@@ -3,11 +3,13 @@ using Microsoft.Extensions.Options;
 using WorkVault.Application.Common.Interfaces;
 using WorkVault.Application.Common.Settings;
 using WorkVault.Domain.Modules.Identity.Interfaces;
+using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Commands.RefreshTokens;
 
 public class RefreshTokenHandler(
     IJwtTokenService jwtTokenService,
+    IUnitOfWork unitOfWork,
     IRefreshTokenRepository refreshTokenRepository,
     IOptions<JwtSettings> jwtSettings)
     : IRequestHandler<RefreshTokenCommand, RefreshTokenResponse?>
@@ -25,6 +27,7 @@ public class RefreshTokenHandler(
         if (existingToken.ExpiresAt < DateTime.UtcNow)
         {
             await refreshTokenRepository.RevokeAsync(existingToken, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
             return null;
         }
 
@@ -47,7 +50,7 @@ public class RefreshTokenHandler(
             ExpiresAt = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationDays)
         };
         await refreshTokenRepository.AddAsync(newRefreshToken, cancellationToken);
-
+        await unitOfWork.SaveChangesAsync(cancellationToken);
         return new RefreshTokenResponse(accessToken, newRefreshTokenString);
     }
 }

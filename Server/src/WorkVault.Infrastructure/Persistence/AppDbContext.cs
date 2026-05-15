@@ -18,6 +18,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options,
     public DbSet<Employee> Employees => Set<Employee>();
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<Designation> Designations => Set<Designation>();
+    public DbSet<InviteToken> InviteTokens => Set<InviteToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

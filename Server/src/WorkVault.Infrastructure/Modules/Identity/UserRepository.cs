@@ -11,7 +11,6 @@ public class UserRepository(AppDbContext context) : IUserRepository
     public async Task AddAsync(User user, CancellationToken cancellationToken)
     {
         await context.Users.AddAsync(user, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken)

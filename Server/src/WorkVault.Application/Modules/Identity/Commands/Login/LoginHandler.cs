@@ -4,11 +4,13 @@ using WorkVault.Application.Common.Interfaces;
 using WorkVault.Application.Common.Settings;
 using WorkVault.Domain.Modules.Identity;
 using WorkVault.Domain.Modules.Identity.Interfaces;
+using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Commands.Login;
 
 public class LoginHandler(
     IUserRepository userRepository,
+    IUnitOfWork unitOfWork,
     IJwtTokenService jwtTokenService,
     IRefreshTokenRepository refreshTokenRepository,
     IOptions<JwtSettings> jwtSettings)
@@ -38,10 +40,9 @@ public class LoginHandler(
             ExpiresAt = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationDays)
         };
         await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
-
-        // Update last login
-        user.LastLogin = DateTime.UtcNow;
-
+        user.LastLogin = DateTime.UtcNow; // Update last login
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        
         return new LoginResponse(user.Id, user.CompanyId, accessToken, refreshTokenString);
     }
 }

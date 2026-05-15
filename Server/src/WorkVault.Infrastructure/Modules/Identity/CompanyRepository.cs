@@ -10,7 +10,6 @@ public class CompanyRepository (AppDbContext context) : ICompanyRepository
     public async Task AddAsync(Company company, CancellationToken cancellationToken)
     {
         await context.Companies.AddAsync(company, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<Company?> GetByIdAsync(Guid id, CancellationToken cancellationToken)

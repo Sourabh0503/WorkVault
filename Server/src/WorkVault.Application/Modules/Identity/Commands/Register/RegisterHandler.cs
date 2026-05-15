@@ -6,12 +6,14 @@ using WorkVault.Application.Modules.Identity.Commands.RegisterCompany;
 using WorkVault.Domain.Modules.Identity;
 using WorkVault.Domain.Modules.Identity.Interfaces;
 using WorkVault.SharedKernel.Constants;
+using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Commands.Register;
 
 public class RegisterHandler(
     IMediator mediator,
     IUserRepository userRepository,
+    IUnitOfWork unitOfWork,
     IJwtTokenService jwtTokenService,
     IRefreshTokenRepository refreshTokenRepository,
     IOptions<JwtSettings> jwtSettings)
@@ -48,6 +50,7 @@ public class RegisterHandler(
             ExpiresAt = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationDays)
         };
         await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new RegisterResponse(companyGuid, accessToken, refreshTokenString);
     }

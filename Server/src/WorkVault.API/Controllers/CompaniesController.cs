@@ -9,6 +9,7 @@ namespace WorkVault.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class CompaniesController(IMediator mediator) : ControllerBase
 {
     [HttpPost]

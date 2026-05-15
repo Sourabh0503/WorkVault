@@ -10,7 +10,6 @@ public class RefreshTokenRepository(AppDbContext context) : IRefreshTokenReposit
     public async Task AddAsync(RefreshToken refreshToken, CancellationToken cancellationToken)
     {
         await context.RefreshTokens.AddAsync(refreshToken, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken)
@@ -21,10 +20,10 @@ public class RefreshTokenRepository(AppDbContext context) : IRefreshTokenReposit
             .FirstOrDefaultAsync(rt => rt.Token == token && !rt.IsRevoked, cancellationToken);
     }
 
-    public async Task RevokeAsync(RefreshToken refreshToken, CancellationToken cancellationToken)
+    public Task RevokeAsync(RefreshToken refreshToken, CancellationToken cancellationToken)
     {
         refreshToken.IsRevoked = true;
-        await context.SaveChangesAsync(cancellationToken);
+        return Task.CompletedTask;
     }
 
     public async Task RevokeAllForUserAsync(Guid userId, CancellationToken cancellationToken)
