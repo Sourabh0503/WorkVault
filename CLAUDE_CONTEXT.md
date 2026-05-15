@@ -16,6 +16,7 @@
 - Auth: JWT + Refresh Tokens + BCrypt
 - CQRS: MediatR
 - Validation: FluentValidation with MediatR pipeline behavior
+- Persistence: Unit of Work pattern
 
 ---
 
@@ -26,78 +27,106 @@ Server/src/
 ├── WorkVault.API/                    # Entry point, controllers, middleware
 │   ├── Controllers/
 │   │   ├── AuthController.cs         # POST /api/auth/register, login, refresh
-│   │   └── CompaniesController.cs    # POST /api/companies (SuperAdmin only), GET by ID
+│   │   ├── CompaniesController.cs    # POST /api/companies (SuperAdmin only), GET by ID
+│   │   └── EmployeesController.cs    # POST /api/employees (HR/CompanyAdmin)
+│   ├── Middleware/
+│   │   └── ExceptionHandlingMiddleware.cs
+│   ├── Services/
+│   │   └── CurrentUserService.cs     # JWT claims extraction
 │   ├── Program.cs                    # App configuration, DI, middleware pipeline
 │   └── appsettings.Development.json  # Connection string, JWT settings
 │
 ├── WorkVault.Application/            # Business logic, CQRS handlers, DTOs
 │   ├── Common/
-│   │   ├── IJwtTokenService.cs       # Token generation interface
-│   │   └── JwtSettings.cs            # JWT configuration POCO
+│   │   ├── Behaviors/
+│   │   │   └── ValidationBehavior.cs # MediatR pipeline for FluentValidation
+│   │   ├── Interfaces/
+│   │   │   ├── ICurrentUserService.cs
+│   │   │   └── IJwtTokenService.cs
+│   │   └── Settings/
+│   │       └── JwtSettings.cs
 │   └── Modules/
-│       └── Identity/
-│           ├── Commands/
-│           │   ├── Login/
-│           │   │   ├── LoginCommand.cs
-│           │   │   ├── LoginCommandValidator.cs
-│           │   │   └── LoginHandler.cs
-│           │   ├── Register/
-│           │   │   ├── RegisterCommand.cs    # Company + Admin registration
-│           │   │   ├── RegisterCommandValidator.cs
-│           │   │   └── RegisterHandler.cs
-│           │   ├── RegisterCompany/
-│           │   │   ├── RegisterCompanyCommand.cs
-│           │   │   └── RegisterCompanyHandler.cs
-│           │   └── RefreshTokens/
-│           │       ├── RefreshTokenCommand.cs
-│           │       ├── RefreshTokenCommandValidator.cs
-│           │       └── RefreshTokenHandler.cs
-│           ├── Queries/
-│           │   └── GetCompanyById/
-│           │       ├── GetCompanyByIdQuery.cs
-│           │       └── GetCompanyByIdHandler.cs
-│           └── DTOs/
-│               └── CompanyDto.cs
+│       ├── Identity/
+│       │   ├── Commands/
+│       │   │   ├── Login/
+│       │   │   │   ├── LoginCommand.cs
+│       │   │   │   ├── LoginCommandValidator.cs
+│       │   │   │   └── LoginHandler.cs
+│       │   │   ├── Register/
+│       │   │   │   ├── RegisterCommand.cs
+│       │   │   │   ├── RegisterCommandValidator.cs
+│       │   │   │   └── RegisterHandler.cs
+│       │   │   ├── RegisterCompany/
+│       │   │   │   ├── RegisterCompanyCommand.cs
+│       │   │   │   └── RegisterCompanyHandler.cs
+│       │   │   └── RefreshTokens/
+│       │   │       ├── RefreshTokenCommand.cs
+│       │   │       ├── RefreshTokenCommandValidator.cs
+│       │   │       └── RefreshTokenHandler.cs
+│       │   ├── Queries/
+│       │   │   └── GetCompanyById/
+│       │   └── DTOs/
+│       │       └── CompanyDto.cs
+│       └── Employees/
+│           └── Commands/
+│               └── CreateEmployee/
+│                   ├── CreateEmployeeCommand.cs
+│                   ├── CreateEmployeeCommandValidator.cs
+│                   └── CreateEmployeeHandler.cs
 │
 ├── WorkVault.Domain/                 # Entities, enums, repository interfaces
 │   └── Modules/
-│       └── Identity/
-│           ├── Company.cs            # Tenant entity
-│           ├── User.cs               # User with RoleId, CompanyId
-│           ├── Role.cs               # System roles
-│           ├── RefreshToken.cs       # JWT refresh tokens (not BaseEntity)
+│       ├── Identity/
+│       │   ├── Company.cs
+│       │   ├── User.cs
+│       │   ├── Role.cs
+│       │   ├── RefreshToken.cs       # NOT BaseEntity
+│       │   ├── InviteToken.cs        # Employee invitation tokens
+│       │   └── Interfaces/
+│       │       ├── ICompanyRepository.cs
+│       │       ├── IUserRepository.cs
+│       │       ├── IRefreshTokenRepository.cs
+│       │       └── IInviteTokenRepository.cs
+│       └── Employees/
+│           ├── Employee.cs
+│           ├── Department.cs
+│           ├── Designation.cs
+│           ├── Enums/
+│           │   └── EmployeeStatusEnum.cs
 │           └── Interfaces/
-│               ├── ICompanyRepository.cs
-│               ├── IUserRepository.cs
-│               └── IRefreshTokenRepository.cs
+│               └── IEmployeeRepository.cs
 │
 ├── WorkVault.Infrastructure/         # EF Core, repositories, external services
 │   ├── Auth/
-│   │   └── JwtTokenService.cs        # JWT + refresh token generation
+│   │   └── JwtTokenService.cs
 │   ├── Modules/
-│   │   └── Identity/
-│   │       ├── CompanyRepository.cs
-│   │       ├── UserRepository.cs
-│   │       └── RefreshTokenRepository.cs
+│   │   ├── Identity/
+│   │   │   ├── CompanyRepository.cs
+│   │   │   ├── UserRepository.cs
+│   │   │   ├── RefreshTokenRepository.cs
+│   │   │   └── InviteTokenRepository.cs
+│   │   └── Employees/
+│   │       └── EmployeeRepository.cs
 │   ├── Persistence/
-│   │   ├── AppDbContext.cs           # DbContext with soft delete filters, role seeding, audit fields
+│   │   ├── AppDbContext.cs           # DbContext with filters, seeding, audit
+│   │   ├── UnitOfWork.cs             # IUnitOfWork implementation
 │   │   └── Migrations/
-│   │       └── *_InitialCreate.cs    # Single migration with all tables
-│   └── DependencyInjection.cs        # Infrastructure DI registration
+│   └── DependencyInjection.cs
 │
 └── WorkVault.SharedKernel/           # Shared base classes, constants, interfaces
     ├── BaseEntity.cs                 # Id, CompanyId, CreatedAt, UpdatedAt, CreatedBy, IsDeleted
     ├── Constants/
-    │   └── SystemRoles.cs            # RoleType enum, role GUIDs, role name constants
+    │   └── SystemRoles.cs            # Role GUIDs and name constants
     └── Interfaces/
-        └── IRepository.cs            # Generic repository interface
+        ├── IRepository.cs            # Generic repository interface
+        └── IUnitOfWork.cs            # SaveChangesAsync coordinator
 ```
 
 ---
 
 ## Database Schema
 
-### Tables
+### Identity Module
 
 ```
 Companies
@@ -124,8 +153,55 @@ RefreshTokens (NOT BaseEntity)
 ├── Id (PK, Guid)
 ├── UserId (FK → Users, cascade delete)
 ├── Token (string)
-├── ExpiresAt (DateTime)
-└── IsRevoked (bool)
+├── ExpiresAt, IsRevoked
+
+InviteTokens
+├── Id (PK, Guid)
+├── UserId (FK → Users)
+├── Token (Guid) - random token for URL
+├── ExpiresAt (48h default)
+├── UsedAt (null = unused)
+└── [BaseEntity fields]
+```
+
+### Employees Module
+
+```
+Employees
+├── Id (PK, Guid)
+├── EmployeeCode (e.g., EMP-2025-0042)
+├── UserId (FK → Users)
+├── Phone, PhotoUrl, DateOfBirth
+├── DepartmentId (FK → Departments)
+├── DesignationId (FK → Designations)
+├── ManagerId (FK → Employees, self-ref)
+├── JoinDate, ResignationDate, LastWorkingDay
+├── Status (EmployeeStatus enum)
+└── [BaseEntity fields]
+
+Departments
+├── Id (PK, Guid)
+├── Name, Description
+├── HeadEmployeeId (FK → Employees)
+├── ParentDepartmentId (FK → Departments, self-ref)
+└── [BaseEntity fields]
+
+Designations
+├── Id (PK, Guid)
+├── Title (e.g., "Senior Software Engineer")
+├── Level (1-5 seniority)
+├── DepartmentId (FK → Departments)
+└── [BaseEntity fields]
+```
+
+### EmployeeStatus Enum
+
+```csharp
+Pending = 0,     // Invite sent, not accepted
+Active = 1,      // Normal working employee
+OnNotice = 2,    // Serving notice period
+Suspended = 3,   // Temporarily deactivated
+Offboarded = 4   // Exited company
 ```
 
 ### System Role IDs (Seeded)
@@ -146,7 +222,6 @@ Employee     = 55555555-5555-5555-5555-555555555555
 Every entity inherits from `BaseEntity` which includes `CompanyId`. EF Core global query filters ensure tenant isolation.
 
 ```csharp
-// BaseEntity.cs
 public abstract class BaseEntity
 {
     public Guid Id { get; set; }
@@ -169,15 +244,27 @@ modelBuilder.Entity<T>().HasQueryFilter(e => !e.IsDeleted);
 - **Added entities**: `CreatedAt`, `UpdatedAt`, `CreatedBy` (from current user)
 - **Modified entities**: `UpdatedAt`
 
-### 4. CQRS with MediatR
-- **Commands**: Write operations (Register, Login, RefreshToken)
+### 4. Unit of Work Pattern
+Handlers inject `IUnitOfWork` to coordinate saves across multiple repositories:
+
+```csharp
+public interface IUnitOfWork
+{
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+}
+```
+
+**Why?** Multi-step operations (User + Employee + InviteToken) commit atomically.
+
+### 5. CQRS with MediatR
+- **Commands**: Write operations (Register, Login, CreateEmployee)
 - **Queries**: Read operations (GetCompanyById)
 - All handlers in `Application/Modules/{Module}/Commands|Queries/`
 
-### 5. Role-Based Authorization
+### 6. Role-Based Authorization
 ```csharp
-// Use const strings for [Authorize] attributes
 [Authorize(Roles = SystemRoles.SuperAdminRole)]
+[Authorize(Roles = $"{SystemRoles.HRRole},{SystemRoles.CompanyAdminRole}")]
 
 // Available role constants:
 SystemRoles.SuperAdminRole    // "SuperAdmin"
@@ -193,44 +280,55 @@ SystemRoles.CompanyAdmin      // Guid
 
 ---
 
+## API Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/auth/register` | Public | Register company + admin user |
+| POST | `/api/auth/login` | Public | Login, returns tokens |
+| POST | `/api/auth/refresh` | Public | Refresh access token |
+| POST | `/api/companies` | SuperAdmin | Create company directly |
+| GET | `/api/companies/{id}` | Authorized | Get company by ID |
+| POST | `/api/employees` | HR, CompanyAdmin | Create employee + send invite |
+
+---
+
 ## Authentication Flow
 
 ### 1. Register (Company + Admin)
 ```
 POST /api/auth/register
-→ RegisterCommand
 → RegisterHandler
   1. Creates Company via RegisterCompanyCommand
   2. Creates User (CompanyAdmin role, BCrypt hashed password)
-  3. Generates JWT access token (15 min)
-  4. Generates refresh token (7 days)
-  5. Saves RefreshToken to database
+  3. Generates JWT access token (configurable minutes)
+  4. Generates refresh token (configurable days)
+  5. Saves via IUnitOfWork.SaveChangesAsync
 ← Returns: { companyId, accessToken, refreshToken }
 ```
 
 ### 2. Login
 ```
 POST /api/auth/login
-→ LoginCommand { email, password }
 → LoginHandler
   1. Find user by email (includes Role)
   2. Verify password with BCrypt
   3. Generate JWT access token
   4. Generate and save refresh token
   5. Update LastLogin
+  6. Saves via IUnitOfWork.SaveChangesAsync
 ← Returns: { userId, companyId, accessToken, refreshToken }
 ```
 
 ### 3. Refresh Token
 ```
 POST /api/auth/refresh
-→ RefreshTokenCommand { refreshToken }
 → RefreshTokenHandler
   1. Find token in DB (includes User.Role)
   2. Check if expired or revoked
   3. Revoke old token (rotation)
   4. Generate new access + refresh tokens
-  5. Save new refresh token
+  5. Saves via IUnitOfWork.SaveChangesAsync
 ← Returns: { accessToken, refreshToken }
 ```
 
@@ -246,15 +344,57 @@ ClaimTypes.Role → Role.Name
 
 ---
 
-## API Endpoints
+## Employee Invite Flow
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/auth/register` | Public | Register company + admin user |
-| POST | `/api/auth/login` | Public | Login, returns tokens |
-| POST | `/api/auth/refresh` | Public | Refresh access token |
-| POST | `/api/companies` | SuperAdmin | Create company directly |
-| GET | `/api/companies/{id}` | Public | Get company by ID |
+### Create Employee (HR adds new employee)
+```
+POST /api/employees
+→ CreateEmployeeHandler
+  1. Check email not already used in company
+  2. Create User (no password, IsActive=false, Role=Employee)
+  3. Generate EmployeeCode: EMP-{year}-{sequence:D4}
+  4. Create Employee record linked to User
+  5. Create InviteToken (48h expiry)
+  6. Single SaveChangesAsync (atomic transaction)
+  7. Log invite link (email stub)
+← Returns: { employeeId, employeeCode, inviteLink }
+```
+
+### Set Password (Employee accepts invite) - TODO
+```
+POST /api/auth/set-password?token={inviteToken}
+→ SetPasswordHandler
+  1. Find InviteToken by token guid
+  2. Validate: not used, not expired
+  3. Set User.PasswordHash, User.IsActive = true
+  4. Mark InviteToken.UsedAt
+  5. Update Employee.Status = Active
+← Returns: { accessToken, refreshToken }
+```
+
+---
+
+## Dependency Injection
+
+### Infrastructure/DependencyInjection.cs
+```csharp
+services.AddDbContext<AppDbContext>(...);
+services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+services.AddScoped<IJwtTokenService, JwtTokenService>();
+services.AddScoped<IUnitOfWork, UnitOfWork>();
+services.AddScoped<ICompanyRepository, CompanyRepository>();
+services.AddScoped<IUserRepository, UserRepository>();
+services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+services.AddScoped<IInviteTokenRepository, InviteTokenRepository>();
+```
+
+### Application/DependencyInjection.cs
+```csharp
+services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
+services.AddValidatorsFromAssembly(assembly);
+services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+```
 
 ---
 
@@ -274,27 +414,6 @@ ClaimTypes.Role → Role.Name
     "RefreshTokenExpirationDays": 7
   }
 }
-```
-
----
-
-## Dependency Injection
-
-### Infrastructure/DependencyInjection.cs
-```csharp
-services.AddDbContext<AppDbContext>(...);
-services.Configure<JwtSettings>(...);
-services.AddScoped<IJwtTokenService, JwtTokenService>();
-services.AddScoped<ICompanyRepository, CompanyRepository>();
-services.AddScoped<IUserRepository, UserRepository>();
-services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-```
-
-### Application/DependencyInjection.cs
-```csharp
-services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
-services.AddValidatorsFromAssembly(assembly);
-services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 ```
 
 ---
@@ -321,45 +440,6 @@ dotnet ef migrations has-pending-model-changes --project ../WorkVault.Infrastruc
 
 ---
 
-## Current Status (Phase 1)
-
-### Completed
-- [x] Clean Architecture setup
-- [x] Multi-tenant BaseEntity with CompanyId
-- [x] Company, User, Role entities
-- [x] JWT token generation service
-- [x] Refresh token rotation flow
-- [x] Register / Login / Refresh endpoints
-- [x] Role-based authorization with enums
-- [x] Soft delete with global filters
-- [x] CompanyId global query filter (tenant isolation in queries)
-- [x] Input validation with FluentValidation
-- [x] Global exception handling middleware
-- [x] MediatR validation pipeline behavior
-- [x] Common/ folder structure: Interfaces/, Settings/, Behaviors/
-
-### Pending
-- [ ] Employee CRUD + invite flow
-- [ ] Employee ID card with QR code
-- [ ] Angular frontend
-
----
-
-## Key Files to Read First
-
-1. `SharedKernel/BaseEntity.cs` - Base class for all entities
-2. `SharedKernel/Constants/SystemRoles.cs` - Role enum and constants
-3. `Infrastructure/Persistence/AppDbContext.cs` - DB context, filters, seeding
-4. `Application/Modules/Identity/Commands/Register/RegisterHandler.cs` - Main registration flow
-5. `Infrastructure/Auth/JwtTokenService.cs` - Token generation
-6. `API/Controllers/AuthController.cs` - Auth endpoints
-7. `Application/Common/Interfaces/ICurrentUserService.cs` - CurrentUser Interface
-8. `Application/Common/Behaviors/ValidationBehavior.cs` - Validation pipeline
-9. `API/Services/CurrentUserService.cs` - CurrentUser Implementation using JWT
-10. `API/Middleware/ExceptionHandlingMiddleware.cs` - Exception middleware
-
----
-
 ## Validation Rules
 
 ### Password Requirements (RegisterCommandValidator)
@@ -378,14 +458,62 @@ All MediatR commands pass through `ValidationBehavior` which:
 
 ---
 
+## Current Status
+
+### Completed
+- [x] Clean Architecture setup
+- [x] Multi-tenant BaseEntity with CompanyId
+- [x] Company, User, Role entities
+- [x] JWT token generation service
+- [x] Refresh token rotation flow
+- [x] Register / Login / Refresh endpoints
+- [x] Role-based authorization
+- [x] Soft delete with global filters
+- [x] CompanyId global query filter (tenant isolation)
+- [x] Input validation with FluentValidation
+- [x] Global exception handling middleware
+- [x] MediatR validation pipeline behavior
+- [x] Unit of Work pattern
+- [x] Employee, Department, Designation entities
+- [x] Employee creation with invite token
+- [x] EmployeesController (POST)
+
+### Pending
+- [ ] SetPassword endpoint (accept invite)
+- [ ] Employee CRUD (update, list, get by id)
+- [ ] Department CRUD
+- [ ] Designation CRUD
+- [ ] Employee ID card with QR code
+- [ ] Angular frontend
+
+---
+
+## Key Files to Read First
+
+1. `SharedKernel/BaseEntity.cs` - Base class for all entities
+2. `SharedKernel/Interfaces/IUnitOfWork.cs` - Unit of Work interface
+3. `SharedKernel/Constants/SystemRoles.cs` - Role constants
+4. `Infrastructure/Persistence/AppDbContext.cs` - DB context, filters, seeding, audit
+5. `Application/Modules/Identity/Commands/Register/RegisterHandler.cs` - Registration flow
+6. `Application/Modules/Employees/Commands/CreateEmployee/CreateEmployeeHandler.cs` - Employee creation
+7. `Infrastructure/Auth/JwtTokenService.cs` - Token generation
+8. `API/Controllers/AuthController.cs` - Auth endpoints
+9. `Application/Common/Interfaces/ICurrentUserService.cs` - CurrentUser interface
+10. `Application/Common/Behaviors/ValidationBehavior.cs` - Validation pipeline
+
+---
+
 ## Notes for AI Assistants
 
 1. **Always use `SystemRoles` constants** for role names and IDs
 2. **All entities extend `BaseEntity`** except `RefreshToken`
 3. **CQRS pattern**: Commands for writes, Queries for reads
 4. **Repository pattern**: Interfaces in Domain, implementations in Infrastructure
-5. **Soft deletes**: Set `IsDeleted = true`, never hard delete
-6. **Multi-tenancy**: Always include `CompanyId` in operations
-7. **JWT**: Access token = 15 min, Refresh token = configurable days with rotation
-8. **Audit fields**: Auto-populated by `SaveChangesAsync` - no manual setting needed
-9. **Validators**: Create `{Command}Validator.cs` alongside command files - auto-registered
+5. **Unit of Work**: Inject `IUnitOfWork`, call `SaveChangesAsync` once at end of handler
+6. **Soft deletes**: Set `IsDeleted = true`, never hard delete
+7. **Multi-tenancy**: CompanyId auto-set by SaveChangesAsync from JWT claims
+8. **JWT**: Access token = configurable minutes, Refresh token = configurable days with rotation
+9. **Audit fields**: Auto-populated by `SaveChangesAsync` - no manual setting needed
+10. **Validators**: Create `{Command}Validator.cs` alongside command files - auto-registered
+11. **Employee Code**: Format `EMP-{year}-{sequence:D4}`, auto-generated
+12. **Invite Flow**: User created inactive → InviteToken sent → SetPassword activates

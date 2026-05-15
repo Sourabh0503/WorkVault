@@ -77,6 +77,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options,
     {
         var now = DateTime.UtcNow;
         var currentUserId = _currentUserService.UserId ?? Guid.Empty;
+        var currentCompanyId = _currentUserService.CompanyId;
 
         foreach (var entry in ChangeTracker.Entries<BaseEntity>())
         {
@@ -86,6 +87,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options,
                     entry.Entity.CreatedAt = now;
                     entry.Entity.UpdatedAt = now;
                     entry.Entity.CreatedBy = currentUserId;
+                    if (entry.Entity.CompanyId == Guid.Empty && currentCompanyId.HasValue)
+                        entry.Entity.CompanyId = currentCompanyId.Value;
                     break;
                 case EntityState.Modified:
                     entry.Entity.UpdatedAt = now;
