@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FluentValidation;
+using WorkVault.Application.Common.Exceptions;
 
 namespace WorkVault.API.Middleware;
 
@@ -16,6 +17,18 @@ public class ExceptionHandlingMiddleware(
         catch (ValidationException ex)
         {
             await HandleValidationExceptionAsync(context, ex);
+        }
+        catch (NotFoundException ex)
+        {
+            await WriteErrorAsync(context, 404, "NotFound", ex.Message);
+        }
+        catch (ConflictException ex)
+        {
+            await WriteErrorAsync(context, 409, "Conflict", ex.Message);
+        }
+        catch (BusinessRuleException ex)
+        {
+            await WriteErrorAsync(context, 400, "BusinessRuleViolation", ex.Message);
         }
         catch (Exception ex)
         {
@@ -59,6 +72,22 @@ public class ExceptionHandlingMiddleware(
             type = "ServerError",
             title = "An error occurred",
             status = 500
+        };
+
+        await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+    }
+    
+    private static async Task WriteErrorAsync(
+        HttpContext context, int status, string type, string title)
+    {
+        context.Response.StatusCode = status;
+        context.Response.ContentType = "application/json";
+
+        var response = new
+        {
+            type,
+            title,
+            status
         };
 
         await context.Response.WriteAsync(JsonSerializer.Serialize(response));

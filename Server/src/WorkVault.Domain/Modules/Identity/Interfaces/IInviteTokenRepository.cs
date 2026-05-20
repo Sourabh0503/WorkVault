@@ -10,4 +10,6 @@ public interface IInviteTokenRepository : IRepository<InviteToken>
     /// set their password.
     /// </summary>
     Task<InviteToken?> GetByTokenAsync(Guid token, CancellationToken cancellationToken);
+    
+    Task<InviteToken?> GetActiveTokenForUserAsync(Guid userId, CancellationToken cancellationToken);
 }

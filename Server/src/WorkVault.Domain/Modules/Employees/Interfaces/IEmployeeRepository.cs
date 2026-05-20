@@ -9,4 +9,6 @@ public interface IEmployeeRepository : IRepository<Employee>
     /// EmployeeCode (EMP-2025-{count+1:0000}).
     /// </summary>
     Task<int> GetCountForYearAsync(int year, CancellationToken cancellationToken);
+    
+    Task<Employee?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken);
 }

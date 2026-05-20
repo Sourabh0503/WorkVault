@@ -27,4 +27,10 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
         return await context.Employees
             .CountAsync(e => e.CreatedAt.Year == year, cancellationToken);
     }
+    
+    public async Task<Employee?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await context.Employees
+            .FirstOrDefaultAsync(e => e.UserId == userId, cancellationToken);
+    }
 }

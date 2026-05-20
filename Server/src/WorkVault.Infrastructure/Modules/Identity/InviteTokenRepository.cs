@@ -25,6 +25,17 @@ public class InviteTokenRepository(AppDbContext context) : IInviteTokenRepositor
         // Look up by the public Token field (not the Id field)
         return await context.InviteTokens
             .Include(t => t.User)
+                .ThenInclude(user => user!.Role)
             .FirstOrDefaultAsync(t => t.Token == token, cancellationToken);
+    }
+    
+    public async Task<InviteToken?> GetActiveTokenForUserAsync(
+        Guid userId, CancellationToken cancellationToken)
+    {
+        return await context.InviteTokens
+            .Where(t => t.UserId == userId 
+                        && t.UsedAt == null 
+                        && t.ExpiresAt > DateTime.UtcNow)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }

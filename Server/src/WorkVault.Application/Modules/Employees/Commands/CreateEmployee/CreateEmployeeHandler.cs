@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
+using WorkVault.Application.Common.Exceptions;
 using WorkVault.Application.Common.Interfaces;
 using WorkVault.Domain.Modules.Employees;
 using WorkVault.Domain.Modules.Employees.Enums;
@@ -27,7 +28,7 @@ public class CreateEmployeeHandler(
         // 1. Check email isn't already used in this company
         var existingUser = await userRepository.GetByEmailAsync(request.Email, cancellationToken);
         if (existingUser is not null)
-            throw new InvalidOperationException(
+            throw new ConflictException(
                 $"A user with email '{request.Email}' already exists in this company.");
 
         // 2. Create User — no password yet, inactive until invite accepted
