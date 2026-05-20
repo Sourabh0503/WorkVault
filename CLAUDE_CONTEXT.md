@@ -466,6 +466,12 @@ services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>
     "Audience": "WorkVault",
     "AccessTokenExpirationMinutes": 15,
     "RefreshTokenExpirationDays": 7
+  },
+  "CorsSettings": {
+    "AllowedOrigins": [
+      "http://localhost:4200",
+      "https://localhost:4200"
+    ]
   }
 }
 ```
@@ -503,6 +509,47 @@ dotnet ef migrations has-pending-model-changes --project ../WorkVault.Infrastruc
 - At least one digit
 - At least one special character
 
+### Rate Limiting Policies (Program.cs)
+
+| Policy | Limit | Window | Partition | Use Case |
+|--------|-------|--------|-----------|----------|
+| `auth` | 5 req | 1 min | IP address | Login, register, set-password (brute force protection) |
+| `api` | 100 req | 1 min | IP address | General API endpoints |
+| `authenticated` | 200 req | 1 min | User ID | Authenticated user operations |
+
+Rate limit exceeded returns:
+```json
+{
+    "type": "RateLimitExceeded",
+    "title": "Too many requests. Please try again later.",
+    "status": 429,
+    "retryAfterSeconds": 60
+}
+```
+
+### CORS Configuration
+
+Origins are configured per environment in `appsettings.{Environment}.json`:
+
+```json
+{
+  "CorsSettings": {
+    "AllowedOrigins": [
+      "http://localhost:4200",
+      "https://yourdomain.com"
+    ]
+  }
+}
+```
+
+| Environment | Behavior |
+|-------------|----------|
+| Development | Allows localhost:4200, 3000, 5173 (Angular, React, Vite) |
+| Production | Only configured origins allowed |
+| Misconfigured (empty) | All cross-origin requests denied |
+
+Credentials are allowed for JWT auth headers.
+
 ### Validation Pipeline
 All MediatR commands pass through `ValidationBehavior` which:
 1. Finds all validators for the request type
@@ -534,13 +581,14 @@ All MediatR commands pass through `ValidationBehavior` which:
 - [x] SetPassword endpoint (accept invite)
 - [x] ValidateInvite endpoint (GET invite token info)
 - [x] Custom exception hierarchy (AppException, NotFoundException, ConflictException, BusinessRuleException)
+- [x] Rate limiting on all endpoints (auth: 5/min, api: 100/min, authenticated: 200/min)
+- [x] Comprehensive XML documentation
 
 ### Pending (Phase 1)
 - [ ] Employee CRUD (update, list, get by id)
 - [ ] Department CRUD
 - [ ] Designation CRUD
 - [ ] Employee ID card with QR code
-- [ ] Rate limiting on auth endpoints
 - [ ] Account lockout after failed logins
 - [ ] Angular 17+ frontend
 
@@ -575,11 +623,11 @@ All MediatR commands pass through `ValidationBehavior` which:
 
 | Issue | Location | Description | Fix |
 |-------|----------|-------------|-----|
-| No rate limiting | `Program.cs` | Auth endpoints vulnerable to brute force | Add `AspNetCoreRateLimit` package |
+| ~~No rate limiting~~ | `Program.cs` | ~~Auth endpoints vulnerable to brute force~~ | **FIXED** - Built-in .NET rate limiting |
 | Refresh tokens not hashed | `RefreshTokenRepository` | Plain text in DB - breach exposes tokens | Hash tokens before storage |
 | No account lockout | `LoginHandler.cs` | No failed attempt tracking | Add failed attempt counter + lockout |
 | ~~Email not checked in Register~~ | `RegisterHandler.cs:27-29` | ~~Can create duplicate admin users~~ | **FIXED** |
-| CORS AllowAll | `Program.cs:40-48` | Too permissive for production | Restrict to known origins |
+| ~~CORS AllowAll~~ | `Program.cs` | ~~Too permissive for production~~ | **FIXED** - Config-based origins |
 
 ### Medium Priority
 
