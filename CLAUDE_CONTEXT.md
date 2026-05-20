@@ -1,12 +1,15 @@
 # WorkVault - Project Context for AI Assistants
 
 > Use this file to understand the complete codebase structure, architecture, and implementation details.
+> **Last Updated:** May 2026
 
 ---
 
 ## Project Overview
 
 **WorkVault** is a multi-tenant SaaS platform for HR, assets, attendance, and workplace operations built for Indian SMEs with 50-500 employees.
+
+**Current Phase:** Phase 1 - Identity & Employees (In Progress)
 
 **Tech Stack:**
 - Backend: .NET 9 Web API
@@ -40,6 +43,8 @@ Server/src/
 │   ├── Common/
 │   │   ├── Behaviors/
 │   │   │   └── ValidationBehavior.cs # MediatR pipeline for FluentValidation
+│   │   ├── Exceptions/
+│   │   │   └── AppExceptions.cs      # NotFoundException, ConflictException, BusinessRuleException
 │   │   ├── Interfaces/
 │   │   │   ├── ICurrentUserService.cs
 │   │   │   └── IJwtTokenService.cs
@@ -59,20 +64,33 @@ Server/src/
 │       │   │   ├── RegisterCompany/
 │       │   │   │   ├── RegisterCompanyCommand.cs
 │       │   │   │   └── RegisterCompanyHandler.cs
-│       │   │   └── RefreshTokens/
-│       │   │       ├── RefreshTokenCommand.cs
-│       │   │       ├── RefreshTokenCommandValidator.cs
-│       │   │       └── RefreshTokenHandler.cs
+│       │   │   ├── RefreshTokens/
+│       │   │   │   ├── RefreshTokenCommand.cs
+│       │   │   │   ├── RefreshTokenCommandValidator.cs
+│       │   │   │   └── RefreshTokenHandler.cs
+│       │   │   ├── Logout/
+│       │   │   │   ├── LogoutCommand.cs
+│       │   │   │   └── LogoutHandler.cs
+│       │   │   └── SetPassword/
+│       │   │       ├── SetPasswordCommand.cs
+│       │   │       ├── SetPasswordCommandValidator.cs
+│       │   │       └── SetPasswordHandler.cs
 │       │   ├── Queries/
-│       │   │   └── GetCompanyById/
+│       │   │   ├── GetCompanyById/
+│       │   │   └── ValidateInvite/
+│       │   │       ├── ValidateInviteQuery.cs
+│       │   │       └── ValidateInviteHandler.cs
 │       │   └── DTOs/
 │       │       └── CompanyDto.cs
 │       └── Employees/
 │           └── Commands/
-│               └── CreateEmployee/
-│                   ├── CreateEmployeeCommand.cs
-│                   ├── CreateEmployeeCommandValidator.cs
-│                   └── CreateEmployeeHandler.cs
+│               ├── CreateEmployee/
+│               │   ├── CreateEmployeeCommand.cs
+│               │   ├── CreateEmployeeCommandValidator.cs
+│               │   └── CreateEmployeeHandler.cs
+│               └── ResendInvite/
+│                   ├── ResendInviteCommand.cs
+│                   └── ResendInviteHandler.cs
 │
 ├── WorkVault.Domain/                 # Entities, enums, repository interfaces
 │   └── Modules/
@@ -214,6 +232,15 @@ Manager      = 44444444-4444-4444-4444-444444444444
 Employee     = 55555555-5555-5555-5555-555555555555
 ```
 
+### Database Migrations (Chronological)
+
+| Migration | Date | Description |
+|-----------|------|-------------|
+| `InitialCreate` | 2026-05-12 | Companies, Users, Roles, RefreshTokens |
+| `AddEmployeeModule` | 2026-05-14 | Employees, Departments, Designations |
+| `AddInviteToken` | 2026-05-14 | InviteTokens table |
+| `ChangeEmployeeDateFieldsToDateOnly` | 2026-05-15 | JoinDate, ResignationDate, LastWorkingDay as DateOnly |
+
 ---
 
 ## Key Design Patterns
@@ -287,9 +314,13 @@ SystemRoles.CompanyAdmin      // Guid
 | POST | `/api/auth/register` | Public | Register company + admin user |
 | POST | `/api/auth/login` | Public | Login, returns tokens |
 | POST | `/api/auth/refresh` | Public | Refresh access token |
+| POST | `/api/auth/logout` | Authorized | Revoke refresh token |
+| GET | `/api/auth/invite/{token:guid}` | Public | Validate invite, get employee info |
+| POST | `/api/auth/set-password` | Public | Accept invite, set password |
 | POST | `/api/companies` | SuperAdmin | Create company directly |
 | GET | `/api/companies/{id}` | Authorized | Get company by ID |
 | POST | `/api/employees` | HR, CompanyAdmin | Create employee + send invite |
+| POST | `/api/employees/{id:guid}/resend-invite` | HR, CompanyAdmin | Resend invite to Pending employee |
 
 ---
 
@@ -360,16 +391,39 @@ POST /api/employees
 ← Returns: { employeeId, employeeCode, inviteLink }
 ```
 
-### Set Password (Employee accepts invite) - TODO
+### Logout
 ```
-POST /api/auth/set-password?token={inviteToken}
+POST /api/auth/logout
+→ LogoutHandler
+  1. Find refresh token in DB
+  2. Revoke token (IsRevoked = true)
+  3. Save via IUnitOfWork
+← Returns: 204 No Content (silently succeeds even if token invalid)
+```
+
+### Set Password (Employee accepts invite)
+```
+POST /api/auth/set-password
 → SetPasswordHandler
+  1. Find InviteToken by token guid (includes User + Role)
+  2. Validate: token not used, not expired, user not active
+  3. Hash password, set User.PasswordHash
+  4. Set User.IsActive = true, User.LastLogin = now
+  5. Set Employee.Status = Active
+  6. Mark InviteToken.UsedAt = now
+  7. Generate JWT tokens
+  8. Single SaveChangesAsync (atomic)
+← Returns: { userId, companyId, accessToken, refreshToken }
+```
+
+### Validate Invite (Before set-password page)
+```
+GET /api/auth/invite/{token:guid}
+→ ValidateInviteHandler
   1. Find InviteToken by token guid
-  2. Validate: not used, not expired
-  3. Set User.PasswordHash, User.IsActive = true
-  4. Mark InviteToken.UsedAt
-  5. Update Employee.Status = Active
-← Returns: { accessToken, refreshToken }
+  2. Check IsValid (not used, not expired)
+  3. Return employee info for form
+← Returns: { email, firstName, lastName } or 404
 ```
 
 ---
@@ -460,13 +514,13 @@ All MediatR commands pass through `ValidationBehavior` which:
 
 ## Current Status
 
-### Completed
+### Completed (Phase 1)
 - [x] Clean Architecture setup
 - [x] Multi-tenant BaseEntity with CompanyId
 - [x] Company, User, Role entities
 - [x] JWT token generation service
 - [x] Refresh token rotation flow
-- [x] Register / Login / Refresh endpoints
+- [x] Register / Login / Refresh / Logout endpoints
 - [x] Role-based authorization
 - [x] Soft delete with global filters
 - [x] CompanyId global query filter (tenant isolation)
@@ -476,30 +530,75 @@ All MediatR commands pass through `ValidationBehavior` which:
 - [x] Unit of Work pattern
 - [x] Employee, Department, Designation entities
 - [x] Employee creation with invite token
-- [x] EmployeesController (POST)
+- [x] EmployeesController (POST create, POST resend-invite)
+- [x] SetPassword endpoint (accept invite)
+- [x] ValidateInvite endpoint (GET invite token info)
+- [x] Custom exception hierarchy (AppException, NotFoundException, ConflictException, BusinessRuleException)
 
-### Pending
-- [ ] SetPassword endpoint (accept invite)
+### Pending (Phase 1)
 - [ ] Employee CRUD (update, list, get by id)
 - [ ] Department CRUD
 - [ ] Designation CRUD
 - [ ] Employee ID card with QR code
-- [ ] Angular frontend
+- [ ] Rate limiting on auth endpoints
+- [ ] Account lockout after failed logins
+- [ ] Angular 17+ frontend
+
+### Future Phases
+- **Phase 2:** Asset Management module
+- **Phase 3:** Attendance tracking
+- **Phase 4:** Leave management
+- **Phase 5:** Bookings, Analytics, Documents, AI Features
 
 ---
 
 ## Key Files to Read First
 
-1. `SharedKernel/BaseEntity.cs` - Base class for all entities
-2. `SharedKernel/Interfaces/IUnitOfWork.cs` - Unit of Work interface
-3. `SharedKernel/Constants/SystemRoles.cs` - Role constants
-4. `Infrastructure/Persistence/AppDbContext.cs` - DB context, filters, seeding, audit
-5. `Application/Modules/Identity/Commands/Register/RegisterHandler.cs` - Registration flow
-6. `Application/Modules/Employees/Commands/CreateEmployee/CreateEmployeeHandler.cs` - Employee creation
-7. `Infrastructure/Auth/JwtTokenService.cs` - Token generation
-8. `API/Controllers/AuthController.cs` - Auth endpoints
-9. `Application/Common/Interfaces/ICurrentUserService.cs` - CurrentUser interface
-10. `Application/Common/Behaviors/ValidationBehavior.cs` - Validation pipeline
+1. `SharedKernel/BaseEntity.cs` - Base class for all entities (multi-tenancy, audit)
+2. `SharedKernel/Constants/SystemRoles.cs` - Role GUIDs and name constants
+3. `Infrastructure/Persistence/AppDbContext.cs` - DB context, global filters, seeding, auto-audit
+4. `Application/Modules/Identity/Commands/Register/RegisterHandler.cs` - Company + admin registration
+5. `Application/Modules/Identity/Commands/SetPassword/SetPasswordHandler.cs` - Invite acceptance flow
+6. `Application/Modules/Employees/Commands/CreateEmployee/CreateEmployeeHandler.cs` - Employee creation with invite
+7. `Infrastructure/Auth/JwtTokenService.cs` - JWT + refresh token generation
+8. `API/Controllers/AuthController.cs` - All auth endpoints
+9. `API/Middleware/ExceptionHandlingMiddleware.cs` - Exception → HTTP status mapping
+10. `Application/Common/Exceptions/AppExceptions.cs` - Custom exception hierarchy
+11. `Application/Common/Behaviors/ValidationBehavior.cs` - FluentValidation pipeline
+12. `API/Services/CurrentUserService.cs` - JWT claims extraction
+
+---
+
+## Known Issues & Technical Debt
+
+### High Priority (Security)
+
+| Issue | Location | Description | Fix |
+|-------|----------|-------------|-----|
+| No rate limiting | `Program.cs` | Auth endpoints vulnerable to brute force | Add `AspNetCoreRateLimit` package |
+| Refresh tokens not hashed | `RefreshTokenRepository` | Plain text in DB - breach exposes tokens | Hash tokens before storage |
+| No account lockout | `LoginHandler.cs` | No failed attempt tracking | Add failed attempt counter + lockout |
+| ~~Email not checked in Register~~ | `RegisterHandler.cs:27-29` | ~~Can create duplicate admin users~~ | **FIXED** |
+| CORS AllowAll | `Program.cs:40-48` | Too permissive for production | Restrict to known origins |
+
+### Medium Priority
+
+| Issue | Location | Description | Fix |
+|-------|----------|-------------|-----|
+| Race condition in employee code | `CreateEmployeeHandler.cs:48` | Concurrent requests may get duplicate codes | Use database sequence or locking |
+| No token revocation on password change | `SetPasswordHandler.cs` | Old refresh tokens remain valid | Call `RevokeAllForUserAsync` |
+| Null-forgiving operator | `SetPasswordHandler.cs:51` | `user.Role!.Name` may throw | Ensure Role is always loaded |
+| Email not normalized | Throughout | Case-sensitive comparison | Lowercase emails on save |
+| Missing UpdatedBy | `BaseEntity.cs` | Can't track who modified records | Add UpdatedBy field |
+
+### Low Priority
+
+| Issue | Location | Description | Fix |
+|-------|----------|-------------|-----|
+| Swagger always enabled | `Program.cs:56-57` | Exposed in production | Wrap in `if (env.IsDevelopment())` |
+| HTTPS redirect position | `Program.cs:58` | Should be earlier in pipeline | Move after CORS, before auth |
+| No login failure logging | `LoginHandler.cs` | Security audit gap | Add `logger.LogWarning` |
+| RefreshToken no audit | Domain | Missing CreatedAt, no soft delete | Extend BaseEntity or add fields |
 
 ---
 
@@ -511,9 +610,12 @@ All MediatR commands pass through `ValidationBehavior` which:
 4. **Repository pattern**: Interfaces in Domain, implementations in Infrastructure
 5. **Unit of Work**: Inject `IUnitOfWork`, call `SaveChangesAsync` once at end of handler
 6. **Soft deletes**: Set `IsDeleted = true`, never hard delete
-7. **Multi-tenancy**: CompanyId auto-set by SaveChangesAsync from JWT claims
+7. **Multi-tenancy**: CompanyId auto-set by SaveChangesAsync from JWT claims; global query filter handles tenant isolation
 8. **JWT**: Access token = configurable minutes, Refresh token = configurable days with rotation
 9. **Audit fields**: Auto-populated by `SaveChangesAsync` - no manual setting needed
 10. **Validators**: Create `{Command}Validator.cs` alongside command files - auto-registered
 11. **Employee Code**: Format `EMP-{year}-{sequence:D4}`, auto-generated
 12. **Invite Flow**: User created inactive → InviteToken sent → SetPassword activates
+13. **Exception Handling**: Throw custom exceptions (`NotFoundException`, `ConflictException`, `BusinessRuleException`) - middleware maps to HTTP codes
+14. **Global Query Filters**: Applied via `ApplySoftDeleteFilter<T>` - filters by `IsDeleted` and `CompanyId`
+15. **Company Entity Special Case**: Company's `Id` is the tenant ID (not `CompanyId`) - has separate filter

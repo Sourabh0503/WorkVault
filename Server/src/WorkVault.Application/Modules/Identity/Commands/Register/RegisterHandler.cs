@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.Extensions.Options;
+using WorkVault.Application.Common.Exceptions;
 using WorkVault.Application.Common.Interfaces;
 using WorkVault.Application.Common.Settings;
 using WorkVault.Application.Modules.Identity.Commands.RegisterCompany;
@@ -23,6 +24,10 @@ public class RegisterHandler(
         RegisterCommand request,
         CancellationToken cancellationToken)
     {
+        var existingUser = await userRepository.GetByEmailAsync(request.Email , cancellationToken);
+        if (existingUser != null)
+            throw new ConflictException("User already exists with this email.");
+            
         var companyRegisterCommand = new RegisterCompanyCommand(
             request.CompanyName, request.Domain, request.Industry, request.GstNumber);
         var companyGuid = await mediator.Send(companyRegisterCommand, cancellationToken);
