@@ -1,4 +1,4 @@
-namespace WorkVault.Application.Common.Models;
+namespace WorkVault.SharedKernel.Models;
 
 public record PagedResult<T>(
     IReadOnlyList<T> Items,
