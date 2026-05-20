@@ -10,6 +10,22 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Commands.SetPassword;
 
+/// <summary>
+/// Handles employee invite acceptance and password setup.
+/// </summary>
+/// <remarks>
+/// This is the final step in the employee onboarding flow:
+/// 1. Validate invite token (not used, not expired)
+/// 2. Validate user exists and is not already active
+/// 3. Hash and save password
+/// 4. Activate user (IsActive = true)
+/// 5. Activate employee (Status = Active)
+/// 6. Mark invite token as used
+/// 7. Generate JWT tokens (auto-login after setup)
+///
+/// Returns null for invalid tokens (controller returns 404).
+/// This is a public endpoint - the invite token is the credential.
+/// </remarks>
 public class SetPasswordHandler(
     IInviteTokenRepository inviteTokenRepository,
     IEmployeeRepository employeeRepository,

@@ -7,6 +7,24 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Commands.RefreshTokens;
 
+/// <summary>
+/// Handles token refresh with rotation for security.
+/// </summary>
+/// <remarks>
+/// Token rotation flow:
+/// 1. Validate existing refresh token (not expired, not revoked)
+/// 2. Revoke the old token (prevents reuse)
+/// 3. Generate new access token and refresh token
+/// 4. Save new refresh token to database
+///
+/// Security benefits of token rotation:
+/// - Stolen tokens can only be used once
+/// - Reduces window of opportunity for attackers
+/// - If old token is reused, it indicates theft (already revoked)
+///
+/// Returns null for invalid tokens (controller returns 401).
+/// This is a public endpoint - the refresh token itself is the credential.
+/// </remarks>
 public class RefreshTokenHandler(
     IJwtTokenService jwtTokenService,
     IUnitOfWork unitOfWork,

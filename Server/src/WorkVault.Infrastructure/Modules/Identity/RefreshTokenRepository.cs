@@ -5,6 +5,15 @@ using WorkVault.Infrastructure.Persistence;
 
 namespace WorkVault.Infrastructure.Modules.Identity;
 
+/// <summary>
+/// Repository implementation for <see cref="RefreshToken"/> operations.
+/// </summary>
+/// <remarks>
+/// Security considerations:
+/// - GetByTokenAsync only returns non-revoked tokens
+/// - RevokeAllForUserAsync uses ExecuteUpdateAsync for performance
+/// - Tokens include User and Role for JWT generation without extra queries
+/// </remarks>
 public class RefreshTokenRepository(AppDbContext context) : IRefreshTokenRepository
 {
     public async Task AddAsync(RefreshToken refreshToken, CancellationToken cancellationToken)

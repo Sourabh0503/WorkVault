@@ -2,8 +2,21 @@ using WorkVault.SharedKernel;
 
 namespace WorkVault.Domain.Modules.Employees;
 
+/// <summary>
+/// Represents an organizational department within a company.
+/// </summary>
+/// <remarks>
+/// Supports hierarchical structure via <see cref="ParentDepartmentId"/> for nested departments
+/// (e.g., "Frontend" under "Engineering" under "Product").
+///
+/// Each department can have:
+/// - A head/lead (<see cref="HeadEmployeeId"/>)
+/// - Multiple designations (job titles specific to this department)
+/// - Multiple employees assigned to it
+/// </remarks>
 public class Department : BaseEntity
 {
+    /// <summary>Department name (e.g., "Engineering", "Sales", "Human Resources").</summary>
     public string Name { get; set; } = string.Empty;
 
     /// <summary>

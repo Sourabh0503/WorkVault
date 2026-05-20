@@ -11,6 +11,20 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Commands.Register;
 
+/// <summary>
+/// Handles company registration with admin user creation.
+/// </summary>
+/// <remarks>
+/// Registration flow:
+/// 1. Check email uniqueness (across all companies)
+/// 2. Create Company via RegisterCompanyCommand
+/// 3. Create User with CompanyAdmin role
+/// 4. Hash password with BCrypt
+/// 5. Generate JWT access and refresh tokens
+/// 6. Save all changes atomically
+///
+/// This is a public endpoint - no authentication required.
+/// </remarks>
 public class RegisterHandler(
     IMediator mediator,
     IUserRepository userRepository,

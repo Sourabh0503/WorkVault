@@ -12,6 +12,22 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Employees.Commands.CreateEmployee;
 
+/// <summary>
+/// Handles employee creation with user account and invite token.
+/// </summary>
+/// <remarks>
+/// Employee creation flow (atomic transaction):
+/// 1. Validate email not already used in company
+/// 2. Create User (no password, IsActive=false, Role=Employee)
+/// 3. Generate unique EmployeeCode (EMP-{year}-{sequence})
+/// 4. Create Employee record linked to User
+/// 5. Create InviteToken (48h expiry)
+/// 6. Save all changes in single transaction
+/// 7. Log invite link (email integration TODO)
+///
+/// Requires HR or CompanyAdmin role.
+/// Throws ConflictException if email already exists.
+/// </remarks>
 public class CreateEmployeeHandler(
     IUserRepository userRepository,
     IEmployeeRepository employeeRepository,

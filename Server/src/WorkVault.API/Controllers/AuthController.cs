@@ -10,10 +10,31 @@ using WorkVault.Application.Modules.Identity.Queries.ValidateInvite;
 
 namespace WorkVault.API.Controllers;
 
+/// <summary>
+/// Handles all authentication-related endpoints.
+/// </summary>
+/// <remarks>
+/// Endpoints:
+/// - POST /register - Register new company with admin user
+/// - POST /login - Authenticate with email/password
+/// - POST /refresh - Get new tokens using refresh token
+/// - POST /logout - Revoke refresh token (requires auth)
+/// - GET /invite/{token} - Validate invite token
+/// - POST /set-password - Accept invite and set password
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController(IMediator mediator) : ControllerBase
 {
+    /// <summary>
+    /// Registers a new company with an admin user.
+    /// </summary>
+    /// <param name="command">Registration details including company info and admin credentials.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Company ID and JWT tokens for immediate login.</returns>
+    /// <response code="200">Registration successful, returns tokens.</response>
+    /// <response code="400">Validation failed.</response>
+    /// <response code="409">Email already exists.</response>
     [HttpPost("register")]
     public async Task<IActionResult> Register(
         RegisterCommand command,

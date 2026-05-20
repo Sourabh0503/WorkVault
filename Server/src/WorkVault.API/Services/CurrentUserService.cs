@@ -5,6 +5,17 @@ using WorkVault.SharedKernel.Constants;
 
 namespace WorkVault.API.Services;
 
+/// <summary>
+/// Extracts current user information from JWT claims in the HTTP request.
+/// </summary>
+/// <remarks>
+/// This service reads from HttpContext.User (populated by JWT middleware).
+/// Injected into AppDbContext for:
+/// - Automatic tenant filtering (CompanyId)
+/// - Audit field population (CreatedBy)
+///
+/// All properties return null for unauthenticated requests.
+/// </remarks>
 public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUserService
 {
 

@@ -3,12 +3,30 @@ using MediatR;
 
 namespace WorkVault.Application.Common.Behaviors;
 
+/// <summary>
+/// MediatR pipeline behavior that runs FluentValidation validators before handlers.
+/// </summary>
+/// <remarks>
+/// This behavior intercepts all MediatR requests and:
+/// 1. Finds all registered validators for the request type
+/// 2. Runs them in parallel for performance
+/// 3. Throws <see cref="ValidationException"/> if any fail
+/// 4. Otherwise, continues to the actual handler
+///
+/// Validators are auto-discovered and registered via:
+/// <code>services.AddValidatorsFromAssembly(assembly);</code>
+///
+/// The ValidationException is caught by ExceptionHandlingMiddleware
+/// and converted to a 400 response with grouped error messages.
+/// </remarks>
+/// <typeparam name="TRequest">The MediatR request type.</typeparam>
+/// <typeparam name="TResponse">The MediatR response type.</typeparam>
 public class ValidationBehavior<TRequest, TResponse>(
     IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
-
+    /// <inheritdoc />
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,

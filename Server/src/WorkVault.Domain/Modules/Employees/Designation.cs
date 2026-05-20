@@ -2,6 +2,17 @@ using WorkVault.SharedKernel;
 
 namespace WorkVault.Domain.Modules.Employees;
 
+/// <summary>
+/// Represents a job title/designation within a department.
+/// </summary>
+/// <remarks>
+/// Designations define the job titles available in each department.
+/// They include a seniority level for org chart ordering and salary bands.
+///
+/// Examples:
+/// - Engineering: Junior Dev (L1), Senior Dev (L3), Tech Lead (L4), VP Engineering (L5)
+/// - Sales: Sales Rep (L1), Account Manager (L2), Sales Director (L4)
+/// </remarks>
 public class Designation : BaseEntity
 {
     /// <summary>

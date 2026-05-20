@@ -8,6 +8,21 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Commands.Login;
 
+/// <summary>
+/// Handles user authentication via email and password.
+/// </summary>
+/// <remarks>
+/// Login flow:
+/// 1. Find user by email (includes Role via eager loading)
+/// 2. Verify user exists and is active
+/// 3. Verify password with BCrypt
+/// 4. Generate JWT access token and refresh token
+/// 5. Update user's LastLogin timestamp
+/// 6. Save refresh token to database
+///
+/// Returns null for invalid credentials (controller returns 401).
+/// This is a public endpoint - no authentication required.
+/// </remarks>
 public class LoginHandler(
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,

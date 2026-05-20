@@ -4,6 +4,27 @@ using WorkVault.Application.Common.Exceptions;
 
 namespace WorkVault.API.Middleware;
 
+/// <summary>
+/// Global exception handling middleware that converts exceptions to HTTP responses.
+/// </summary>
+/// <remarks>
+/// Exception to HTTP status code mapping:
+/// - <see cref="ValidationException"/> → 400 (with grouped error messages)
+/// - <see cref="NotFoundException"/> → 404
+/// - <see cref="ConflictException"/> → 409
+/// - <see cref="BusinessRuleException"/> → 400
+/// - Unhandled exceptions → 500 (logged, generic message returned)
+///
+/// Response format follows RFC 7807 Problem Details structure:
+/// <code>
+/// {
+///     "type": "ValidationFailure",
+///     "title": "Validation Failed",
+///     "status": 400,
+///     "errors": { "Email": ["Email is required"] }
+/// }
+/// </code>
+/// </remarks>
 public class ExceptionHandlingMiddleware(
     RequestDelegate next,
     ILogger<ExceptionHandlingMiddleware> logger)

@@ -2,6 +2,21 @@ using WorkVault.SharedKernel;
 
 namespace WorkVault.Domain.Modules.Identity;
 
+/// <summary>
+/// Represents an employee invitation token for onboarding.
+/// </summary>
+/// <remarks>
+/// Lifecycle:
+/// 1. HR creates employee → InviteToken created (48h expiry)
+/// 2. Email sent with link containing Token GUID
+/// 3. Employee clicks link → Token validated via GetByTokenAsync
+/// 4. Employee sets password → Token marked with UsedAt
+///
+/// Security notes:
+/// - Token field is separate from Id to prevent primary key enumeration
+/// - Expired or used tokens return null from repository queries
+/// - HR can resend invite to generate a new token
+/// </remarks>
 public class InviteToken : BaseEntity
 {
     /// <summary>

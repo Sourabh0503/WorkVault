@@ -10,6 +10,19 @@ using WorkVault.Domain.Modules.Identity;
 
 namespace WorkVault.Infrastructure.Auth;
 
+/// <summary>
+/// Implementation of <see cref="IJwtTokenService"/> for JWT generation.
+/// </summary>
+/// <remarks>
+/// Access tokens contain the following claims:
+/// - NameIdentifier: User.Id
+/// - Email: User.Email
+/// - CompanyId: User.CompanyId (custom claim for tenant isolation)
+/// - Role: Role name (for [Authorize(Roles = ...)])
+/// - FirstName, LastName: For display purposes
+///
+/// Tokens are signed using HS256 (HMAC SHA-256) with the secret from JwtSettings.
+/// </remarks>
 public class JwtTokenService(IOptions<JwtSettings> settings) : IJwtTokenService
 {
     private readonly JwtSettings _settings = settings.Value;

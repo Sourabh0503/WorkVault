@@ -7,6 +7,27 @@ using WorkVault.SharedKernel.Constants;
 
 namespace WorkVault.Infrastructure.Persistence;
 
+/// <summary>
+/// Entity Framework Core DbContext with multi-tenancy and audit support.
+/// </summary>
+/// <remarks>
+/// Key features:
+///
+/// 1. **Multi-tenancy via global query filters**: All BaseEntity queries are
+///    automatically filtered by CompanyId from the current user's JWT claims.
+///    SuperAdmins bypass this filter.
+///
+/// 2. **Soft delete**: All BaseEntity queries exclude IsDeleted=true records.
+///
+/// 3. **Automatic audit fields**: SaveChangesAsync populates CreatedAt, UpdatedAt,
+///    CreatedBy, and CompanyId automatically.
+///
+/// 4. **Role seeding**: The 5 system roles are seeded with fixed GUIDs on migration.
+///
+/// Special cases:
+/// - Company: Uses Id as the tenant ID (not CompanyId field)
+/// - RefreshToken: Not a BaseEntity, filtered via User.IsDeleted
+/// </remarks>
 public class AppDbContext(DbContextOptions<AppDbContext> options,
     ICurrentUserService currentUserService) : DbContext(options)
 {
