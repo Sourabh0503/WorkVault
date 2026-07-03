@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using WorkVault.Application.Modules.Employees.Commands.CreateEmployee;
 using WorkVault.Application.Modules.Employees.Commands.ResendInvite;
+using WorkVault.Application.Modules.Employees.Queries.GetEmployeeById;
+using WorkVault.Application.Modules.Employees.Commands.UpdateEmployee;
+using WorkVault.Application.Modules.Employees.Queries.GetEmployees;
+using WorkVault.Domain.Modules.Employees.Enums;
 using WorkVault.SharedKernel.Constants;
 
 namespace WorkVault.API.Controllers;
@@ -21,6 +25,93 @@ namespace WorkVault.API.Controllers;
 [EnableRateLimiting("authenticated")]
 public class EmployeesController(IMediator mediator) : ControllerBase
 {
+    /// <summary>
+    /// Gets a paginated list of employees with optional filters.
+    /// </summary>
+    /// <param name="pageNumber">Page number (1-based). Default: 1</param>
+    /// <param name="pageSize">Items per page. Default: 20, Max: 100</param>
+    /// <param name="departmentId">Filter by department ID.</param>
+    /// <param name="status">Filter by status (0=Pending, 1=Active, 2=OnNotice, 3=Suspended, 4=Offboarded).</param>
+    /// <param name="managerId">Filter by manager ID (get direct reports).</param>
+    /// <param name="search">Search by name, email, or employee code.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Paginated list of employees.</returns>
+    /// <response code="200">List of employees.</response>
+    /// <response code="401">Not authenticated.</response>
+    /// <response code="429">Too many requests - rate limit exceeded.</response>
+    [HttpGet]
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] Guid? departmentId = null,
+        [FromQuery] EmployeeStatus? status = null,
+        [FromQuery] Guid? managerId = null,
+        [FromQuery] string? search = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetEmployeesQuery
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            DepartmentId = departmentId,
+            Status = status,
+            ManagerId = managerId,
+            Search = search
+        };
+        var result = await mediator.Send(query, cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Gets an employee by ID.
+    /// </summary>
+    /// <param name="id">The employee's ID.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Employee details.</returns>
+    /// <response code="200">Employee found.</response>
+    /// <response code="401">Not authenticated.</response>
+    /// <response code="404">Employee not found.</response>
+    /// <response code="429">Too many requests - rate limit exceeded.</response>
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new GetEmployeeByIdQuery(id), cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// Updates an existing employee's details.
+    /// </summary>
+    /// <remarks>
+    /// Updates employee personal info, organizational placement, and lifecycle status.
+    /// Email cannot be changed through this endpoint.
+    /// </remarks>
+    /// <param name="id">The employee's ID.</param>
+    /// <param name="command">Updated employee details.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Updated employee ID and code.</returns>
+    /// <response code="200">Employee updated successfully.</response>
+    /// <response code="400">Validation failed or ID mismatch.</response>
+    /// <response code="401">Not authenticated.</response>
+    /// <response code="403">Not authorized (requires HR or CompanyAdmin).</response>
+    /// <response code="404">Employee not found.</response>
+    /// <response code="429">Too many requests - rate limit exceeded.</response>
+    [HttpPut("{id:guid}")]
+    [Authorize(Roles = $"{SystemRoles.HRRole},{SystemRoles.CompanyAdminRole}")]
+    public async Task<IActionResult> Update(
+        Guid id,
+        [FromBody] UpdateEmployeeCommand command,
+        CancellationToken cancellationToken)
+    {
+        if (id != command.Id)
+            return BadRequest("URL ID does not match command ID.");
+
+        var result = await mediator.Send(command, cancellationToken);
+        return Ok(result);
+    }
+
     /// <summary>
     /// Creates a new employee with user account and invite token.
     /// </summary>

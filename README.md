@@ -38,7 +38,7 @@ Built for Indian SMEs with 50–500 employees. Competing with Keka, DarwinBox & 
 
 ## ⚡ The Big Idea
 
-> **3-minute AI-powered setup.** A new company admin registers, picks their industry, and gets departments, designations, asset types, and leave policies auto-generated. No competitor does this.
+> **AI-powered setup in minutes.** A new company admin registers, picks their industry, and gets departments, designations, asset types, and leave policies auto-generated. No competitor does this.
 
 <br/>
 
@@ -166,8 +166,8 @@ public abstract class BaseEntity
 ### 1️⃣ Clone
 
 ```bash
-git clone https://github.com/yourusername/workvault.git
-cd workvault
+git clone https://github.com/Sourabh0503/WorkVault.git
+cd WorkVault
 ```
 
 ### 2️⃣ Start Database
@@ -352,9 +352,9 @@ POST /api/auth/refresh
 
 | Plan | Price | Employees |
 |:---:|:---:|:---:|
-| 🆓 Free | ₹0/mo | Up to 10 |
-| 🟢 Starter | ₹2,999/mo | Up to 50 |
-| 🔵 Growth | ₹7,999/mo | Up to 200 |
+| 🆓 Free | ₹0/mo | Up to 30 |
+| 🟢 Starter | ₹2,999/mo | Up to 100 |
+| 🔵 Growth | ₹5,999/mo | Up to 200 |
 | 🟣 Enterprise | Custom | 200+ |
 
 <br/>

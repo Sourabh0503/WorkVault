@@ -9,9 +9,9 @@ namespace WorkVault.Domain.Modules.Employees.Enums;
 /// Pending → Active (invite accepted)
 /// Active → OnNotice (resignation submitted)
 /// Active → Suspended (HR action)
-/// OnNotice → Offboarded (last day passed)
+/// OnNotice → OffBoarded (last day passed)
 /// Suspended → Active (reinstated)
-/// Suspended → Offboarded (terminated)
+/// Suspended → OffBoarded (terminated)
 /// </code>
 /// </remarks>
 public enum EmployeeStatus
@@ -43,5 +43,5 @@ public enum EmployeeStatus
     /// Employee has left the company.
     /// No system access. Record preserved for historical data.
     /// </summary>
-    Offboarded = 4
+    OffBoarded = 4
 }
