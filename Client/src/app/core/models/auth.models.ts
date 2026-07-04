@@ -73,3 +73,49 @@ export interface ApiError {
   status: number;
   errors?: Record<string, string[]>; // present for ValidationFailure
 }
+
+/**
+ * GET /api/auth/invite/{token} — success response
+ * Matches ValidateInviteResult from ValidateInviteHandler.cs
+ */
+export interface InviteInfo {
+  email: string;
+  firstName: string;
+  lastName: string;
+  companyName: string;
+}
+
+/**
+ * POST /api/auth/set-password — request body
+ */
+export interface SetPasswordRequest {
+  token: string;
+  password: string;
+}
+
+/**
+ * POST /api/auth/set-password — success response
+ * Matches SetPasswordResult from SetPasswordHandler.cs
+ * (Same shape as LoginResponse — user is auto-logged-in)
+ */
+export interface SetPasswordResponse {
+  userId: string;
+  companyId: string;
+  accessToken: string;
+  refreshToken: string;
+}
+
+/**
+ * POST /api/auth/forgot-password — request body
+ */
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+/**
+ * POST /api/auth/reset-password — request body
+ */
+export interface ResetPasswordRequest {
+  token: string;
+  password: string;
+}

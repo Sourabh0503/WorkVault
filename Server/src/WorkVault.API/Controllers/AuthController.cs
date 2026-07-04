@@ -2,10 +2,12 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using WorkVault.Application.Modules.Identity.Commands.ForgotPassword;
 using WorkVault.Application.Modules.Identity.Commands.Login;
 using WorkVault.Application.Modules.Identity.Commands.Logout;
 using WorkVault.Application.Modules.Identity.Commands.Register;
 using WorkVault.Application.Modules.Identity.Commands.RefreshTokens;
+using WorkVault.Application.Modules.Identity.Commands.ResetPassword;
 using WorkVault.Application.Modules.Identity.Commands.SetPassword;
 using WorkVault.Application.Modules.Identity.Queries.ValidateInvite;
 
@@ -175,5 +177,34 @@ public class AuthController(IMediator mediator) : ControllerBase
             });
 
         return Ok(result);
+    }
+    
+    /// <summary>
+    /// Request a password reset link. Always returns 200 to prevent
+    /// email enumeration attacks — the response is identical whether
+    /// or not the email is registered.
+    /// </summary>
+    [HttpPost("forgot-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordCommand command,
+        CancellationToken cancellationToken)
+    {
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+    
+    /// <summary>
+    /// Complete the password reset with a valid token.
+    /// On success, revokes all sessions — user must log in again with the new password.
+    /// </summary>
+    [HttpPost("reset-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ResetPassword(
+        [FromBody] ResetPasswordCommand command,
+        CancellationToken cancellationToken)
+    {
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
     }
 }

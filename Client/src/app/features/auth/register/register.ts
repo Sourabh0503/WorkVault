@@ -19,6 +19,11 @@ export class Register {
   isSubmitting = signal(false);
   errorMessage = signal<string | null>(null);
   fieldErrors = signal<Record<string, string[]>>({});
+  showPassword = signal(false);
+
+  togglePassword(): void {
+    this.showPassword.update(v => !v);
+  }
 
   form = this.fb.nonNullable.group({
     // Company info

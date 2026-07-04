@@ -115,7 +115,7 @@ public class CreateEmployeeHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         // 8. Stub the email — log the link to console for now
-        var inviteLink = $"http://localhost:5012/auth/set-password?token={inviteToken.Token}";
+        var inviteLink = $"http://localhost:4200/set-password?token={inviteToken.Token}";
         logger.LogInformation(
             "Invite created for {Email}. Link: {InviteLink}",
             user.Email, inviteLink);

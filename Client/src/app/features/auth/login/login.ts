@@ -19,6 +19,11 @@ export class Login {
   // ---- UI state ----
   isSubmitting = signal(false);
   errorMessage = signal<string | null>(null);
+  showPassword = signal(false);
+
+  togglePassword(): void {
+    this.showPassword.update(v => !v);
+  }
 
   // ---- Form definition ----
   form = this.fb.nonNullable.group({

@@ -105,12 +105,17 @@
 
     <div class="field">
       <label for="password">Password</label>
-      <input
-        id="password"
-        type="password"
-        formControlName="password"
-        autocomplete="new-password"
-      />
+      <div class="password-wrapper">
+        <input
+          id="password"
+          [type]="showPassword() ? 'text' : 'password'"
+          formControlName="password"
+          autocomplete="new-password"
+        />
+        <button type="button" class="eye-btn" (click)="togglePassword()" tabindex="-1">
+          <img [src]="showPassword() ? 'assets/eye-closed.svg' : 'assets/eye-open.svg'" alt="Toggle password visibility">
+        </button>
+      </div>
       @if (form.controls.password.touched && form.controls.password.invalid) {
         <div class="field-error">
           @if (form.controls.password.errors?.['required']) {

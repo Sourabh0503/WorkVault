@@ -4,11 +4,15 @@ import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
+  InviteInfo,
   LoginRequest,
   LoginResponse,
   RefreshTokenResponse,
   RegisterRequest,
-  RegisterResponse
+  RegisterResponse,
+  ResetPasswordRequest,
+  SetPasswordRequest,
+  SetPasswordResponse,
 } from '../models/auth.models';
 
 // Storage keys — using constants prevents typos across the codebase
@@ -49,26 +53,24 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http
       .post<LoginResponse>(`${this.apiUrl}/auth/login`, credentials)
-      .pipe(tap(response => this.persistSession(response)));
+      .pipe(tap((response) => this.persistSession(response)));
   }
 
   /**
    * POST /api/auth/register
    */
   register(data: RegisterRequest): Observable<RegisterResponse> {
-    return this.http
-      .post<RegisterResponse>(`${this.apiUrl}/auth/register`, data)
-      .pipe(
-        tap(response => {
-          // Register returns companyId + tokens but no userId.
-          // We don't know the userId until the /me endpoint is added.
-          // For now, store what we have.
-          this.setTokens(response.accessToken, response.refreshToken);
-          const user: StoredUser = { userId: response.userId, companyId: response.companyId };
-          localStorage.setItem(STORAGE_USER, JSON.stringify(user));
-          this._user.set(user);
-        })
-      );
+    return this.http.post<RegisterResponse>(`${this.apiUrl}/auth/register`, data).pipe(
+      tap((response) => {
+        // Register returns companyId + tokens but no userId.
+        // We don't know the userId until the /me endpoint is added.
+        // For now, store what we have.
+        this.setTokens(response.accessToken, response.refreshToken);
+        const user: StoredUser = { userId: response.userId, companyId: response.companyId };
+        localStorage.setItem(STORAGE_USER, JSON.stringify(user));
+        this._user.set(user);
+      }),
+    );
   }
 
   /**
@@ -80,10 +82,47 @@ export class AuthService {
     return this.http
       .post<RefreshTokenResponse>(`${this.apiUrl}/auth/refresh`, { refreshToken })
       .pipe(
-        tap(response => {
+        tap((response) => {
           this.setTokens(response.accessToken, response.refreshToken);
-        })
+        }),
       );
+  }
+
+  /**
+   * GET /api/auth/invite/{token}
+   * Validates the invite before showing the set-password form.
+   * Returns null via 404 if the token is invalid/expired/used.
+   */
+  validateInvite(token: string): Observable<InviteInfo> {
+    return this.http.get<InviteInfo>(`${this.apiUrl}/auth/invite/${token}`);
+  }
+
+  /**
+   * POST /api/auth/set-password
+   * Sets the password, activates the user, and auto-logs them in.
+   */
+  setPassword(data: SetPasswordRequest): Observable<SetPasswordResponse> {
+    return this.http
+      .post<SetPasswordResponse>(`${this.apiUrl}/auth/set-password`, data)
+      .pipe(tap((response) => this.persistSession(response)));
+  }
+
+  /**
+   * POST /api/auth/forgot-password
+   * Requests a password reset link. Always returns 200 regardless of
+   * whether the email is registered — the frontend can't tell either way.
+   */
+  forgotPassword(email: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/forgot-password`, { email });
+  }
+
+  /**
+   * POST /api/auth/reset-password
+   * Completes the reset with a valid token. Does NOT auto-login —
+   * user must log in again with the new password.
+   */
+  resetPassword(data: ResetPasswordRequest): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/reset-password`, data);
   }
 
   /**
@@ -94,9 +133,7 @@ export class AuthService {
     const refreshToken = this.getRefreshToken();
     if (refreshToken) {
       // Fire-and-forget — even if it fails, we still clear local state
-      this.http
-        .post(`${this.apiUrl}/auth/logout`, { refreshToken })
-        .subscribe({ error: () => {} });
+      this.http.post(`${this.apiUrl}/auth/logout`, { refreshToken }).subscribe({ error: () => {} });
     }
     this.clearSession();
     this.router.navigate(['/login']);
@@ -122,7 +159,7 @@ export class AuthService {
     this.setTokens(response.accessToken, response.refreshToken);
     const user: StoredUser = {
       userId: response.userId,
-      companyId: response.companyId
+      companyId: response.companyId,
     };
     localStorage.setItem(STORAGE_USER, JSON.stringify(user));
     this._user.set(user);

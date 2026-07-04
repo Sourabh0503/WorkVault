@@ -40,6 +40,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options,
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<Designation> Designations => Set<Designation>();
     public DbSet<InviteToken> InviteTokens => Set<InviteToken>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
