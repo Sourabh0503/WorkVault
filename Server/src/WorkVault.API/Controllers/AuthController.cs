@@ -10,6 +10,7 @@ using WorkVault.Application.Modules.Identity.Commands.RefreshTokens;
 using WorkVault.Application.Modules.Identity.Commands.ResetPassword;
 using WorkVault.Application.Modules.Identity.Commands.SetPassword;
 using WorkVault.Application.Modules.Identity.Queries.ValidateInvite;
+using WorkVault.Application.Modules.Identity.Queries.ValidatePasswordReset;
 
 namespace WorkVault.API.Controllers;
 
@@ -205,6 +206,25 @@ public class AuthController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         await mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+    
+    /// <summary>
+    /// Check if a reset token is valid before showing the password form.
+    /// Returns 200 if the token is usable, 404 if expired/used/invalid.
+    /// Body is empty either way — no info leak.
+    /// </summary>
+    [HttpGet("reset-token/{token:guid}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ValidateResetToken(
+        Guid token,
+        CancellationToken cancellationToken)
+    {
+        var isValid = await mediator.Send(new ValidatePasswordResetQuery(token), cancellationToken);
+
+        if (!isValid)
+            return NotFound();
+
         return NoContent();
     }
 }

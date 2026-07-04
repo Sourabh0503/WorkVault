@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   InviteInfo,
@@ -42,6 +42,11 @@ export class AuthService {
 
   private apiUrl = environment.apiUrl;
 
+  // Tracks in-progress refresh so multiple 401s share one refresh call
+  private refreshInProgress$ = new BehaviorSubject<boolean>(false);
+  isRefreshing = () => this.refreshInProgress$.value;
+  refreshComplete$ = this.refreshInProgress$.asObservable();
+
   // =========================================================================
   // API calls
   // =========================================================================
@@ -78,12 +83,14 @@ export class AuthService {
    * Called by the HTTP interceptor when the access token expires.
    */
   refresh(): Observable<RefreshTokenResponse> {
+    this.refreshInProgress$.next(true);
     const refreshToken = this.getRefreshToken();
     return this.http
       .post<RefreshTokenResponse>(`${this.apiUrl}/auth/refresh`, { refreshToken })
       .pipe(
         tap((response) => {
           this.setTokens(response.accessToken, response.refreshToken);
+          this.refreshInProgress$.next(false);
         }),
       );
   }
@@ -97,6 +104,14 @@ export class AuthService {
     return this.http.get<InviteInfo>(`${this.apiUrl}/auth/invite/${token}`);
   }
 
+  /**
+   * GET /api/auth/reset-token/{token}
+   * Checks if a reset token is valid before showing the password form.
+   * Returns 204 on valid, 404 on invalid/expired/used.
+   */
+  validateResetToken(token: string): Observable<void> {
+    return this.http.get<void>(`${this.apiUrl}/auth/reset-token/${token}`);
+  }
   /**
    * POST /api/auth/set-password
    * Sets the password, activates the user, and auto-logs them in.

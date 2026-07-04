@@ -13,7 +13,7 @@ interface PanelCopy {
   selector: 'app-auth-layout',
   imports: [RouterOutlet, RouterLink],
   templateUrl: './auth-layout.html',
-  styleUrl: './auth-layout.scss'
+  styleUrl: './auth-layout.scss',
 })
 export class AuthLayout {
   private router = inject(Router);
@@ -21,11 +21,11 @@ export class AuthLayout {
   // Track the current URL as a signal — updates on every navigation
   private currentUrl = toSignal(
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
-      map(event => (event as NavigationEnd).urlAfterRedirects),
-      startWith(this.router.url)
+      filter((event) => event instanceof NavigationEnd),
+      map((event) => (event as NavigationEnd).urlAfterRedirects),
+      startWith(this.router.url),
     ),
-    { initialValue: this.router.url }
+    { initialValue: this.router.url },
   );
 
   // Derived signal — the panel copy for the current route
@@ -36,7 +36,7 @@ export class AuthLayout {
       return {
         kicker: 'Zero to live in minutes',
         heading: 'Pick your industry. Watch the system build itself.',
-        sub: 'Departments, designations, asset types and leave policies pre-populated by AI.'
+        sub: 'Departments, designations, asset types and leave policies pre-populated by AI.',
       };
     }
 
@@ -44,7 +44,15 @@ export class AuthLayout {
       return {
         kicker: "You've been invited",
         heading: 'Your seat is ready. Set a password to begin.',
-        sub: "You're joining as an HR Manager. Bring your team, assets, and processes into one system."
+        sub: "You're joining as an HR Manager. Bring your team, assets, and processes into one system.",
+      };
+    }
+
+    if (url.startsWith('/reset-password')) {
+      return {
+        kicker: 'Secure reset',
+        heading: 'A new password, a fresh start.',
+        sub: 'For your safety, this link is valid for 2 hours and can only be used once. All active sessions will be signed out.',
       };
     }
 
@@ -52,7 +60,7 @@ export class AuthLayout {
     return {
       kicker: 'Workspace access',
       heading: 'One system for your entire workplace.',
-      sub: 'Employees, assets, attendance, bookings and compliance — scoped to your company, isolated by design.'
+      sub: 'Employees, assets, attendance, bookings and compliance — scoped to your company, isolated by design.',
     };
   });
 }
