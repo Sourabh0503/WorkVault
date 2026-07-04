@@ -21,7 +21,7 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
             .Include(e => e.Department)
             .Include(e => e.Designation)
             .Include(e => e.Manager)
-                .ThenInclude(m => m!.User)
+            .ThenInclude(m => m!.User)
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
@@ -52,13 +52,12 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            var searchLower = search.ToLower();
             query = query.Where(e =>
-                e.EmployeeCode.ToLower().Contains(searchLower) ||
+                EF.Functions.ILike(e.EmployeeCode, $"%{search}%") ||
                 (e.User != null && (
-                    e.User.Email.ToLower().Contains(searchLower) ||
-                    e.User.FirstName.ToLower().Contains(searchLower) ||
-                    e.User.LastName.ToLower().Contains(searchLower)
+                    EF.Functions.ILike(e.User.Email, $"%{search}%") ||
+                    EF.Functions.ILike(e.User.FirstName, $"%{search}%") ||
+                    EF.Functions.ILike(e.User.LastName, $"%{search}%")
                 )));
         }
 

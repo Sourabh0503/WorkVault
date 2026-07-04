@@ -1,4 +1,5 @@
 using MediatR;
+using WorkVault.Application.Common.Exceptions;
 using WorkVault.Domain.Modules.Employees.Interfaces;
 
 namespace WorkVault.Application.Modules.Employees.Queries.GetEmployeeById;
@@ -15,7 +16,7 @@ public class GetEmployeeByIdHandler(IEmployeeRepository repository)
     {
         var employee = await repository.GetByIdAsync(request.Id, cancellationToken);
 
-        if (employee is null) return null;
+        if (employee is null) throw new NotFoundException($"Employee {request.Id} not found.");;
 
         return new EmployeeDto(
             Id: employee.Id,
