@@ -674,3 +674,11 @@ All MediatR commands pass through `ValidationBehavior` which:
 - [ ] Add CSRF protection middleware
 - [ ] Configure CSP headers
 - [ ] Enable reuse detection on refresh tokens
+
+### DPDP compliance (before real customers)
+- [ ] Explicit consent checkbox during registration
+- [ ] Privacy policy page (/legal/privacy)
+- [ ] Data export endpoint (GET /api/users/me/export)
+- [ ] Account deletion endpoint (DELETE /api/users/me)
+- [ ] Audit log viewer for company admins
+- [ ] Cookie consent banner
