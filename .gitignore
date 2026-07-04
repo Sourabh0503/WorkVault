@@ -8,6 +8,7 @@
 *.json
 !appsettings.json
 appsettings.Development.json
+CLAUDE_CONTEXT.md
 .idea/
 .vscode/
 *.user
