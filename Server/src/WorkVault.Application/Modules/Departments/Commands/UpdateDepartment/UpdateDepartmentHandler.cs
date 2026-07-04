@@ -7,6 +7,7 @@ namespace WorkVault.Application.Modules.Departments.Commands.UpdateDepartment;
 
 public class UpdateDepartmentHandler(
     IDepartmentRepository departmentRepository,
+    IEmployeeRepository employeeRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<UpdateDepartmentCommand, UpdateDepartmentResult>
 {
@@ -22,12 +23,20 @@ public class UpdateDepartmentHandler(
         if (await departmentRepository.ExistsByNameAsync(request.Name, request.Id, cancellationToken))
             throw new ConflictException($"A department with name '{request.Name}' already exists.");
 
-        // Validate parent department exists if provided
+        // Validate parent department exists if provided (tenant-filtered)
         if (request.ParentDepartmentId.HasValue)
         {
             var parent = await departmentRepository.GetByIdAsync(request.ParentDepartmentId.Value, cancellationToken);
             if (parent is null)
                 throw new NotFoundException($"Parent department with ID '{request.ParentDepartmentId}' not found.");
+        }
+
+        // Validate head employee exists if provided (tenant-filtered)
+        if (request.HeadEmployeeId.HasValue)
+        {
+            var head = await employeeRepository.GetByIdAsync(request.HeadEmployeeId.Value, cancellationToken);
+            if (head is null)
+                throw new NotFoundException($"Employee with ID '{request.HeadEmployeeId}' not found.");
         }
 
         department.Name = request.Name;

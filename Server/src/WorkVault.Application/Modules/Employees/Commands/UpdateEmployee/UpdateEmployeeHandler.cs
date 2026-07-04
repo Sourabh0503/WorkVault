@@ -51,8 +51,17 @@ public class UpdateEmployeeHandler(
             var manager = await employeeRepository.GetByIdAsync(request.ManagerId.Value, cancellationToken);
             if (manager is null)
                 throw new NotFoundException($"Manager with ID '{request.ManagerId}' not found.");
+            if (request.ManagerId == employee.Id)
+                throw new BusinessRuleException("An employee cannot be their own manager.");
         }
 
+        // Block transitions that break the lifecycle model
+        if (employee.Status == EmployeeStatus.Offboarded && request.Status != EmployeeStatus.Offboarded)
+            throw new BusinessRuleException("Cannot change status of an offboarded employee.");
+
+        if (request.Status == EmployeeStatus.Pending && employee.Status != EmployeeStatus.Pending)
+            throw new BusinessRuleException("Employees cannot be reverted to Pending status.");
+        
         // 3. Update User details (name only - email is not changeable)
         if (employee.User is not null)
         {
