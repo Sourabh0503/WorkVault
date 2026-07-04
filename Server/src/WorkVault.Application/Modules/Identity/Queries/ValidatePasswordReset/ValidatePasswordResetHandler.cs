@@ -1,13 +1,15 @@
 using MediatR;
+using WorkVault.Application.Common.Exceptions;
 using WorkVault.Domain.Modules.Identity.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Queries.ValidatePasswordReset;
 
 public class ValidatePasswordResetHandler(
-    IPasswordResetTokenRepository resetTokenRepository)
-    : IRequestHandler<ValidatePasswordResetQuery, bool>
+    IPasswordResetTokenRepository resetTokenRepository,
+    ICompanyRepository companyRepository)
+    : IRequestHandler<ValidatePasswordResetQuery, ValidatePasswordResetResult?>
 {
-    public async Task<bool> Handle(
+    public async Task<ValidatePasswordResetResult?> Handle(
         ValidatePasswordResetQuery request,
         CancellationToken cancellationToken)
     {
@@ -15,12 +17,22 @@ public class ValidatePasswordResetHandler(
             request.Token, cancellationToken);
 
         if (token is null || !token.IsValid)
-            return false;
+            return null;
 
         var user = token.User;
         if (user is null || !user.IsActive)
-            return false;
+            return null;
 
-        return true;
+        var company = await companyRepository.GetByIdAsync(
+            user.CompanyId, cancellationToken);
+
+        if (company is null)
+            return null;
+
+        return new ValidatePasswordResetResult(
+            Email: user.Email,
+            FirstName: user.FirstName,
+            CompanyName: company.Name
+        );
     }
 }

@@ -119,3 +119,13 @@ export interface ResetPasswordRequest {
   token: string;
   password: string;
 }
+
+/**
+ * GET /api/auth/reset-token/{token} — success response
+ * Matches ValidatePasswordResetResult from ValidatePasswordResetHandler.cs
+ */
+export interface ResetTokenInfo {
+  email: string;
+  firstName: string;
+  companyName: string;
+}

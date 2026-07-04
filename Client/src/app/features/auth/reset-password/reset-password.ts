@@ -3,7 +3,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { ApiError } from '../../../core/models/auth.models';
+import { ApiError, ResetTokenInfo } from '../../../core/models/auth.models';
 
 @Component({
   selector: 'app-reset-password',
@@ -23,6 +23,10 @@ export class ResetPassword {
   isSubmitting = signal(false);
   isSuccess = signal(false);
   errorMessage = signal<string | null>(null);
+  showPassword = signal(false);
+
+  // User info from token validation
+  userInfo = signal<ResetTokenInfo | null>(null);
 
   // Password field mirror for live checklist
   passwordValue = signal('');
@@ -65,7 +69,10 @@ export class ResetPassword {
     }
 
     this.authService.validateResetToken(this.token).subscribe({
-      next: () => this.isLoading.set(false),
+      next: (info) => {
+        this.userInfo.set(info);
+        this.isLoading.set(false);
+      },
       error: () => {
         this.isLoading.set(false);
         this.isInvalidLink.set(true);
@@ -105,5 +112,9 @@ export class ResetPassword {
         }
       }
     });
+  }
+
+  togglePassword(): void {
+    this.showPassword.update(v => !v);
   }
 }

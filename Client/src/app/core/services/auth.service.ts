@@ -11,6 +11,7 @@ import {
   RegisterRequest,
   RegisterResponse,
   ResetPasswordRequest,
+  ResetTokenInfo,
   SetPasswordRequest,
   SetPasswordResponse,
 } from '../models/auth.models';
@@ -107,10 +108,10 @@ export class AuthService {
   /**
    * GET /api/auth/reset-token/{token}
    * Checks if a reset token is valid before showing the password form.
-   * Returns 204 on valid, 404 on invalid/expired/used.
+   * Returns user info on valid, 404 on invalid/expired/used.
    */
-  validateResetToken(token: string): Observable<void> {
-    return this.http.get<void>(`${this.apiUrl}/auth/reset-token/${token}`);
+  validateResetToken(token: string): Observable<ResetTokenInfo> {
+    return this.http.get<ResetTokenInfo>(`${this.apiUrl}/auth/reset-token/${token}`);
   }
   /**
    * POST /api/auth/set-password

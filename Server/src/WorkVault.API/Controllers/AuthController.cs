@@ -211,8 +211,7 @@ public class AuthController(IMediator mediator) : ControllerBase
     
     /// <summary>
     /// Check if a reset token is valid before showing the password form.
-    /// Returns 200 if the token is usable, 404 if expired/used/invalid.
-    /// Body is empty either way — no info leak.
+    /// Returns user info if token is valid, 404 if expired/used/invalid.
     /// </summary>
     [HttpGet("reset-token/{token:guid}")]
     [AllowAnonymous]
@@ -220,11 +219,8 @@ public class AuthController(IMediator mediator) : ControllerBase
         Guid token,
         CancellationToken cancellationToken)
     {
-        var isValid = await mediator.Send(new ValidatePasswordResetQuery(token), cancellationToken);
-
-        if (!isValid)
-            return NotFound();
-
-        return NoContent();
+        var result = await mediator.Send(new ValidatePasswordResetQuery(token), cancellationToken);
+        if (result is null ) return NotFound();
+        return Ok(result);
     }
 }
