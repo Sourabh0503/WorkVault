@@ -48,6 +48,14 @@ export class AuthLayout {
       };
     }
 
+    if (url.startsWith('/forgot-password')) {
+      return {
+        kicker: 'Password recovery',
+        heading: 'One email away from getting back in.',
+        sub: "Enter your work email and we'll send a link to set a new password. It's valid for 2 hours.",
+      };
+    }
+
     if (url.startsWith('/reset-password')) {
       return {
         kicker: 'Secure reset',
