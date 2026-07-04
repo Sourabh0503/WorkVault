@@ -64,7 +64,7 @@ export class AuthService {
           // We don't know the userId until the /me endpoint is added.
           // For now, store what we have.
           this.setTokens(response.accessToken, response.refreshToken);
-          const user: StoredUser = { userId: '', companyId: response.companyId };
+          const user: StoredUser = { userId: response.userId, companyId: response.companyId };
           localStorage.setItem(STORAGE_USER, JSON.stringify(user));
           this._user.set(user);
         })

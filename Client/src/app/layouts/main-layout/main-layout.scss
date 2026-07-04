@@ -1,0 +1,23 @@
+:host {
+  display: block;
+  height: 100vh;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  height: 100%;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface-alt);
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-8);
+}

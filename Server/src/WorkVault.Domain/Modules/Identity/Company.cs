@@ -17,7 +17,7 @@ public class Company : BaseEntity
     public string Name { get; set; } = string.Empty;
 
     /// <summary>Company's domain (e.g., "acme.com") - used for branding/identification.</summary>
-    public string Domain { get; set; } = string.Empty;
+    public string? Domain { get; set; }
 
     /// <summary>URL to the company's logo image. Nullable.</summary>
     public string? LogoUrl { get; set; }

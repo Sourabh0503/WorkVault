@@ -1,0 +1,35 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <img src="assets/workvault-lockup-light.svg" alt="workVault" class="logo-img" />
+  </div>
+
+  <nav class="sidebar-nav">
+    @for (item of navItems; track item.route) {
+      <a
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        class="nav-item"
+      >
+        <span class="nav-icon">{{ item.icon }}</span>
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <div class="sidebar-footer">
+    @if (user(); as u) {
+      <div class="user-info">
+        <div class="user-avatar">
+          {{ u.userId.charAt(0).toUpperCase() }}
+        </div>
+        <div class="user-meta">
+          <div class="user-label">Signed in</div>
+          <div class="user-id">{{ u.userId.substring(0, 8) }}...</div>
+        </div>
+      </div>
+    }
+    <button (click)="onLogout()" class="logout-btn">
+      Sign out
+    </button>
+  </div>
+</aside>

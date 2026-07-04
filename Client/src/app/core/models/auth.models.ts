@@ -43,6 +43,7 @@ export interface RegisterRequest {
  */
 export interface RegisterResponse {
   companyId: string;
+  userId: string;
   accessToken: string;
   refreshToken: string;
 }

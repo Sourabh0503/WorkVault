@@ -71,7 +71,7 @@ public class RegisterHandler(
         await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new RegisterResponse(companyGuid, accessToken, refreshTokenString);
+        return new RegisterResponse(companyGuid,user.Id ,accessToken, refreshTokenString);
     }
 
 }

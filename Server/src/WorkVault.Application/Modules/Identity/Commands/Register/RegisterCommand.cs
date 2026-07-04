@@ -5,7 +5,7 @@ namespace WorkVault.Application.Modules.Identity.Commands.Register;
 public record RegisterCommand(
     // Company fields
     string CompanyName,
-    string Domain,
+    string? Domain,
     string Industry,
     string? GstNumber,
     
@@ -18,6 +18,7 @@ public record RegisterCommand(
 
 public record RegisterResponse(
     Guid CompanyId,
+    Guid UserId,
     string AccessToken,
     string RefreshToken
 );
