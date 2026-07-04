@@ -86,6 +86,17 @@ html, body {
   background: var(--color-surface);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  cursor: url('/assets/cursor-light.svg'), auto;
+}
+
+// Pointer cursor for interactive elements
+a, button, [role="button"], input[type="submit"], input[type="button"], select, label[for] {
+  cursor: url('/assets/cursor-light.svg'), pointer;
+}
+
+// Text cursor for text inputs
+input[type="text"], input[type="email"], input[type="password"], input[type="search"], input[type="tel"], input[type="url"], input[type="number"], textarea {
+  cursor: url('/assets/cursor-light.svg'), text;
 }
 
 h1, h2, h3, h4, h5, h6 {

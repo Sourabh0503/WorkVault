@@ -1,43 +1,220 @@
 <div class="page">
-  <!-- Nav -->
-  <nav class="nav">
+  <!-- NAV -->
+  <header class="nav">
     <div class="nav-inner">
       <div class="logo">
         <img src="assets/workvault-lockup-light.svg" alt="workVault" class="logo-img">
       </div>
-
+      <nav class="nav-links">
+        <a href="#modules">Platform</a>
+        <a href="#onboarding">AI Setup</a>
+        <a href="#pricing">Pricing</a>
+      </nav>
       <div class="nav-actions">
         <a routerLink="/login" class="link">Log in</a>
         <a routerLink="/register" class="btn-primary">Start free</a>
       </div>
     </div>
-  </nav>
+  </header>
 
-  <!-- Hero -->
+  <!-- HERO -->
   <section class="hero">
-    <div class="pill">
-      <span class="dot"></span>
-      AI-powered onboarding · Live in minutes
-    </div>
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="pill">
+          <span class="dot"></span>
+          <span>Multi-tenant workplace platform</span>
+        </div>
+        <h1>Your whole company, running in <span class="accent">under minutes.</span></h1>
+        <p class="lead">workVault unifies employees, assets, attendance, bookings and compliance into one system — with AI onboarding that stands up your entire org before the coffee cools.</p>
+        <div class="cta-row">
+          <a routerLink="/register" class="btn-primary btn-lg">Start free →</a>
+          <a routerLink="/login" class="btn-secondary btn-lg">Log in</a>
+        </div>
+        <div class="trust">
+          <span><span class="check">✓</span> No card required</span>
+          <span><span class="check">✓</span> Free up to 10 staff</span>
+          <span><span class="check">✓</span> DPDP-ready</span>
+        </div>
+      </div>
 
-    <h1>
-      One system for your <span class="accent">entire workplace</span>.
-    </h1>
+      <!-- HERO MOCK: AI onboarding card -->
+      <div class="hero-mock">
+        <div class="mock-card">
+          <div class="mock-header">
+            <div class="mock-status">
+              <span class="status-dot"></span>
+              <span class="status-label">AI Onboarding</span>
+            </div>
+            <span class="step-badge">Step 2 of 5</span>
+          </div>
+          <div class="mock-body">
+            <div class="kicker">Industry detected</div>
+            <div class="industry-name">IT / Software</div>
+            <div class="industry-sub">AI pre-filled your structure. Edit anything.</div>
 
-    <p class="lead">
-      Employees, assets, attendance, bookings and compliance —
-      scoped to your company, isolated by design. Built for Indian SMEs.
-    </p>
+            <div class="section-label">Departments · 8</div>
+            <div class="chips">
+              <span class="chip">Engineering</span>
+              <span class="chip">QA</span>
+              <span class="chip">DevOps</span>
+              <span class="chip">Product</span>
+              <span class="chip">Design</span>
+              <span class="chip">HR</span>
+              <span class="chip">Finance</span>
+              <span class="chip chip-add">+ Sales</span>
+            </div>
 
-    <div class="cta-row">
-      <a routerLink="/register" class="btn-primary btn-lg">Start free →</a>
-      <a routerLink="/login" class="btn-secondary btn-lg">Sign in</a>
-    </div>
+            <div class="section-label">Asset types · 5</div>
+            <div class="chips">
+              <span class="chip">Laptop</span>
+              <span class="chip">Monitor</span>
+              <span class="chip">Phone</span>
+              <span class="chip">Headset</span>
+              <span class="chip">Access Card</span>
+            </div>
 
-    <div class="trust">
-      <span>✓ Multi-tenant</span>
-      <span>✓ BCrypt · JWT</span>
-      <span>✓ DPDP-ready</span>
+            <div class="progress-bar">
+              <div class="progress-fill"></div>
+            </div>
+            <div class="progress-info">
+              <span>01:47 elapsed</span>
+              <span>62% complete</span>
+            </div>
+          </div>
+        </div>
+        <div class="ai-badge">✦ AI pre-filled</div>
+      </div>
     </div>
   </section>
+
+  <!-- STAT STRIP -->
+  <section class="stats">
+    <div class="stats-inner">
+      @for (stat of stats; track stat.label) {
+        <div class="stat">
+          <div class="stat-big">{{ stat.big }}</div>
+          <div class="stat-label">{{ stat.label }}</div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- MODULES -->
+  <section id="modules" class="modules">
+    <div class="section-header">
+      <div class="section-intro">
+        <div class="section-kicker">The platform</div>
+        <h2>Six modules. One system. Zero data crossover.</h2>
+      </div>
+      <p class="section-aside">A modular monolith where every table carries a CompanyId and every query is scoped at the repository layer. Isolation isn't a feature — it's the foundation.</p>
+    </div>
+    <div class="module-grid">
+      @for (m of modules; track m.num) {
+        <div class="module-card">
+          <div class="module-num">{{ m.num }}</div>
+          <h3>{{ m.name }}</h3>
+          <p>{{ m.desc }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- AI ONBOARDING -->
+  <section id="onboarding" class="onboarding">
+    <div class="onboarding-inner">
+      <div class="section-intro">
+        <div class="section-kicker">The differentiator</div>
+        <h2>Pick your industry. The system builds itself.</h2>
+        <p class="section-lead">Departments, designations, asset types and leave policies — pre-populated per industry. No competitor offers this. Five steps, under five minutes, a fully working system at the end.</p>
+      </div>
+      <div class="steps-grid">
+        @for (s of steps; track s.n) {
+          <div class="step-card">
+            <div class="step-num">{{ s.n }}</div>
+            <h3>{{ s.title }}</h3>
+            <p>{{ s.desc }}</p>
+          </div>
+        }
+      </div>
+      <div class="onboarding-cta">
+        <a routerLink="/register" class="btn-primary btn-lg">Set up your company →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" class="pricing">
+    <div class="pricing-intro">
+      <div class="section-kicker">Pricing</div>
+      <h2>Priced to undercut the legacy stack.</h2>
+      <p>Tiered by headcount. The free tier is a real product, not a trial.</p>
+    </div>
+    <div class="plans-grid">
+      @for (plan of plans; track plan.name) {
+        <div class="plan-card" [class.popular]="plan.popular" [class.dark-btn]="plan.dark">
+          <div class="plan-name">{{ plan.name }}</div>
+          <div class="plan-price">
+            <span class="price">{{ plan.price }}</span>
+            <span class="unit">{{ plan.unit }}</span>
+          </div>
+          <div class="plan-seats">{{ plan.seats }}</div>
+          <div class="plan-features">
+            @for (f of plan.features; track f) {
+              <div class="feature"><span class="feature-check">✓</span>{{ f }}</div>
+            }
+          </div>
+          <a routerLink="/register" class="plan-btn">{{ plan.cta }}</a>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- CTA BAND -->
+  <section class="cta-band">
+    <div class="cta-band-inner">
+      <div class="cta-content">
+        <h2>Onboard your company before this page reloads.</h2>
+        <p>Free up to 10 employees. No card. Live in minutes.</p>
+      </div>
+      <a routerLink="/register" class="cta-btn">Start free →</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <img src="assets/workvault-lockup-light.svg" alt="workVault" class="footer-logo-img">
+        </div>
+        <p>The workplace OS for Indian SMEs. Multi-tenant, secure, and set up in minutes.</p>
+        <p class="coming-soon">Many more features coming soon.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <div class="footer-heading">Platform</div>
+          <a href="#modules">Modules</a>
+          <a href="#onboarding">AI Onboarding</a>
+          <a href="#pricing">Pricing</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-heading">Company</div>
+          <a href="#">About</a>
+          <a href="#">Security</a>
+          <a href="#">Contact</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-heading">Legal</div>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">DPDP Act</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 workVault</span>
+      <span>Confidential · v1.0</span>
+    </div>
+  </footer>
 </div>
