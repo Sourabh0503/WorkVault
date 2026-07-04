@@ -667,3 +667,10 @@ All MediatR commands pass through `ValidationBehavior` which:
 13. **Exception Handling**: Throw custom exceptions (`NotFoundException`, `ConflictException`, `BusinessRuleException`) - middleware maps to HTTP codes
 14. **Global Query Filters**: Applied via `ApplySoftDeleteFilter<T>` - filters by `IsDeleted` and `CompanyId`
 15. **Company Entity Special Case**: Company's `Id` is the tenant ID (not `CompanyId`) - has separate filter
+
+
+### Security TODOs (before production)
+- [ ] Switch tokens from localStorage to httpOnly cookies
+- [ ] Add CSRF protection middleware
+- [ ] Configure CSP headers
+- [ ] Enable reuse detection on refresh tokens

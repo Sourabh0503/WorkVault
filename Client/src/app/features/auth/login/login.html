@@ -1,0 +1,69 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form">
+  <div class="header">
+    <h1>Welcome back</h1>
+    <p class="subtitle">Sign in to your workVault workspace</p>
+  </div>
+
+  <!-- Error banner -->
+  @if (errorMessage()) {
+    <div class="error-banner">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <!-- Email field -->
+  <div class="field">
+    <label for="email">Work email</label>
+    <input
+      id="email"
+      type="email"
+      formControlName="email"
+      placeholder="you@company.com"
+      autocomplete="email"
+    />
+    @if (form.controls.email.touched && form.controls.email.invalid) {
+      <div class="field-error">
+        @if (form.controls.email.errors?.['required']) {
+          Email is required.
+        } @else if (form.controls.email.errors?.['email']) {
+          Please enter a valid email address.
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Password field -->
+  <div class="field">
+    <div class="field-header">
+      <label for="password">Password</label>
+      <a href="#" class="forgot-link">Forgot?</a>
+    </div>
+    <input
+      id="password"
+      type="password"
+      formControlName="password"
+      placeholder="Enter your password"
+      autocomplete="current-password"
+    />
+    @if (form.controls.password.touched && form.controls.password.invalid) {
+      <div class="field-error">
+        Password is required.
+      </div>
+    }
+  </div>
+
+  <!-- Submit -->
+  <button
+    type="submit"
+    class="submit-btn"
+    [disabled]="isSubmitting()"
+  >
+    {{ isSubmitting() ? 'Signing in...' : 'Sign in' }}
+  </button>
+
+  <!-- Register link -->
+  <div class="alt-action">
+    New to workVault?
+    <a routerLink="/register">Register your company</a>
+  </div>
+</form>

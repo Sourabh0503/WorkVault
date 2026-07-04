@@ -1,5 +1,6 @@
 using MediatR;
 using WorkVault.Application.Common.Exceptions;
+using WorkVault.Domain.Modules.Employees.Enums;
 using WorkVault.Domain.Modules.Employees.Interfaces;
 using WorkVault.SharedKernel.Interfaces;
 
@@ -56,8 +57,8 @@ public class UpdateEmployeeHandler(
         }
 
         // Block transitions that break the lifecycle model
-        if (employee.Status == EmployeeStatus.Offboarded && request.Status != EmployeeStatus.Offboarded)
-            throw new BusinessRuleException("Cannot change status of an offboarded employee.");
+        if (employee.Status == EmployeeStatus.OffBoarded && request.Status != EmployeeStatus.OffBoarded)
+            throw new BusinessRuleException("Cannot change status of an offBoarded employee.");
 
         if (request.Status == EmployeeStatus.Pending && employee.Status != EmployeeStatus.Pending)
             throw new BusinessRuleException("Employees cannot be reverted to Pending status.");

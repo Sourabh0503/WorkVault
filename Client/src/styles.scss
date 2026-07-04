@@ -1,0 +1,117 @@
+// =============================================================================
+// Design tokens — the single source of truth for the visual system
+// =============================================================================
+// Change a value here, it changes across the entire app. Never hardcode colors,
+// fonts, or spacing in components. Always reference these tokens.
+
+// Font — loaded from Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  // ---- Brand ----
+  --color-primary: #059669;
+  --color-primary-hover: #047857;
+  --color-primary-tint: #ECFDF5;
+  --color-primary-border: #A7F3D0;
+  --color-primary-text-light: #D1FAE5;
+  --color-primary-text-dim: #6EE7B7;
+  --color-success: #16A34A;
+
+  // ---- Ink (text) ----
+  --color-ink: #0F172A;          // headings
+  --color-ink-strong: #334155;   // labels
+  --color-ink-body: #475569;     // body text
+  --color-ink-muted: #64748B;    // secondary text
+  --color-ink-faint: #94A3B8;    // placeholders, captions
+
+  // ---- Surfaces ----
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F8FAFC;
+  --color-surface-chip: #F1F5F9;
+  --color-surface-disabled: #F4F6F9;
+
+  // ---- Borders ----
+  --color-border: #E9EEF4;
+  --color-border-strong: #E2E8F0;
+  --color-border-input: #D5DDE7;
+  --color-border-button: #CBD5E1;
+
+  // ---- Radius ----
+  --radius-sm: 7px;    // chips
+  --radius-md: 8px;    // buttons
+  --radius-input: 9px; // inputs
+  --radius-card: 14px; // module cards
+  --radius-lg: 16px;   // panels
+  --radius-xl: 20px;   // CTA band
+  --radius-pill: 100px;
+
+  // ---- Shadows ----
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-card-hover: 0 12px 28px rgba(15, 23, 42, 0.08);
+  --shadow-mock: 0 24px 50px rgba(15, 23, 42, 0.1);
+  --shadow-button: 0 4px 14px rgba(5, 150, 105, 0.24);
+  --shadow-cta: 0 20px 44px rgba(5, 150, 105, 0.3);
+  --focus-ring: 0 0 0 3px rgba(5, 150, 105, 0.12);
+
+  // ---- Spacing (4px base) ----
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+}
+
+// =============================================================================
+// Base reset + defaults
+// =============================================================================
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-ink-body);
+  background: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-ink);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-primary-hover);
+  }
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+// Text selection matching the brand
+::selection {
+  background: var(--color-primary);
+  color: white;
+}
