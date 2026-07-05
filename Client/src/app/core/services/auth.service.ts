@@ -34,6 +34,10 @@ interface StoredUser {
   userId: string;
   companyId: string;
   role: string;
+  // Human-readable tenant name. Only known at register time today — the login
+  // response and JWT carry companyId (a GUID), not the name. Optional until the
+  // backend returns companyName from /auth/login (or a /me endpoint).
+  companyName?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -50,6 +54,9 @@ export class AuthService {
 
   // Current user's role — used for showing/hiding UI by permission
   role = computed(() => this._user()?.role ?? '');
+
+  // Human-readable tenant name for branding (empty until the backend supplies it)
+  companyName = computed(() => this._user()?.companyName ?? 'test');
 
   // Derived: is the user logged in?
   isAuthenticated = computed(() => this._user() !== null);
@@ -89,6 +96,9 @@ export class AuthService {
           userId: response.userId,
           companyId: response.companyId,
           role: this.extractRole(response.accessToken),
+          // The register response omits companyName, but we have it from the
+          // request the user just submitted.
+          companyName: data.companyName,
         };
         localStorage.setItem(STORAGE_USER, JSON.stringify(user));
         this._user.set(user);

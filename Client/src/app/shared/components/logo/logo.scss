@@ -67,16 +67,9 @@
   color: var(--logo-accent);
 }
 
-.logo-sep {
-  width: 1px;
-  align-self: stretch;
-  margin: calc(var(--logo-size) * 0.06) 0;
-  background: var(--logo-muted);
-  opacity: 0.5;
-}
-
+// Tenant / organisation name — its own line, more prominent than the tagline.
 .logo-tenant {
-  font-size: calc(var(--logo-size) * 0.36);
+  font-size: calc(var(--logo-size) * 0.34);
   font-weight: 600;
   color: var(--logo-ink);
   white-space: nowrap;
@@ -109,8 +102,7 @@
   .mark-core {
     fill: currentColor;
   }
-  .logo-tagline,
-  .logo-sep {
+  .logo-tagline {
     opacity: 0.6;
   }
 }

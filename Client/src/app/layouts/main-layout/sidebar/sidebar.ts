@@ -20,6 +20,7 @@ export class Sidebar {
   private authService = inject(AuthService);
 
   user = this.authService.user;
+  companyName = this.authService.companyName;
   private role = this.authService.role;
 
   // Full nav config. `roles: []` means visible to everyone.

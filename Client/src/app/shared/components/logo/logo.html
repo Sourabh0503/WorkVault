@@ -20,11 +20,11 @@
         <span class="wm-work">work</span><span class="wm-vault">Vault</span>
       </span>
     </span>
+    @if (showTenant()) {
+      <span class="logo-tenant">{{ tenant() }}</span>
+    }
     @if (tagline()) {
       <span class="logo-tagline">Workplace OS</span>
-    }
-    @if (showTenant()) {
-      <span class="logo-tagline">{{ tenant() }}</span>
     }
   </span>
 }
