@@ -28,7 +28,8 @@ namespace WorkVault.Infrastructure.Persistence;
 /// - Company: Uses Id as the tenant ID (not CompanyId field)
 /// - RefreshToken: Not a BaseEntity, filtered via User.IsDeleted
 /// </remarks>
-public class AppDbContext(DbContextOptions<AppDbContext> options,
+public class AppDbContext(
+    DbContextOptions<AppDbContext> options,
     ICurrentUserService currentUserService) : DbContext(options)
 {
     private readonly ICurrentUserService _currentUserService = currentUserService;
@@ -60,7 +61,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options,
                 method.Invoke(this, [modelBuilder]);
             }
         }
-        
+
         // Company is special: its Id is the tenant ID (not CompanyId).
         // Override the generic filter for Company entity.
         modelBuilder.Entity<Company>().HasQueryFilter(c =>
@@ -68,9 +69,25 @@ public class AppDbContext(DbContextOptions<AppDbContext> options,
             (_currentUserService.IsSuperAdmin ||
              _currentUserService.CompanyId == null ||
              c.Id == _currentUserService.CompanyId));
-        
+
+        // ---- Department ↔ Employee relationships (two separate FKs) ----
+
+        // A department HAS MANY employees (via Employee.DepartmentId)
+        modelBuilder.Entity<Department>()
+            .HasMany(d => d.Employees)
+            .WithOne(e => e.Department)
+            .HasForeignKey(e => e.DepartmentId)
+            .OnDelete(DeleteBehavior.SetNull); // if dept deleted, employees keep existing with null dept
+
+        // A department HAS ONE head employee (via Department.HeadEmployeeId)
+        modelBuilder.Entity<Department>()
+            .HasOne(d => d.HeadEmployee)
+            .WithMany() // Employee has no "departments I head" collection
+            .HasForeignKey(d => d.HeadEmployeeId)
+            .OnDelete(DeleteBehavior.SetNull); // if head employee deleted, dept keeps existing, head becomes null
+
         SeedRolesData(modelBuilder);
-        
+
         modelBuilder.Entity<User>().HasIndex(u => new { u.Email, u.CompanyId }).IsUnique();
         modelBuilder.Entity<RefreshToken>().HasQueryFilter(rt => !rt.User.IsDeleted);
     }
@@ -80,13 +97,34 @@ public class AppDbContext(DbContextOptions<AppDbContext> options,
         var seedDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         modelBuilder.Entity<Role>().HasData(
-            new Role { Id = SystemRoles.SuperAdmin, Name = SystemRoles.SuperAdminRole, IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate },
-            new Role { Id = SystemRoles.CompanyAdmin, Name = SystemRoles.CompanyAdminRole, IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate },
-            new Role { Id = SystemRoles.HR, Name = SystemRoles.HRRole, IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate },
-            new Role { Id = SystemRoles.Manager, Name = SystemRoles.ManagerRole, IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate },
-            new Role { Id = SystemRoles.Employee, Name = SystemRoles.EmployeeRole, IsSystemRole = true, CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate }
+            new Role
+            {
+                Id = SystemRoles.SuperAdmin, Name = SystemRoles.SuperAdminRole, IsSystemRole = true,
+                CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate
+            },
+            new Role
+            {
+                Id = SystemRoles.CompanyAdmin, Name = SystemRoles.CompanyAdminRole, IsSystemRole = true,
+                CompanyId = Guid.Empty, CreatedAt = seedDate, UpdatedAt = seedDate
+            },
+            new Role
+            {
+                Id = SystemRoles.HR, Name = SystemRoles.HRRole, IsSystemRole = true, CompanyId = Guid.Empty,
+                CreatedAt = seedDate, UpdatedAt = seedDate
+            },
+            new Role
+            {
+                Id = SystemRoles.Manager, Name = SystemRoles.ManagerRole, IsSystemRole = true, CompanyId = Guid.Empty,
+                CreatedAt = seedDate, UpdatedAt = seedDate
+            },
+            new Role
+            {
+                Id = SystemRoles.Employee, Name = SystemRoles.EmployeeRole, IsSystemRole = true, CompanyId = Guid.Empty,
+                CreatedAt = seedDate, UpdatedAt = seedDate
+            }
         );
     }
+
     private void ApplySoftDeleteFilter<T>(ModelBuilder modelBuilder)
         where T : BaseEntity
     {

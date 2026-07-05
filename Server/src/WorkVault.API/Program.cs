@@ -54,6 +54,19 @@ builder.Services.AddRateLimiter(options =>
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                 QueueLimit = 0 // No queueing - reject immediately
             }));
+    
+    // Policy: "forgot-password" - Strict limits for forgot-password (sends email)
+    // 2 requests per minute per IP address
+    options.AddPolicy("forgot-password", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromHours(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0 // No queueing - reject immediately
+            }));
 
     // Policy: "api" - General API rate limit
     // 100 requests per minute per IP address

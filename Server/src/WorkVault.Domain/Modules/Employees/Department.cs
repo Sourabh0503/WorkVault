@@ -29,6 +29,8 @@ public class Department : BaseEntity
     /// Nullable because new departments may not have a head assigned yet.
     /// </summary>
     public Guid? HeadEmployeeId { get; set; }
+    
+    public Employee? HeadEmployee { get; set; }
 
     /// <summary>
     /// Allows nested departments. e.g. "Frontend" under "Engineering".
@@ -42,4 +44,6 @@ public class Department : BaseEntity
     /// to figure out the relationship.
     /// </summary>
     public ICollection<Department> SubDepartments { get; set; } = new List<Department>();
+    
+    public ICollection<Employee> Employees { get; set; } = new List<Employee>();
 }

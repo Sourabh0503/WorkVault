@@ -1,0 +1,30 @@
+<svg class="logo-mark" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
+  <rect class="mark-bg" x="2" y="2" width="48" height="48" rx="13"></rect>
+  <rect
+    class="mark-frame"
+    x="13"
+    y="13"
+    width="26"
+    height="26"
+    rx="6"
+    fill="none"
+    stroke-width="3.5"
+  ></rect>
+  <rect class="mark-core" x="21" y="21" width="18" height="18" rx="4.5"></rect>
+</svg>
+
+@if (showText()) {
+  <span class="logo-text">
+    <span class="logo-line">
+      <span class="logo-wordmark">
+        <span class="wm-work">work</span><span class="wm-vault">Vault</span>
+      </span>
+    </span>
+    @if (tagline()) {
+      <span class="logo-tagline">Workplace OS</span>
+    }
+    @if (showTenant()) {
+      <span class="logo-tagline">{{ tenant() }}</span>
+    }
+  </span>
+}

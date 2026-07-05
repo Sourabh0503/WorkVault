@@ -9,5 +9,8 @@ public record DepartmentListDto(
     string Name,
     string? Description,
     Guid? ParentDepartmentId,
-    string? ParentDepartmentName
+    string? ParentDepartmentName,
+    Guid? HeadEmployeeId,
+    string? HeadEmployeeName,
+    int MemberCount
 );

@@ -187,6 +187,7 @@ public class AuthController(IMediator mediator) : ControllerBase
     /// </summary>
     [HttpPost("forgot-password")]
     [AllowAnonymous]
+    [EnableRateLimiting("forgot-password")]
     public async Task<IActionResult> ForgotPassword(
         [FromBody] ForgotPasswordCommand command,
         CancellationToken cancellationToken)
@@ -215,6 +216,7 @@ public class AuthController(IMediator mediator) : ControllerBase
     /// </summary>
     [HttpGet("reset-token/{token:guid}")]
     [AllowAnonymous]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> ValidateResetToken(
         Guid token,
         CancellationToken cancellationToken)

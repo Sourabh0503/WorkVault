@@ -2,6 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs';
+import { Logo } from '../../shared/components/logo/logo';
 
 interface PanelCopy {
   kicker: string;
@@ -11,7 +12,7 @@ interface PanelCopy {
 
 @Component({
   selector: 'app-auth-layout',
-  imports: [RouterOutlet, RouterLink],
+  imports: [RouterOutlet, RouterLink, Logo],
   templateUrl: './auth-layout.html',
   styleUrl: './auth-layout.scss',
 })

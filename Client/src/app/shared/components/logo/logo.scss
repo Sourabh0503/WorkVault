@@ -1,0 +1,125 @@
+:host {
+  // Mark height in px, set from the component (`--logo-size` host binding).
+  --logo-size: 40px;
+
+  // Colour tokens — overridden by the .is-mono / .is-inverse modifiers below.
+  --logo-primary: var(--color-primary, #059669); // mark background
+  --logo-on-primary: #ffffff;                     // mark detail (frame + core)
+  --logo-ink: var(--color-ink, #0f172a);          // "work"
+  --logo-accent: var(--color-primary, #059669);   // "Vault"
+  --logo-muted: var(--color-ink-faint, #94a3b8);  // tagline + separator
+
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--logo-size) * 0.2);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+// ---- Mark ----
+.logo-mark {
+  height: var(--logo-size);
+  width: var(--logo-size);
+  flex: none;
+  display: block;
+}
+
+.mark-bg {
+  fill: var(--logo-primary);
+}
+
+.mark-frame {
+  stroke: var(--logo-on-primary);
+}
+
+.mark-core {
+  fill: var(--logo-on-primary);
+}
+
+// ---- Text ----
+.logo-text {
+  display: inline-flex;
+  flex-direction: column;
+  gap: calc(var(--logo-size) * 0.05);
+  min-width: 0;
+}
+
+.logo-line {
+  display: inline-flex;
+  align-items: baseline;
+  gap: calc(var(--logo-size) * 0.22);
+  min-width: 0;
+}
+
+.logo-wordmark {
+  font-size: calc(var(--logo-size) * 0.44);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.wm-work {
+  color: var(--logo-ink);
+}
+
+.wm-vault {
+  color: var(--logo-accent);
+}
+
+.logo-sep {
+  width: 1px;
+  align-self: stretch;
+  margin: calc(var(--logo-size) * 0.06) 0;
+  background: var(--logo-muted);
+  opacity: 0.5;
+}
+
+.logo-tenant {
+  font-size: calc(var(--logo-size) * 0.36);
+  font-weight: 600;
+  color: var(--logo-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logo-tagline {
+  font-size: calc(var(--logo-size) * 0.28);
+  font-weight: 500;
+  color: var(--logo-muted);
+  white-space: nowrap;
+}
+
+// ---- Mono: single colour that follows `color` (currentColor) ----
+:host(.is-mono) {
+  color: inherit;
+  --logo-ink: currentColor;
+  --logo-accent: currentColor;
+  --logo-muted: currentColor;
+
+  .mark-bg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3.5;
+  }
+  .mark-frame {
+    stroke: currentColor;
+  }
+  .mark-core {
+    fill: currentColor;
+  }
+  .logo-tagline,
+  .logo-sep {
+    opacity: 0.6;
+  }
+}
+
+// ---- Inverse: light treatment for dark / brand-coloured backgrounds ----
+:host(.is-inverse) {
+  --logo-primary: rgba(255, 255, 255, 0.16);
+  --logo-on-primary: #ffffff;
+  --logo-ink: #ffffff;
+  --logo-accent: #ffffff;
+  --logo-muted: rgba(255, 255, 255, 0.7);
+}

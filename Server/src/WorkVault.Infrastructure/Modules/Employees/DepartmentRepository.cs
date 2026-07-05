@@ -15,7 +15,6 @@ public class DepartmentRepository(AppDbContext context) : IDepartmentRepository
     public async Task<Department?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await context.Departments
-            .Include(d => d.ParentDepartment)
             .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
     }
 
@@ -23,6 +22,9 @@ public class DepartmentRepository(AppDbContext context) : IDepartmentRepository
     {
         return await context.Departments
             .Include(d => d.ParentDepartment)
+            .Include(d => d.HeadEmployee)
+                .ThenInclude(e => e!.User)
+            .Include(d => d.Employees)
             .OrderBy(d => d.Name)
             .ToListAsync(cancellationToken);
     }

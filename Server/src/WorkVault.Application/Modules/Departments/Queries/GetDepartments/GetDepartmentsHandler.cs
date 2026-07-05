@@ -17,7 +17,12 @@ public class GetDepartmentsHandler(IDepartmentRepository repository)
             Name: d.Name,
             Description: d.Description,
             ParentDepartmentId: d.ParentDepartmentId,
-            ParentDepartmentName: d.ParentDepartment?.Name
+            ParentDepartmentName: d.ParentDepartment?.Name,
+            HeadEmployeeId: d.HeadEmployeeId,
+            HeadEmployeeName: d.HeadEmployee != null
+                ? $"{d.HeadEmployee.User?.FirstName} {d.HeadEmployee.User?.LastName}".Trim()
+                : null,
+            MemberCount: d.Employees?.Count ?? 0
         )).ToList();
     }
 }
