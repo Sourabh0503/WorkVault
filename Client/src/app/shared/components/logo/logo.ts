@@ -17,7 +17,7 @@ export type LogoVariant = 'icon' | 'full' | 'tenant';
  *   <app-logo variant="icon" />                        just the mark
  *   <app-logo variant="full" />                        mark + "workVault"
  *   <app-logo variant="full" tagline />                mark + wordmark + "Workplace OS"
- *   <app-logo variant="tenant" tenant="Acme Corp" />   mark + wordmark + tenant name
+ *   <app-logo variant="tenant" tenant="WorkVault" />   mark + wordmark + tenant name
  *   <app-logo mono />                                   single-colour (currentColor)
  *   <app-logo inverse />                                light treatment for dark / brand bgs
  *   <app-logo [height]="48" />                          scale everything off the mark height

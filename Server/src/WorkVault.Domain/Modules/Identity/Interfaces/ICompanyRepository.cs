@@ -10,7 +10,7 @@ public interface ICompanyRepository : IRepository<Company>
     /// <summary>
     /// Finds a company by its domain name.
     /// </summary>
-    /// <param name="domain">The company domain (e.g., "acme.com").</param>
+    /// <param name="domain">The company domain (e.g., "workvault.com").</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The company if found, or null.</returns>
     /// <remarks>

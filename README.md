@@ -244,14 +244,14 @@ POST /api/auth/register
 
 ```json
 {
-  "companyName": "Acme Corp",
-  "domain": "acme.com",
+  "companyName": "WorkVault",
+  "domain": "workvault.com",
   "industry": "Technology",
   "timezone": "Asia/Kolkata",
   "gstNumber": "22AAAAA0000A1Z5",
   "firstName": "John",
   "lastName": "Doe",
-  "email": "john@acme.com",
+  "email": "john@workvault.com",
   "password": "SecureP@ss123"
 }
 ```
@@ -275,7 +275,7 @@ POST /api/auth/login
 
 ```json
 {
-  "email": "john@acme.com",
+  "email": "john@workvault.com",
   "password": "SecureP@ss123"
 }
 ```

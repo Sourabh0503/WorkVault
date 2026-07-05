@@ -65,7 +65,9 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-primary-border);
+  // The brand panel is green in both themes, so its text uses fixed pale
+  // greens rather than the theme tokens (which flip dark for on-neutral chips).
+  color: #A7F3D0;
   margin-bottom: var(--space-4);
 }
 
@@ -81,7 +83,7 @@ h2 {
 .brand-sub {
   font-size: 15px;
   line-height: 1.6;
-  color: var(--color-primary-text-light);
+  color: #D1FAE5;
 }
 
 .brand-tags {
@@ -92,7 +94,7 @@ h2 {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: var(--color-primary-text-dim);
+  color: #6EE7B7;
 }
 
 // ---- Right form column ----

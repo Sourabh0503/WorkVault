@@ -8,6 +8,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
+  // Let the browser theme native controls (scrollbars, form widgets) to match.
+  color-scheme: light dark;
+
+  // Custom cursor — swaps to the dark variant in dark mode (see media block).
+  --cursor-arrow: url('/assets/cursor-light.svg');
+
   // ---- Brand ----
   --color-primary: #059669;
   --color-primary-hover: #047857;
@@ -68,6 +74,57 @@
 }
 
 // =============================================================================
+// Dark theme — follows the OS / browser setting automatically.
+// Only the colour tokens are overridden; every component reads these vars, so
+// the whole app re-themes without touching a single component.
+// =============================================================================
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    // Dark-theme cursor (brighter green, dark outline that melts into the bg)
+    --cursor-arrow: url('/assets/cursor-dark.svg');
+
+    // ---- Brand (emerald brightened for contrast on dark surfaces) ----
+    --color-primary: #10B981;
+    --color-primary-hover: #34D399;
+    --color-primary-tint: #0C2A22;      // faint green fill behind primary content
+    --color-primary-border: #1F5F4A;
+    --color-primary-text-light: #6EE7B7;
+    --color-primary-text-dim: #34D399;
+    --color-success: #22C55E;
+
+    // ---- Ink (text) — scale inverted to light-on-dark ----
+    --color-ink: #F1F5F9;          // headings
+    --color-ink-strong: #E2E8F0;   // labels
+    --color-ink-body: #CBD5E1;     // body text
+    --color-ink-muted: #94A3B8;    // secondary text
+    --color-ink-faint: #64748B;    // placeholders, captions
+
+    // ---- Surfaces — layered dark slate ----
+    --color-surface: #0F172A;
+    --color-surface-alt: #131D31;
+    --color-surface-chip: #1E293B;
+    --color-surface-disabled: #182234;
+
+    // ---- Borders ----
+    --color-border: #24314A;
+    --color-border-strong: #334155;
+    --color-border-input: #334155;
+    --color-border-button: #475569;
+
+    // ---- Shadows — deeper on dark backgrounds ----
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-card-hover: 0 12px 28px rgba(0, 0, 0, 0.5);
+    --shadow-mock: 0 24px 50px rgba(0, 0, 0, 0.55);
+    --shadow-button: 0 4px 14px rgba(5, 150, 105, 0.35);
+    --shadow-cta: 0 20px 44px rgba(5, 150, 105, 0.4);
+    --focus-ring: 0 0 0 3px rgba(16, 185, 129, 0.25);
+  }
+}
+
+// =============================================================================
 // Base reset + defaults
 // =============================================================================
 
@@ -86,17 +143,17 @@ html, body {
   background: var(--color-surface);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  cursor: url('/assets/cursor-light.svg'), auto;
+  cursor: var(--cursor-arrow), auto;
 }
 
 // Pointer cursor for interactive elements
 a, button, [role="button"], input[type="submit"], input[type="button"], select, label[for] {
-  cursor: url('/assets/cursor-light.svg'), pointer;
+  cursor: var(--cursor-arrow), pointer;
 }
 
 // Text cursor for text inputs
 input[type="text"], input[type="email"], input[type="password"], input[type="search"], input[type="tel"], input[type="url"], input[type="number"], textarea {
-  cursor: url('/assets/cursor-light.svg'), text;
+  cursor: var(--cursor-arrow), text;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -153,7 +210,7 @@ button {
   padding: 0;
   background: none;
   border: none;
-  cursor: url('/assets/cursor-light.svg'), pointer;
+  cursor: var(--cursor-arrow), pointer;
   transition: opacity 0.15s ease;
   opacity: 0.7;
 
