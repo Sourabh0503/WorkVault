@@ -39,7 +39,7 @@ public interface IEmployeeRepository : IRepository<Employee>
     /// Used to generate sequential EmployeeCode: EMP-{year}-{count+1:D4}
     /// Note: Has a potential race condition under concurrent requests.
     /// </remarks>
-    Task<int> GetCountForYearAsync(int year, CancellationToken cancellationToken);
+    Task<int> GetCountForYearAsync(Guid companyId, int year, CancellationToken cancellationToken);
 
     /// <summary>
     /// Finds an employee by their linked User account ID.
@@ -52,4 +52,6 @@ public interface IEmployeeRepository : IRepository<Employee>
     /// when the user accepts their invite.
     /// </remarks>
     Task<Employee?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken);
+    
+    Task<IReadOnlyList<Employee>> GetByDepartmentAsync(Guid departmentId, CancellationToken cancellationToken);
 }

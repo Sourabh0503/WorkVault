@@ -1,0 +1,183 @@
+.my-team {
+  padding: 0;
+}
+
+// ---- States ----
+.state-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-16) var(--space-4);
+  color: var(--color-ink-muted);
+  text-align: center;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border-strong);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty {
+  .empty-icon {
+    font-size: 40px;
+    color: var(--color-ink-faint);
+    margin-bottom: var(--space-2);
+  }
+
+  h2 {
+    font-size: 20px;
+    color: var(--color-ink);
+    margin-bottom: var(--space-1);
+  }
+
+  p {
+    max-width: 360px;
+    line-height: 1.5;
+  }
+}
+
+// ---- Header ----
+.team-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.team-header h1 {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+.member-count {
+  font-size: 14px;
+  color: var(--color-ink-muted);
+  font-weight: 500;
+}
+
+// ---- Grid ----
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-4);
+}
+
+// ---- Card ----
+.member-card {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  &.is-me {
+    border-color: var(--color-primary-border);
+    background: var(--color-primary-tint);
+  }
+}
+
+.you-badge {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: white;
+  background: var(--color-primary);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+}
+
+// ---- Avatar ----
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: var(--space-3);
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.avatar-initials {
+  color: white;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+// ---- Info ----
+.member-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-ink);
+  margin-bottom: 2px;
+}
+
+.member-role {
+  font-size: 13px;
+  color: var(--color-ink-muted);
+  font-weight: 500;
+  margin-bottom: var(--space-3);
+}
+
+.member-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: var(--space-3);
+}
+
+.contact-link {
+  font-size: 13px;
+  color: var(--color-primary);
+  font-weight: 500;
+  word-break: break-all;
+
+  &:hover {
+    color: var(--color-primary-hover);
+  }
+}
+
+.contact-phone {
+  font-size: 13px;
+  color: var(--color-ink-body);
+}
+
+.member-code {
+  font-size: 11px;
+  color: var(--color-ink-faint);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-top: auto;
+}

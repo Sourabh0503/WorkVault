@@ -1,0 +1,217 @@
+.employee-list {
+  padding: 1.5rem;
+}
+
+/* ---- Header ---- */
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.list-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.list-controls {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.search-input,
+.status-filter {
+  height: 2.5rem;
+  padding: 0 0.875rem;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-input);
+  border-radius: 0.5rem;
+  outline: none;
+  transition: border-color 0.15s ease;
+
+  &:focus {
+    border-color: var(--color-primary);
+  }
+}
+
+.search-input {
+  min-width: 16rem;
+}
+
+/* ---- State panels (loading / error / empty) ---- */
+.state-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  color: var(--color-ink-muted);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+}
+
+.state-error {
+  color: var(--color-ink-body);
+}
+
+.retry-btn {
+  height: 2.25rem;
+  padding: 0 1rem;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-primary-hover);
+  }
+}
+
+/* ---- Table ---- */
+.table-wrap {
+  overflow-x: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+}
+
+.employee-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  thead th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-ink-muted);
+    background: var(--color-surface-alt);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 0.875rem 1rem;
+    color: var(--color-ink-body);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: var(--color-surface-alt);
+  }
+}
+
+.cell-code {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-muted);
+}
+
+.cell-name {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.cell-email {
+  color: var(--color-ink-body);
+}
+
+/* ---- Status badge ---- */
+.status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 999px;
+  white-space: nowrap;
+
+  /* Pending */
+  &[data-status='0'] {
+    color: #92400e;
+    background: #fef3c7;
+  }
+  /* Active */
+  &[data-status='1'] {
+    color: var(--color-primary-hover);
+    background: var(--color-primary-tint);
+  }
+  /* On Notice */
+  &[data-status='2'] {
+    color: #9a3412;
+    background: #ffedd5;
+  }
+  /* Suspended */
+  &[data-status='3'] {
+    color: #9f1239;
+    background: #ffe4e6;
+  }
+  /* Offboarded */
+  &[data-status='4'] {
+    color: var(--color-ink-muted);
+    background: #f1f5f9;
+  }
+}
+
+/* ---- Footer / pager ---- */
+.list-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.page-info {
+  font-size: 0.8125rem;
+  color: var(--color-ink-muted);
+}
+
+.pager {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pager-btn {
+  height: 2.25rem;
+  padding: 0 1rem;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink-body);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-input);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { jwtDecode } from 'jwt-decode';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
@@ -16,6 +17,14 @@ import {
   SetPasswordResponse,
 } from '../models/auth.models';
 
+// Shape of the claims inside the access token.
+// The role claim uses the full .NET claim URI.
+interface JwtPayload {
+  'http://schemas.microsoft.com/ws/2008/06/identity/claims/role': string;
+  CompanyId: string;
+  'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier': string;
+}
+
 // Storage keys — using constants prevents typos across the codebase
 const STORAGE_ACCESS = 'wv_access_token';
 const STORAGE_REFRESH = 'wv_refresh_token';
@@ -24,6 +33,7 @@ const STORAGE_USER = 'wv_user';
 interface StoredUser {
   userId: string;
   companyId: string;
+  role: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -37,6 +47,9 @@ export class AuthService {
 
   // Public read-only view of the user
   user = this._user.asReadonly();
+
+  // Current user's role — used for showing/hiding UI by permission
+  role = computed(() => this._user()?.role ?? '');
 
   // Derived: is the user logged in?
   isAuthenticated = computed(() => this._user() !== null);
@@ -72,7 +85,11 @@ export class AuthService {
         // We don't know the userId until the /me endpoint is added.
         // For now, store what we have.
         this.setTokens(response.accessToken, response.refreshToken);
-        const user: StoredUser = { userId: response.userId, companyId: response.companyId };
+        const user: StoredUser = {
+          userId: response.userId,
+          companyId: response.companyId,
+          role: this.extractRole(response.accessToken),
+        };
         localStorage.setItem(STORAGE_USER, JSON.stringify(user));
         this._user.set(user);
       }),
@@ -176,6 +193,7 @@ export class AuthService {
     const user: StoredUser = {
       userId: response.userId,
       companyId: response.companyId,
+      role: this.extractRole(response.accessToken),
     };
     localStorage.setItem(STORAGE_USER, JSON.stringify(user));
     this._user.set(user);
@@ -200,6 +218,15 @@ export class AuthService {
       return JSON.parse(raw) as StoredUser;
     } catch {
       return null;
+    }
+  }
+
+  private extractRole(accessToken: string): string {
+    try {
+      const payload = jwtDecode<JwtPayload>(accessToken);
+      return payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ?? '';
+    } catch {
+      return '';
     }
   }
 }

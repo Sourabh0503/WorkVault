@@ -50,7 +50,19 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
+        data: { title: 'Dashboard' },
         loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),
+      },
+      {
+        path: 'employees',
+        data: { title: 'Employees' },
+        loadComponent: () =>
+          import('./features/employees/employee-list/employee-list').then((m) => m.EmployeeList),
+      },
+      {
+        path: 'my-team',
+        data: { title: 'My Team' },
+        loadComponent: () => import('./features/employees/my-team/my-team').then((m) => m.MyTeam),
       },
       // Future: employees, departments, etc go here
     ],

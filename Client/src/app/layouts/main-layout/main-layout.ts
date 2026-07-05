@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map, startWith } from 'rxjs';
 import { Sidebar } from './sidebar/sidebar';
 import { Topbar } from './topbar/topbar';
 
@@ -9,4 +11,26 @@ import { Topbar } from './topbar/topbar';
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.scss'
 })
-export class MainLayout {}
+export class MainLayout {
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  // Derive the page title from the active route's data
+  pageTitle = toSignal(
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      map(() => this.resolveTitle()),
+      startWith(this.resolveTitle())
+    ),
+    { initialValue: 'Dashboard' }
+  );
+
+  private resolveTitle(): string {
+    // Walk to the deepest activated child route
+    let child = this.route.firstChild;
+    while (child?.firstChild) {
+      child = child.firstChild;
+    }
+    return child?.snapshot?.data['title'] ?? 'Dashboard';
+  }
+}

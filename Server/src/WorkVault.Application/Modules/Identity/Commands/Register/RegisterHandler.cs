@@ -4,6 +4,9 @@ using WorkVault.Application.Common.Exceptions;
 using WorkVault.Application.Common.Interfaces;
 using WorkVault.Application.Common.Settings;
 using WorkVault.Application.Modules.Identity.Commands.RegisterCompany;
+using WorkVault.Domain.Modules.Employees;
+using WorkVault.Domain.Modules.Employees.Enums;
+using WorkVault.Domain.Modules.Employees.Interfaces;
 using WorkVault.Domain.Modules.Identity;
 using WorkVault.Domain.Modules.Identity.Interfaces;
 using WorkVault.SharedKernel.Constants;
@@ -13,21 +16,13 @@ namespace WorkVault.Application.Modules.Identity.Commands.Register;
 
 /// <summary>
 /// Handles company registration with admin user creation.
+/// The admin is also created as an Employee record so they appear
+/// in the employee directory with sensible defaults.
 /// </summary>
-/// <remarks>
-/// Registration flow:
-/// 1. Check email uniqueness (across all companies)
-/// 2. Create Company via RegisterCompanyCommand
-/// 3. Create User with CompanyAdmin role
-/// 4. Hash password with BCrypt
-/// 5. Generate JWT access and refresh tokens
-/// 6. Save all changes atomically
-///
-/// This is a public endpoint - no authentication required.
-/// </remarks>
 public class RegisterHandler(
     IMediator mediator,
     IUserRepository userRepository,
+    IEmployeeRepository employeeRepository,
     IUnitOfWork unitOfWork,
     IJwtTokenService jwtTokenService,
     IRefreshTokenRepository refreshTokenRepository,
@@ -38,14 +33,15 @@ public class RegisterHandler(
         RegisterCommand request,
         CancellationToken cancellationToken)
     {
-        var existingUser = await userRepository.GetByEmailAsync(request.Email , cancellationToken);
+        var existingUser = await userRepository.GetByEmailAsync(request.Email, cancellationToken);
         if (existingUser != null)
             throw new ConflictException("User already exists with this email.");
-            
+
         var companyRegisterCommand = new RegisterCompanyCommand(
             request.CompanyName, request.Domain, request.Industry, request.GstNumber);
         var companyGuid = await mediator.Send(companyRegisterCommand, cancellationToken);
 
+        // ---- Create the admin User ----
         var user = new User
         {
             CompanyId = companyGuid,
@@ -57,11 +53,28 @@ public class RegisterHandler(
         };
         await userRepository.AddAsync(user, cancellationToken);
 
-        // Generate tokens
+        // ---- Also create an Employee record for the admin ----
+        // They're a real person at the company — should appear in the directory.
+        // Sparse by default: no department/designation/manager yet. They can
+        // fill those in later via the employee edit page.
+        var year = DateTime.UtcNow.Year;
+        var countSoFar = await employeeRepository.GetCountForYearAsync(user.CompanyId,year, cancellationToken);
+        var employeeCode = $"EMP-{year}-{(countSoFar + 1):D4}";
+
+        var employee = new Employee
+        {
+            CompanyId = companyGuid,
+            UserId = user.Id,
+            EmployeeCode = employeeCode,
+            JoinDate = DateOnly.FromDateTime(DateTime.UtcNow),
+            Status = EmployeeStatus.Active   // admin is already active, no invite needed
+        };
+        await employeeRepository.AddAsync(employee, cancellationToken);
+
+        // ---- Tokens ----
         var accessToken = jwtTokenService.GenerateAccessToken(user, SystemRoles.CompanyAdminRole);
         var refreshTokenString = jwtTokenService.GenerateRefreshToken();
 
-        // Save refresh token to database
         var refreshToken = new RefreshToken
         {
             UserId = user.Id,
@@ -69,9 +82,10 @@ public class RegisterHandler(
             ExpiresAt = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationDays)
         };
         await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+
+        // ---- Single atomic save ----
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new RegisterResponse(companyGuid,user.Id ,accessToken, refreshTokenString);
+        return new RegisterResponse(companyGuid, user.Id, accessToken, refreshTokenString);
     }
-
 }

@@ -86,7 +86,7 @@ public class CreateEmployeeHandler(
 
         // 4. Generate EmployeeCode: EMP-{year}-{0001}
         var year = DateTime.UtcNow.Year;
-        var countSoFar = await employeeRepository.GetCountForYearAsync(year, cancellationToken);
+        var countSoFar = await employeeRepository.GetCountForYearAsync(user.CompanyId,year, cancellationToken);
         var employeeCode = $"EMP-{year}-{(countSoFar + 1):D4}";
 
         // 5. Create Employee record linked to User

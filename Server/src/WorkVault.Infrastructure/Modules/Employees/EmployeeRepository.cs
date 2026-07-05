@@ -75,15 +75,33 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
         return (employees, totalCount);
     }
 
-    public async Task<int> GetCountForYearAsync(int year, CancellationToken cancellationToken)
+    public async Task<int> GetCountForYearAsync(Guid companyId, int year, CancellationToken cancellationToken)
     {
         return await context.Employees
-            .CountAsync(e => e.CreatedAt.Year == year, cancellationToken);
+            .IgnoreQueryFilters()
+            .CountAsync(e => e.CompanyId == companyId 
+                             && e.CreatedAt.Year == year 
+                             && !e.IsDeleted, 
+                cancellationToken);
     }
 
     public async Task<Employee?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         return await context.Employees
+            .Include(e => e.Department)
             .FirstOrDefaultAsync(e => e.UserId == userId, cancellationToken);
+    }
+    
+    public async Task<IReadOnlyList<Employee>> GetByDepartmentAsync(
+        Guid departmentId, CancellationToken cancellationToken)
+    {
+        return await context.Employees
+            .Include(e => e.User)
+            .Include(e => e.Designation)
+            .Where(e => e.DepartmentId == departmentId)
+            .OrderBy(e => e.User!.FirstName)
+            .ThenBy(e => e.User!.LastName)
+            .Take(200)
+            .ToListAsync(cancellationToken);
     }
 }

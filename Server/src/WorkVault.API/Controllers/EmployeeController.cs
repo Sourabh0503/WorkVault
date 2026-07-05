@@ -7,6 +7,7 @@ using WorkVault.Application.Modules.Employees.Commands.ResendInvite;
 using WorkVault.Application.Modules.Employees.Queries.GetEmployeeById;
 using WorkVault.Application.Modules.Employees.Commands.UpdateEmployee;
 using WorkVault.Application.Modules.Employees.Queries.GetEmployees;
+using WorkVault.Application.Modules.Employees.Queries.GetMyTeam;
 using WorkVault.Domain.Modules.Employees.Enums;
 using WorkVault.SharedKernel.Constants;
 
@@ -16,7 +17,9 @@ namespace WorkVault.API.Controllers;
 /// Handles employee management operations.
 /// </summary>
 /// <remarks>
-/// All endpoints require authentication and HR or CompanyAdmin role.
+/// Most endpoints require HR or CompanyAdmin role.
+/// The my-team endpoint is available to any authenticated user
+/// (scoped to their own department).
 /// Rate limited to 200 requests/minute per authenticated user.
 /// </remarks>
 [ApiController]
@@ -40,6 +43,7 @@ public class EmployeesController(IMediator mediator) : ControllerBase
     /// <response code="401">Not authenticated.</response>
     /// <response code="429">Too many requests - rate limit exceeded.</response>
     [HttpGet]
+    [Authorize(Roles = $"{SystemRoles.HRRole},{SystemRoles.CompanyAdminRole}")]
     public async Task<IActionResult> GetAll(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20,
@@ -162,6 +166,19 @@ public class EmployeesController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new ResendInviteCommand(id), cancellationToken);
+        return Ok(result);
+    }
+    
+    /// <summary>
+    /// Returns the members of the current user's own department.
+    /// Available to any authenticated user — the team is scoped to
+    /// their own department automatically (no cross-department access).
+    /// </summary>
+    [HttpGet("my-team")]
+    [Authorize]
+    public async Task<IActionResult> GetMyTeam(CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new GetMyTeamQuery(), cancellationToken);
         return Ok(result);
     }
 }

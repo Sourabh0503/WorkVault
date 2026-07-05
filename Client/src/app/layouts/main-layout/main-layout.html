@@ -2,7 +2,7 @@
   <app-sidebar />
 
   <div class="main">
-    <app-topbar />
+    <app-topbar [title]="pageTitle()"/>
     <div class="content">
       <router-outlet />
     </div>
