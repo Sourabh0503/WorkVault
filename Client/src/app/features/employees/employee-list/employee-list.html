@@ -1,16 +1,14 @@
 <div class="employee-list">
-  <!-- Header: title + controls -->
+  <!-- Header: search (left) · filter + add (right) -->
   <header class="list-header">
-    <h1 class="list-title">Employees</h1>
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search name, email, or code…"
+      (input)="onSearchInput($any($event.target).value)"
+    />
 
-    <div class="list-controls">
-      <input
-        type="text"
-        class="search-input"
-        placeholder="Search name, email, or code…"
-        (input)="onSearchInput($any($event.target).value)"
-      />
-
+    <div class="list-actions">
       <select
         class="status-filter"
         (change)="onStatusChange($any($event.target).value)"
@@ -22,6 +20,8 @@
         <option value="3">Suspended</option>
         <option value="4">Offboarded</option>
       </select>
+
+      <a routerLink="/employees/new" class="add-btn">+ Add Employee</a>
     </div>
   </header>
 

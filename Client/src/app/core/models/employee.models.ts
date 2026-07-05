@@ -52,3 +52,22 @@ export interface MyTeamResult {
   departmentName: string | null;
   members: TeamMember[];
 }
+
+// POST /api/employees — request body
+export interface CreateEmployeeRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  joinDate: string;        // "yyyy-MM-dd"
+  departmentId?: string;
+  designationId?: string;
+  managerId?: string;
+}
+
+// POST /api/employees — response
+export interface CreateEmployeeResult {
+  employeeId: string;
+  employeeCode: string;
+  inviteLink: string;
+}

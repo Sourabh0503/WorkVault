@@ -1,0 +1,280 @@
+.employee-create {
+  max-width: 640px;
+}
+
+// ---- Header ----
+.page-header {
+  margin-bottom: var(--space-6);
+}
+
+.back-link {
+  font-size: 13px;
+  color: var(--color-ink-muted);
+  font-weight: 500;
+  display: inline-block;
+  margin-bottom: var(--space-2);
+
+  &:hover {
+    color: var(--color-ink);
+  }
+}
+
+.page-header h1 {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+// ---- Form ----
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.error-banner {
+  padding: 12px 14px;
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-input);
+  color: var(--color-error-text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-ink-muted);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink-strong);
+}
+
+.optional {
+  font-weight: 500;
+  color: var(--color-ink-faint);
+}
+
+input, select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-input);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &::placeholder {
+    color: var(--color-ink-faint);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--focus-ring);
+  }
+}
+
+select {
+  cursor: pointer;
+}
+
+.field-error {
+  font-size: 13px;
+  color: var(--color-error-text);
+  font-weight: 500;
+}
+
+// ---- Form actions ----
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-4);
+  padding-top: var(--space-2);
+}
+
+.cancel-link {
+  font-size: 14px;
+  color: var(--color-ink-muted);
+  font-weight: 600;
+
+  &:hover {
+    color: var(--color-ink);
+  }
+}
+
+.submit-btn {
+  padding: 12px 22px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-button);
+  transition: background 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// ---- Success panel ----
+.success-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  padding: var(--space-10) var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.success-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+  font-size: 26px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-2);
+}
+
+.success-panel h1 {
+  font-size: 22px;
+  color: var(--color-ink);
+}
+
+.success-sub {
+  font-size: 14px;
+  color: var(--color-ink-muted);
+  line-height: 1.5;
+  max-width: 400px;
+}
+
+// ---- Invite box ----
+.invite-box {
+  width: 100%;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  padding: var(--space-4);
+  margin: var(--space-3) 0;
+  text-align: left;
+}
+
+.invite-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-muted);
+  margin-bottom: var(--space-2);
+}
+
+.invite-link-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.invite-input {
+  flex: 1;
+  font-size: 13px;
+  color: var(--color-ink-body);
+  background: var(--color-surface);
+}
+
+.copy-btn {
+  padding: 0 16px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--color-primary-hover);
+  }
+}
+
+.invite-hint {
+  font-size: 12px;
+  color: var(--color-ink-faint);
+  margin-top: var(--space-2);
+}
+
+// ---- Success actions ----
+.success-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.secondary-btn {
+  padding: 11px 20px;
+  background: var(--color-surface);
+  color: var(--color-ink-strong);
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid var(--color-border-button);
+  border-radius: var(--radius-md);
+
+  &:hover {
+    border-color: var(--color-ink-muted);
+    color: var(--color-ink);
+  }
+}
+
+.primary-btn {
+  padding: 11px 20px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-button);
+
+  &:hover {
+    background: var(--color-primary-hover);
+  }
+}

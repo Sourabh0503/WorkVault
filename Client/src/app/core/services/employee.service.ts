@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { EmployeeListItem, EmployeeListQuery, MyTeamResult } from '../models/employee.models';
+import { CreateEmployeeRequest, CreateEmployeeResult, EmployeeListItem, EmployeeListQuery, MyTeamResult } from '../models/employee.models';
 import { PagedResult } from '../../shared/models/PagedResult.model';
 
 @Injectable({ providedIn: 'root' })
@@ -46,5 +46,10 @@ export class EmployeeService {
    */
   getMyTeam(): Observable<MyTeamResult> {
     return this.http.get<MyTeamResult>(`${this.apiUrl}/employees/my-team`);
+  }
+
+  /** POST /api/employees — creates employee + sends invite. HR/Admin only. */
+  createEmployee(data: CreateEmployeeRequest): Observable<CreateEmployeeResult> {
+    return this.http.post<CreateEmployeeResult>(`${this.apiUrl}/employees`, data);
   }
 }

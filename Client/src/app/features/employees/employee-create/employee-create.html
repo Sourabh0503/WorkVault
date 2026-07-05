@@ -1,0 +1,120 @@
+<div class="employee-create">
+  <!-- Success state -->
+  @if (createdResult(); as result) {
+    <div class="success-panel">
+      <div class="success-icon">✓</div>
+      <h1>Employee created</h1>
+      <p class="success-sub">
+        {{ result.employeeCode }} has been added. Share the invite link below
+        so they can set their password and join.
+      </p>
+
+      <div class="invite-box">
+        <div class="invite-label">Invite link</div>
+        <div class="invite-link-row">
+          <input type="text" [value]="result.inviteLink" readonly class="invite-input" />
+          <button class="copy-btn" (click)="copyLink()">
+            {{ linkCopied() ? 'Copied!' : 'Copy' }}
+          </button>
+        </div>
+        <p class="invite-hint">This link expires in 48 hours.</p>
+      </div>
+
+      <div class="success-actions">
+        <button class="secondary-btn" (click)="addAnother()">Add another</button>
+        <button class="primary-btn" (click)="goToList()">Back to employees</button>
+      </div>
+    </div>
+  }
+
+  <!-- Form state -->
+  @else {
+    <header class="page-header">
+      <div>
+        <a routerLink="/employees" class="back-link">← Employees</a>
+        <h1>Add employee</h1>
+      </div>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+      @if (errorMessage()) {
+        <div class="error-banner">{{ errorMessage() }}</div>
+      }
+
+      <div class="section">
+        <div class="section-label">Personal details</div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="firstName">First name</label>
+            <input id="firstName" type="text" formControlName="firstName" autocomplete="off" />
+            @if (form.controls.firstName.touched && form.controls.firstName.errors?.['required']) {
+              <div class="field-error">Required.</div>
+            }
+          </div>
+
+          <div class="field">
+            <label for="lastName">Last name</label>
+            <input id="lastName" type="text" formControlName="lastName" autocomplete="off" />
+            @if (form.controls.lastName.touched && form.controls.lastName.errors?.['required']) {
+              <div class="field-error">Required.</div>
+            }
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email">Work email</label>
+          <input id="email" type="email" formControlName="email" placeholder="name@company.com" autocomplete="off" />
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <div class="field-error">
+              @if (form.controls.email.errors?.['required']) { Email is required. }
+              @else if (form.controls.email.errors?.['email']) { Enter a valid email. }
+            </div>
+          }
+          @for (msg of fieldErrors()['Email']; track msg) {
+            <div class="field-error">{{ msg }}</div>
+          }
+        </div>
+
+        <div class="field">
+          <label for="phone">Phone <span class="optional">(optional)</span></label>
+          <input id="phone" type="tel" formControlName="phone" placeholder="+91 98765 43210" autocomplete="off" />
+          @for (msg of fieldErrors()['Phone']; track msg) {
+            <div class="field-error">{{ msg }}</div>
+          }
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Employment</div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="joinDate">Join date</label>
+            <input id="joinDate" type="date" formControlName="joinDate" />
+            @if (form.controls.joinDate.touched && form.controls.joinDate.errors?.['required']) {
+              <div class="field-error">Required.</div>
+            }
+          </div>
+
+          <div class="field">
+            <label for="departmentId">Department <span class="optional">(optional)</span></label>
+            <select id="departmentId" formControlName="departmentId">
+              <option value="">No department</option>
+              @for (dept of departments(); track dept.id) {
+                <option [value]="dept.id">{{ dept.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/employees" class="cancel-link">Cancel</a>
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Creating...' : 'Create & send invite' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

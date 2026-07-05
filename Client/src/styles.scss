@@ -23,6 +23,11 @@
   --color-primary-text-dim: #6EE7B7;
   --color-success: #16A34A;
 
+  // ---- Error / danger ----
+  --color-error-bg: #FEF2F2;
+  --color-error-border: #FECACA;
+  --color-error-text: #991B1B;
+
   // ---- Ink (text) ----
   --color-ink: #0F172A;          // headings
   --color-ink-strong: #334155;   // labels
@@ -94,6 +99,11 @@
     --color-primary-text-light: #6EE7B7;
     --color-primary-text-dim: #34D399;
     --color-success: #22C55E;
+
+    // ---- Error / danger (muted for dark surfaces) ----
+    --color-error-bg: #2A1618;
+    --color-error-border: #5C2626;
+    --color-error-text: #FCA5A5;
 
     // ---- Ink (text) — scale inverted to light-on-dark ----
     --color-ink: #F1F5F9;          // headings

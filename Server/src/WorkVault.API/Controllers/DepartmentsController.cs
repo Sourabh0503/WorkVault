@@ -24,6 +24,7 @@ public class DepartmentsController(IMediator mediator) : ControllerBase
     /// Gets all departments for the current company.
     /// </summary>
     [HttpGet]
+    [Authorize(Roles = $"{SystemRoles.HRRole},{SystemRoles.CompanyAdminRole}")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new GetDepartmentsQuery(), cancellationToken);

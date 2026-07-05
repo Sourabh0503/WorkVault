@@ -60,9 +60,25 @@ export const routes: Routes = [
           import('./features/employees/employee-list/employee-list').then((m) => m.EmployeeList),
       },
       {
+        path: 'employees/new',
+        data: { title: 'Add Employee' },
+        loadComponent: () =>
+          import('./features/employees/employee-create/employee-create').then(
+            (m) => m.EmployeeCreate,
+          ),
+      },
+      {
         path: 'my-team',
         data: { title: 'My Team' },
         loadComponent: () => import('./features/employees/my-team/my-team').then((m) => m.MyTeam),
+      },
+      {
+        path: 'departments',
+        data: { title: 'Departments' },
+        loadComponent: () =>
+          import('./features/departments/department-list/department-list').then(
+            (m) => m.DepartmentList,
+          ),
       },
       // Future: employees, departments, etc go here
     ],

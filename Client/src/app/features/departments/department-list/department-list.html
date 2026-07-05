@@ -1,0 +1,96 @@
+<div class="departments">
+  <!-- Header with action -->
+  <header class="page-header">
+    <div>
+      <h1>Departments</h1>
+      <p class="subtitle">Organize your company into teams and units.</p>
+    </div>
+    <button class="new-btn" (click)="toggleForm()">
+      {{ showForm() ? 'Cancel' : '+ New Department' }}
+    </button>
+  </header>
+
+  <!-- Inline create form -->
+  @if (showForm()) {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="create-form">
+      @if (formError()) {
+        <div class="form-error">{{ formError() }}</div>
+      }
+
+      <div class="form-row">
+        <div class="field">
+          <label for="name">Department name</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            placeholder="e.g. Engineering"
+          />
+          @if (form.controls.name.touched && form.controls.name.errors?.['required']) {
+            <div class="field-error">Name is required.</div>
+          }
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="description">Description <span class="optional">(optional)</span></label>
+        <textarea
+          id="description"
+          formControlName="description"
+          rows="2"
+          placeholder="What does this department do?"
+        ></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Creating...' : 'Create department' }}
+      </button>
+    </form>
+  }
+
+  <!-- List states -->
+  @if (loading()) {
+    <div class="state-panel">
+      <div class="spinner"></div>
+      <p>Loading departments...</p>
+    </div>
+  } @else if (error()) {
+    <div class="state-panel">
+      <p>{{ error() }}</p>
+      <button class="retry-btn" (click)="load()">Retry</button>
+    </div>
+  } @else if (departments().length === 0) {
+    <div class="state-panel empty">
+      <div class="empty-icon">⊞</div>
+      <h2>No departments yet</h2>
+      <p>Create your first department to start organizing your team.</p>
+    </div>
+  } @else {
+    <div class="dept-grid">
+      @for (dept of departments(); track dept.id) {
+        <div class="dept-card">
+          <div class="dept-header">
+            <h3>{{ dept.name }}</h3>
+            <span class="member-badge">{{ dept.memberCount }}</span>
+          </div>
+
+          @if (dept.description) {
+            <p class="dept-desc">{{ dept.description }}</p>
+          }
+
+          <div class="dept-meta">
+            @if (dept.parentDepartmentName) {
+              <span class="meta-item">Under {{ dept.parentDepartmentName }}</span>
+            }
+            @if (dept.headEmployeeName) {
+              <span class="meta-item">Head: {{ dept.headEmployeeName }}</span>
+            }
+            @if (!dept.parentDepartmentName && !dept.headEmployeeName) {
+              <span class="meta-item muted">No head assigned</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
