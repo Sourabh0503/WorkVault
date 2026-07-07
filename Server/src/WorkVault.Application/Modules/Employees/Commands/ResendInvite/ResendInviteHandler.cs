@@ -25,6 +25,7 @@ public class ResendInviteHandler(
     IEmployeeRepository employeeRepository,
     IInviteTokenRepository inviteTokenRepository,
     IUnitOfWork unitOfWork,
+    IConfiguration configuration,
     ILogger<ResendInviteHandler> logger)
     : IRequestHandler<ResendInviteCommand, ResendInviteResult>
 {
@@ -64,7 +65,8 @@ public class ResendInviteHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         // 6. Log link (later: send real email)
-        var inviteLink = $"http://localhost:5012/auth/set-password?token={newInvite.Token}";
+        var frontendUrl = configuration["AppSettings:FrontendUrl"];
+        var inviteLink = $"{frontendUrl}/set-password?token={token}";
         logger.LogInformation(
             "Invite resent for {Email}. Link: {InviteLink}",
             employee.User.Email, inviteLink);

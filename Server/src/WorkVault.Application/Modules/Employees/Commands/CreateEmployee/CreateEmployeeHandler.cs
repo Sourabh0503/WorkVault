@@ -37,6 +37,7 @@ public class CreateEmployeeHandler(
     IDesignationRepository designationRepository,
     IInviteTokenRepository inviteTokenRepository,
     ICurrentUserService currentUserService,
+    IConfiguration configuration,
     IUnitOfWork unitOfWork,
     ILogger<CreateEmployeeHandler> logger)
     : IRequestHandler<CreateEmployeeCommand, CreateEmployeeResult>
@@ -122,7 +123,8 @@ public class CreateEmployeeHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         // 9. Stub the email — log the link to console for now
-        var inviteLink = $"http://localhost:4200/set-password?token={inviteToken.Token}";
+        var frontendUrl = configuration["AppSettings:FrontendUrl"];
+        var inviteLink = $"{frontendUrl}/set-password?token={token}";
         logger.LogInformation(
             "Invite created for {Email}. Link: {InviteLink}",
             user.Email, inviteLink);
