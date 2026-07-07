@@ -17,3 +17,6 @@ WORKVAULT_ROADMAP.md
 *.sln.docstates
 .DS_Store
 /docs
+.config
+.claude
+/Client/.claude
