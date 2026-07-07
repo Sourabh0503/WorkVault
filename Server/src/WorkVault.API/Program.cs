@@ -1,3 +1,14 @@
+// =============================================================================
+// Composition root for the WorkVault API.
+//
+// Wires up, in order: MVC controllers + Swagger, rate limiting (auth /
+// forgot-password / api / authenticated policies), the Application and
+// Infrastructure layers (MediatR, EF Core, repositories), JWT bearer
+// authentication, and CORS. Then builds the request pipeline — exception
+// handling → CORS → rate limiter → authN → authZ → Swagger (dev) → controllers.
+// Pipeline order is deliberate; see the inline sections below.
+// =============================================================================
+
 using System.Text;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

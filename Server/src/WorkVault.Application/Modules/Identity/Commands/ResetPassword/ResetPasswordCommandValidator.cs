@@ -2,6 +2,10 @@ using FluentValidation;
 
 namespace WorkVault.Application.Modules.Identity.Commands.ResetPassword;
 
+/// <summary>
+/// Validates <see cref="ResetPasswordCommand"/>: reset token present and a strong
+/// password (min 8 chars, upper/lower/digit/special).
+/// </summary>
 public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordCommand>
 {
     public ResetPasswordCommandValidator()

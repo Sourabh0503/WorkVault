@@ -11,6 +11,11 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })
+/**
+ * Login page. Collects email + password, submits via `AuthService.login`, surfaces
+ * API errors, and toggles password visibility. On success the service stores the
+ * session and the guard routes onward.
+ */
 export class Login {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);

@@ -2,6 +2,7 @@ using FluentValidation;
 
 namespace WorkVault.Application.Modules.Identity.Commands.Login;
 
+/// <summary>Validates <see cref="LoginCommand"/>: email present and well-formed, password present.</summary>
 public class LoginCommandValidator : AbstractValidator<LoginCommand>
 {
     public LoginCommandValidator()

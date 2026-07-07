@@ -6,14 +6,22 @@ using WorkVault.Infrastructure.Persistence;
 
 namespace WorkVault.Infrastructure.Modules.Employees;
 
+/// <summary>
+/// EF Core data access for <see cref="Employee"/>. All queries are automatically
+/// scoped to the current tenant by the global CompanyId query filter (except where
+/// <c>IgnoreQueryFilters</c> is used explicitly). Writes never call SaveChanges —
+/// the handler commits via <c>IUnitOfWork</c>.
+/// </summary>
 public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
 {
+    /// <summary>Stages a new employee for insertion (committed later by the Unit of Work).</summary>
     public async Task AddAsync(Employee employee, CancellationToken cancellationToken)
     {
         await context.Employees.AddAsync(employee, cancellationToken);
         // No SaveChanges — handler controls via IUnitOfWork
     }
 
+    /// <summary>Loads a single employee by id with user, department, designation, and manager eager-loaded.</summary>
     public async Task<Employee?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await context.Employees
@@ -25,6 +33,11 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
+    /// <summary>
+    /// Returns a page of employees plus the total match count. Optionally filters by
+    /// department, status, or manager, and by a case-insensitive search across employee
+    /// code, email, first name, and last name. Ordered by name.
+    /// </summary>
     public async Task<(IReadOnlyList<Employee> Employees, int TotalCount)> GetAllAsync(
         int pageNumber,
         int pageSize,
@@ -75,6 +88,10 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
         return (employees, totalCount);
     }
 
+    /// <summary>
+    /// Counts a company's employees created in a given year, ignoring the tenant query
+    /// filter (companyId is passed explicitly) — used to generate sequential employee codes.
+    /// </summary>
     public async Task<int> GetCountForYearAsync(Guid companyId, int year, CancellationToken cancellationToken)
     {
         return await context.Employees
@@ -85,13 +102,15 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
                 cancellationToken);
     }
 
+    /// <summary>Finds the employee record linked to a given user id (department eager-loaded).</summary>
     public async Task<Employee?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         return await context.Employees
             .Include(e => e.Department)
             .FirstOrDefaultAsync(e => e.UserId == userId, cancellationToken);
     }
-    
+
+    /// <summary>Returns up to 200 employees in a department (user + designation loaded), ordered by name.</summary>
     public async Task<IReadOnlyList<Employee>> GetByDepartmentAsync(
         Guid departmentId, CancellationToken cancellationToken)
     {
@@ -105,6 +124,7 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
             .ToListAsync(cancellationToken);
     }
     
+    /// <summary>Returns employee counts grouped by status for the current company (one query, dashboard use).</summary>
     public async Task<Dictionary<EmployeeStatus, int>> GetStatusCountsAsync(
         CancellationToken cancellationToken)
     {
@@ -117,6 +137,7 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
         return counts.ToDictionary(x => x.Status, x => x.Count);
     }
     
+    /// <summary>True if any employee is assigned to the given department (blocks deletion).</summary>
     public async Task<bool> HasMembersInDepartmentAsync(Guid departmentId, CancellationToken cancellationToken)
     {
         return await context.Employees

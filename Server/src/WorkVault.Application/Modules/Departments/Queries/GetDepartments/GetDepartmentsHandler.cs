@@ -3,9 +3,11 @@ using WorkVault.Domain.Modules.Employees.Interfaces;
 
 namespace WorkVault.Application.Modules.Departments.Queries.GetDepartments;
 
+/// <summary>Loads all departments and projects them to <see cref="DepartmentListDto"/> rows.</summary>
 public class GetDepartmentsHandler(IDepartmentRepository repository)
     : IRequestHandler<GetDepartmentsQuery, IReadOnlyList<DepartmentListDto>>
 {
+    /// <summary>Returns every department with its parent name, head name, and member count.</summary>
     public async Task<IReadOnlyList<DepartmentListDto>> Handle(
         GetDepartmentsQuery request,
         CancellationToken cancellationToken)

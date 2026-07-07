@@ -6,12 +6,17 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Designations.Commands.CreateDesignation;
 
+/// <summary>
+/// Creates a designation after verifying its department exists and the title is unique
+/// within that department.
+/// </summary>
 public class CreateDesignationHandler(
     IDesignationRepository designationRepository,
     IDepartmentRepository departmentRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<CreateDesignationCommand, CreateDesignationResult>
 {
+    /// <summary>Validates the department + unique title, persists the designation, and returns it.</summary>
     public async Task<CreateDesignationResult> Handle(
         CreateDesignationCommand request,
         CancellationToken cancellationToken)

@@ -11,6 +11,11 @@ import { ApiError, ResetTokenInfo } from '../../../core/models/auth.models';
   templateUrl: './reset-password.html',
   styleUrl: './reset-password.scss'
 })
+/**
+ * Reset-password page. Validates the `?token` from the URL (showing an invalid-link
+ * state if it fails), greets the user by name, then submits a new password via
+ * `AuthService.resetPassword`. Does not auto-login — user signs in afterwards.
+ */
 export class ResetPassword {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);

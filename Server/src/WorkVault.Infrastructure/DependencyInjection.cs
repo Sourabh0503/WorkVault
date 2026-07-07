@@ -13,8 +13,13 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Infrastructure;
 
+/// <summary>Registers the Infrastructure layer: the EF Core DbContext, JWT service, Unit of Work, and repositories.</summary>
 public static class DependencyInjection
 {
+    /// <summary>
+    /// Wires up PostgreSQL via <see cref="AppDbContext"/>, binds <c>JwtSettings</c>, and registers
+    /// the JWT token service, Unit of Work, and all module repositories as scoped services.
+    /// </summary>
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
         IConfiguration configuration)

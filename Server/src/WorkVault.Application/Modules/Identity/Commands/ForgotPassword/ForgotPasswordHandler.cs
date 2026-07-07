@@ -6,6 +6,18 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Commands.ForgotPassword;
 
+/// <summary>
+/// Issues a password reset token for a registered, active user.
+/// </summary>
+/// <remarks>
+/// Flow:
+/// 1. Look up the user by email.
+/// 2. Silently return (still 200) if not found or inactive — never leak whether an email exists.
+/// 3. Invalidate any existing active reset token for the user.
+/// 4. Create a new reset token (2h expiry).
+/// 5. Save.
+/// 6. Log the reset link (real email delivery is a future enhancement).
+/// </remarks>
 public class ForgotPasswordHandler(
     IUserRepository userRepository,
     IPasswordResetTokenRepository resetTokenRepository,
@@ -13,6 +25,7 @@ public class ForgotPasswordHandler(
     ILogger<ForgotPasswordHandler> logger)
     : IRequestHandler<ForgotPasswordCommand>
 {
+    /// <summary>Generates (or refreshes) the reset token for the requested email.</summary>
     public async Task Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
     {
         // 1. Look up the user by email

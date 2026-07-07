@@ -11,6 +11,10 @@ import { Topbar } from './topbar/topbar';
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.scss'
 })
+/**
+ * Shell for authenticated pages: renders the sidebar + topbar around a `<router-outlet>`.
+ * Derives the topbar title from the deepest active route's `data.title` on every navigation.
+ */
 export class MainLayout {
   private router = inject(Router);
   private route = inject(ActivatedRoute);

@@ -2,6 +2,7 @@ using FluentValidation;
 
 namespace WorkVault.Application.Modules.Departments.Commands.CreateDepartment;
 
+/// <summary>Validates <see cref="CreateDepartmentCommand"/>: name required (≤100), description ≤500.</summary>
 public class CreateDepartmentCommandValidator : AbstractValidator<CreateDepartmentCommand>
 {
     public CreateDepartmentCommandValidator()

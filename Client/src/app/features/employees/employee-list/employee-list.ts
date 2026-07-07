@@ -15,6 +15,11 @@ import {
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.scss',
 })
+/**
+ * Employees list page. Renders a paginated, searchable, status-filterable table via
+ * `EmployeeService.getEmployees` (search input is debounced), links each row to the
+ * detail page, and provides the "Add Employee" entry point.
+ */
 export class EmployeeList implements OnInit, OnDestroy {
   private employeeService = inject(EmployeeService);
 

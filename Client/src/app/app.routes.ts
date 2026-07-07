@@ -2,6 +2,14 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 
+/**
+ * Application routes, grouped into three shells:
+ * - Public landing (`guestGuard`).
+ * - Auth pages under `AuthLayout` (`guestGuard`): login, register, set/forgot/reset password.
+ * - Protected pages under `MainLayout` (`authGuard`): dashboard, employees (+ new/:id),
+ *   my-team, departments. Each carries a `data.title` used by the topbar.
+ * Unknown paths redirect to the landing page.
+ */
 export const routes: Routes = [
   {
     path: '',

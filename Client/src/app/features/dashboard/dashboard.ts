@@ -11,6 +11,10 @@ import { DashboardStats } from '../../core/models/dashboard.models';
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
+/**
+ * Dashboard landing page. For HR/CompanyAdmin it loads company aggregates
+ * (`DashboardService.getStats`); other roles see a role-appropriate view without stats.
+ */
 export class Dashboard implements OnInit {
   private authService = inject(AuthService);
   private dashboardService = inject(DashboardService);

@@ -5,12 +5,17 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Departments.Commands.DeleteDepartment;
 
+/// <summary>
+/// Soft-deletes a department after ensuring it has no employees and no sub-departments
+/// (both would be orphaned); throws <see cref="BusinessRuleException"/> otherwise.
+/// </summary>
 public class DeleteDepartmentHandler(
     IDepartmentRepository departmentRepository,
     IEmployeeRepository employeeRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<DeleteDepartmentCommand>
 {
+    /// <summary>Validates the department is empty of members/children, then soft-deletes it.</summary>
     public async Task Handle(DeleteDepartmentCommand request, CancellationToken cancellationToken)
     {
         var department = await departmentRepository.GetByIdAsync(request.Id, cancellationToken);

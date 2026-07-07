@@ -11,6 +11,11 @@ import { ApiError } from '../../../core/models/auth.models';
   templateUrl: './department-list.html',
   styleUrl: './department-list.scss'
 })
+/**
+ * Departments page. Lists departments as a card grid and manages them inline via a
+ * single form that both creates and edits (`editingId` distinguishes the mode), backed
+ * by `DepartmentService`.
+ */
 export class DepartmentList implements OnInit {
   private departmentService = inject(DepartmentService);
   private fb = inject(FormBuilder);

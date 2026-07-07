@@ -11,6 +11,11 @@ import { ApiError } from '../../../core/models/auth.models';
   templateUrl: './register.html',
   styleUrl: './register.scss'
 })
+/**
+ * Registration page — self-serve signup that creates a company + admin user in one
+ * step via `AuthService.register`. Handles field-level API validation errors and
+ * password visibility.
+ */
 export class Register {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);

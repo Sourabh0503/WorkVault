@@ -2,6 +2,7 @@ using FluentValidation;
 
 namespace WorkVault.Application.Modules.Identity.Commands.ForgotPassword;
 
+/// <summary>Validates <see cref="ForgotPasswordCommand"/>: email present, well-formed, ≤256 chars.</summary>
 public class ForgotPasswordCommandValidator : AbstractValidator<ForgotPasswordCommand>
 {
     public ForgotPasswordCommandValidator()

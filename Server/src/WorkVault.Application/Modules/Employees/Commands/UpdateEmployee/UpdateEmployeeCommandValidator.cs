@@ -3,6 +3,11 @@ using WorkVault.Domain.Modules.Employees.Enums;
 
 namespace WorkVault.Application.Modules.Employees.Commands.UpdateEmployee;
 
+/// <summary>
+/// Validates <see cref="UpdateEmployeeCommand"/>: required identity fields, optional
+/// phone/photo-URL formats, chronological date ordering (join ≤ resignation ≤ last-working-day),
+/// and status-dependent rules (resignation required for OnNotice, last working day for Offboarded).
+/// </summary>
 public class UpdateEmployeeCommandValidator : AbstractValidator<UpdateEmployeeCommand>
 {
     public UpdateEmployeeCommandValidator()

@@ -2,6 +2,10 @@ using FluentValidation;
 
 namespace WorkVault.Application.Modules.Identity.Commands.Register;
 
+/// <summary>
+/// Validates <see cref="RegisterCommand"/>: required company/name fields with length
+/// limits, valid email, and a strong password (min 8 chars, upper/lower/digit/special).
+/// </summary>
 public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
     public RegisterCommandValidator()

@@ -5,11 +5,16 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Designations.Commands.DeleteDesignation;
 
+/// <summary>
+/// Soft-deletes a designation after ensuring no employees are assigned to it
+/// (throws <see cref="BusinessRuleException"/> otherwise).
+/// </summary>
 public class DeleteDesignationHandler(
     IDesignationRepository designationRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<DeleteDesignationCommand>
 {
+    /// <summary>Validates the designation has no assignees, then soft-deletes it.</summary>
     public async Task Handle(
         DeleteDesignationCommand request,
         CancellationToken cancellationToken)

@@ -8,6 +8,11 @@ import { TeamMember } from '../../../core/models/employee.models';
   templateUrl: './my-team.html',
   styleUrl: './my-team.scss'
 })
+/**
+ * My Team page. Loads the signed-in user's department roster via
+ * `EmployeeService.getMyTeam` and renders members (highlighting "you"). Empty when the
+ * user has no department assigned.
+ */
 export class MyTeam implements OnInit {
   private employeeService = inject(EmployeeService);
 

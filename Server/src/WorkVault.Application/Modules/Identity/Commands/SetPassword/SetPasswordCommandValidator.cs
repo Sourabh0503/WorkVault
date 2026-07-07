@@ -2,6 +2,10 @@ using FluentValidation;
 
 namespace WorkVault.Application.Modules.Identity.Commands.SetPassword;
 
+/// <summary>
+/// Validates <see cref="SetPasswordCommand"/>: invite token present and a strong
+/// password (min 8 chars, upper/lower/digit/special).
+/// </summary>
 public class SetPasswordCommandValidator : AbstractValidator<SetPasswordCommand>
 {
     public SetPasswordCommandValidator()

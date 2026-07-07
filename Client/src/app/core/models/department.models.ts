@@ -1,3 +1,8 @@
+/**
+ * Department types for the departments feature — the list/read model plus the
+ * create/update request DTOs. Each mirrors its backend counterpart (noted inline).
+ */
+
 // Matches DepartmentDto from GetDepartmentsHandler.cs
 export interface Department {
   id: string;

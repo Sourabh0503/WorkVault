@@ -4,11 +4,16 @@ using WorkVault.Domain.Modules.Employees.Interfaces;
 
 namespace WorkVault.Application.Modules.Employees.Queries.GetMyTeam;
 
+/// <summary>
+/// Resolves the current user's department and returns its members. Yields an empty
+/// result when the user has no employee record or no department assigned.
+/// </summary>
 public class GetMyTeamHandler(
     IEmployeeRepository employeeRepository,
     ICurrentUserService currentUser)
     : IRequestHandler<GetMyTeamQuery, MyTeamResult>
 {
+    /// <summary>Loads the caller's department roster, flagging which member is the caller.</summary>
     public async Task<MyTeamResult> Handle(
         GetMyTeamQuery request,
         CancellationToken cancellationToken)

@@ -9,6 +9,11 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.scss'
 })
+/**
+ * Forgot-password page. Submits an email to `AuthService.forgotPassword`, then switches
+ * to a "check your email" confirmation. The API always succeeds regardless of whether
+ * the email exists, so the UI never reveals account existence.
+ */
 export class ForgotPassword {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);

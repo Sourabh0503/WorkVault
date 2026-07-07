@@ -9,6 +9,18 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Employees.Commands.ResendInvite;
 
+/// <summary>
+/// Regenerates the invite token for a pending employee and returns a new invite link.
+/// </summary>
+/// <remarks>
+/// Flow:
+/// 1. Load the employee (tenant-scoped) and its linked user.
+/// 2. Reject unless the employee is still <see cref="EmployeeStatus.Pending"/>.
+/// 3. Revoke any existing active invite token.
+/// 4. Create a fresh invite token (48h expiry).
+/// 5. Save in one transaction.
+/// 6. Log the link (real email delivery is a future enhancement) and return it.
+/// </remarks>
 public class ResendInviteHandler(
     IEmployeeRepository employeeRepository,
     IInviteTokenRepository inviteTokenRepository,
@@ -16,6 +28,7 @@ public class ResendInviteHandler(
     ILogger<ResendInviteHandler> logger)
     : IRequestHandler<ResendInviteCommand, ResendInviteResult>
 {
+    /// <summary>Validates the employee is pending, rotates the invite token, and returns the new link.</summary>
     public async Task<ResendInviteResult> Handle(
         ResendInviteCommand request,
         CancellationToken cancellationToken)

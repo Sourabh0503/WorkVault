@@ -14,6 +14,11 @@ import { ApiError } from '../../../core/models/auth.models';
   templateUrl: './employee-create.html',
   styleUrl: './employee-create.scss'
 })
+/**
+ * Add-employee page. Loads departments for the dropdown, submits the create form via
+ * `EmployeeService.createEmployee`, maps field-level API errors, and on success shows a
+ * confirmation panel with the shareable invite link.
+ */
 export class EmployeeCreate implements OnInit {
   private fb = inject(FormBuilder);
   private employeeService = inject(EmployeeService);

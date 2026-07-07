@@ -5,12 +5,21 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Departments.Commands.UpdateDepartment;
 
+/// <summary>
+/// Updates a department, enforcing a unique name and a valid, acyclic hierarchy.
+/// </summary>
+/// <remarks>
+/// Guards: department must exist; name unique (excluding itself); a parent must exist,
+/// cannot be the department itself, and cannot be one of its descendants (walks the
+/// ancestor chain to reject cycles); an optional head employee must exist in the tenant.
+/// </remarks>
 public class UpdateDepartmentHandler(
     IDepartmentRepository departmentRepository,
     IEmployeeRepository employeeRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<UpdateDepartmentCommand, UpdateDepartmentResult>
 {
+    /// <summary>Validates the changes (incl. circular-parent check), applies them, and saves.</summary>
     public async Task<UpdateDepartmentResult> Handle(
         UpdateDepartmentCommand request,
         CancellationToken cancellationToken)

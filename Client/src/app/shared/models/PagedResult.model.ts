@@ -1,4 +1,4 @@
-// Mirrors PagedResult<T> (WorkVault.SharedKernel.Models).
+/** A page of results plus paging metadata. Mirrors `PagedResult<T>` (WorkVault.SharedKernel.Models). */
 export interface PagedResult<T> {
   items: T[];
   totalCount: number;

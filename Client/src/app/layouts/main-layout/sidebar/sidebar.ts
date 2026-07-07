@@ -16,6 +16,11 @@ interface NavItem {
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss'
 })
+/**
+ * App sidebar: the brand logo (with tenant name) and role-filtered navigation. Nav items
+ * declare which roles may see them; `navItems` derives the visible set from the current
+ * user's role. Also exposes sign-out.
+ */
 export class Sidebar {
   private authService = inject(AuthService);
 

@@ -8,6 +8,7 @@ import { Logo } from '../../shared/components/logo/logo';
   templateUrl: './landing.html',
   styleUrl: './landing.scss',
 })
+/** Public marketing landing page — static content (stats, modules, steps, plans) + CTAs. */
 export class Landing {
   stats = [
     { big: '<5 min', label: 'Full company setup' },

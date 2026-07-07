@@ -6,12 +6,17 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Departments.Commands.CreateDepartment;
 
+/// <summary>
+/// Creates a department after guarding against duplicate names and validating that the
+/// optional parent department and head employee exist within the tenant.
+/// </summary>
 public class CreateDepartmentHandler(
     IDepartmentRepository departmentRepository,
     IEmployeeRepository employeeRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<CreateDepartmentCommand, CreateDepartmentResult>
 {
+    /// <summary>Validates references, persists the department, and returns its id + name.</summary>
     public async Task<CreateDepartmentResult> Handle(
         CreateDepartmentCommand request,
         CancellationToken cancellationToken)

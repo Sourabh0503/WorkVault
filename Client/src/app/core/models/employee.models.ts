@@ -1,3 +1,9 @@
+/**
+ * Employee domain types shared across the employee feature — status enum/labels, list
+ * rows, query params, my-team shapes, and the create/detail/update request+response
+ * DTOs. Each interface mirrors its backend counterpart (noted inline).
+ */
+
 // Mirrors EmployeeStatus enum (WorkVault.Domain).
 export enum EmployeeStatus {
   Pending = 0,

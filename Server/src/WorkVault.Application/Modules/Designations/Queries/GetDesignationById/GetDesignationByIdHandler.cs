@@ -3,9 +3,11 @@ using WorkVault.Domain.Modules.Employees.Interfaces;
 
 namespace WorkVault.Application.Modules.Designations.Queries.GetDesignationById;
 
+/// <summary>Loads a designation by id and maps it to a <see cref="DesignationDto"/> (null if missing).</summary>
 public class GetDesignationByIdHandler(IDesignationRepository repository)
     : IRequestHandler<GetDesignationByIdQuery, DesignationDto?>
 {
+    /// <summary>Returns the designation detail, or null when no designation matches the id.</summary>
     public async Task<DesignationDto?> Handle(
         GetDesignationByIdQuery request,
         CancellationToken cancellationToken)

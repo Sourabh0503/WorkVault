@@ -4,11 +4,16 @@ using WorkVault.Domain.Modules.Employees.Interfaces;
 
 namespace WorkVault.Application.Modules.Dashboard.Queries.GetDashboardStats;
 
+/// <summary>
+/// Computes dashboard aggregates from a single employee status-count query plus a
+/// department count, deriving total/active/pending from the status buckets.
+/// </summary>
 public class GetDashboardStatsHandler(
     IEmployeeRepository employeeRepository,
     IDepartmentRepository departmentRepository)
     : IRequestHandler<GetDashboardStatsQuery, DashboardStatsDto>
 {
+    /// <summary>Returns total/active/pending employee counts and the department count.</summary>
     public async Task<DashboardStatsDto> Handle(
         GetDashboardStatsQuery request,
         CancellationToken cancellationToken)

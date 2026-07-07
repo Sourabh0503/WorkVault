@@ -2,6 +2,7 @@ using FluentValidation;
 
 namespace WorkVault.Application.Modules.Designations.Commands.UpdateDesignation;
 
+/// <summary>Validates <see cref="UpdateDesignationCommand"/>: id + title required (title ≤100), level 1–10, department required.</summary>
 public class UpdateDesignationCommandValidator : AbstractValidator<UpdateDesignationCommand>
 {
     public UpdateDesignationCommandValidator()

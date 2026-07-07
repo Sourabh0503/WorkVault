@@ -2,6 +2,7 @@ using FluentValidation;
 
 namespace WorkVault.Application.Modules.Designations.Commands.CreateDesignation;
 
+/// <summary>Validates <see cref="CreateDesignationCommand"/>: title required (≤100), level 1–10, department required.</summary>
 public class CreateDesignationCommandValidator : AbstractValidator<CreateDesignationCommand>
 {
     public CreateDesignationCommandValidator()

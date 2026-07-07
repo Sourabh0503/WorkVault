@@ -5,12 +5,25 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Commands.ResetPassword;
 
+/// <summary>
+/// Applies a new password from a valid reset token and revokes all existing sessions.
+/// </summary>
+/// <remarks>
+/// Flow:
+/// 1. Look up the reset token (user eagerly loaded).
+/// 2. Throw <see cref="NotFoundException"/> if the token is invalid/expired/used or the user is inactive.
+/// 3. Hash and store the new password.
+/// 4. Mark the token used (single-use).
+/// 5. Revoke ALL of the user's refresh tokens (kicks out any stolen sessions).
+/// 6. Save in a single transaction.
+/// </remarks>
 public class ResetPasswordHandler(
     IPasswordResetTokenRepository resetTokenRepository,
     IRefreshTokenRepository refreshTokenRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<ResetPasswordCommand>
 {
+    /// <summary>Validates the token, updates the password, and revokes existing sessions.</summary>
     public async Task Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
     {
         // 1. Look up reset token (User + Role loaded via .Include chain)

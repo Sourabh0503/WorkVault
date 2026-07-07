@@ -5,13 +5,19 @@ using WorkVault.Infrastructure.Persistence;
 
 namespace WorkVault.Infrastructure.Modules.Employees;
 
+/// <summary>
+/// EF Core data access for <see cref="Designation"/>, tenant-scoped by the global query
+/// filter. Writes stage changes only; the handler commits via <c>IUnitOfWork</c>.
+/// </summary>
 public class DesignationRepository(AppDbContext context) : IDesignationRepository
 {
+    /// <summary>Stages a new designation for insertion.</summary>
     public async Task AddAsync(Designation designation, CancellationToken cancellationToken)
     {
         await context.Designations.AddAsync(designation, cancellationToken);
     }
 
+    /// <summary>Loads a single designation by id (department eager-loaded).</summary>
     public async Task<Designation?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await context.Designations
@@ -19,6 +25,7 @@ public class DesignationRepository(AppDbContext context) : IDesignationRepositor
             .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
     }
 
+    /// <summary>Lists designations (optionally for one department), ordered by department, level, then title.</summary>
     public async Task<IReadOnlyList<Designation>> GetAllAsync(Guid? departmentId, CancellationToken cancellationToken)
     {
         var query = context.Designations
@@ -35,6 +42,7 @@ public class DesignationRepository(AppDbContext context) : IDesignationRepositor
             .ToListAsync(cancellationToken);
     }
 
+    /// <summary>Case-insensitive check for a duplicate title within a department; optionally excludes one id (for updates).</summary>
     public async Task<bool> ExistsByTitleAsync(string title, Guid departmentId, Guid? excludeId, CancellationToken cancellationToken)
     {
         var query = context.Designations
@@ -46,6 +54,7 @@ public class DesignationRepository(AppDbContext context) : IDesignationRepositor
         return await query.AnyAsync(cancellationToken);
     }
 
+    /// <summary>True if any employee holds this designation (blocks deletion).</summary>
     public async Task<bool> HasEmployeesAsync(Guid designationId, CancellationToken cancellationToken)
     {
         return await context.Employees.AnyAsync(e => e.DesignationId == designationId, cancellationToken);

@@ -7,6 +7,7 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
+/** Root component — the app shell that hosts the top-level `<router-outlet>`. */
 export class App {
   protected readonly title = signal('Client');
 }

@@ -19,6 +19,11 @@ import { ApiError } from '../../../core/models/auth.models';
   templateUrl: './employee-detail-page.html',
   styleUrl: './employee-detail-page.scss'
 })
+/**
+ * Employee detail/edit page. Loads an employee by the route `:id`, renders their
+ * profile, and toggles into an edit form (status, department, etc.) submitted via
+ * `EmployeeService.updateEmployee`. For pending employees it can also resend the invite.
+ */
 export class EmployeeDetailPage implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);

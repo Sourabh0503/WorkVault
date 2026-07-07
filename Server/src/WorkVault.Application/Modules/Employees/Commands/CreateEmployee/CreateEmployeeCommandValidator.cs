@@ -2,6 +2,10 @@ using FluentValidation;
 
 namespace WorkVault.Application.Modules.Employees.Commands.CreateEmployee;
 
+/// <summary>
+/// Validates <see cref="CreateEmployeeCommand"/>: required names/email with length
+/// limits, optional phone format, and a join date within a sane window (≤1yr future, ≤50yr past).
+/// </summary>
 public class CreateEmployeeCommandValidator : AbstractValidator<CreateEmployeeCommand>
 {
     public CreateEmployeeCommandValidator()

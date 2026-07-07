@@ -3,9 +3,10 @@ using WorkVault.Domain.Modules.Identity.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Queries.GetCompanyById;
 
+/// <summary>Loads a company by id and maps it to a <see cref="CompanyDto"/> (null if missing).</summary>
 public class GetCompanyByIdHandler(ICompanyRepository repository) : IRequestHandler<GetCompanyByIdQuery, CompanyDto?>
 {
-
+    /// <summary>Returns the company profile, or null when no company matches the id.</summary>
     public async Task<CompanyDto?> Handle(
         GetCompanyByIdQuery request,
         CancellationToken cancellationToken)

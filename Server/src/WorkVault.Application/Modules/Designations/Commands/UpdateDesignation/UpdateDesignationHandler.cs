@@ -5,12 +5,17 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Designations.Commands.UpdateDesignation;
 
+/// <summary>
+/// Updates a designation after verifying it exists, its target department exists, and
+/// the new title is unique within that department (excluding itself).
+/// </summary>
 public class UpdateDesignationHandler(
     IDesignationRepository designationRepository,
     IDepartmentRepository departmentRepository,
     IUnitOfWork unitOfWork)
     : IRequestHandler<UpdateDesignationCommand, UpdateDesignationResult>
 {
+    /// <summary>Validates references + unique title, applies the changes, and saves.</summary>
     public async Task<UpdateDesignationResult> Handle(
         UpdateDesignationCommand request,
         CancellationToken cancellationToken)

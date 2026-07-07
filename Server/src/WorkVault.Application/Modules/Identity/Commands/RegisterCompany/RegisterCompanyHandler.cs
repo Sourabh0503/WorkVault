@@ -5,8 +5,13 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Commands.RegisterCompany;
 
+/// <summary>
+/// Creates and persists a new <see cref="Company"/> from a <see cref="RegisterCompanyCommand"/>
+/// and returns its generated id.
+/// </summary>
 public class RegisterCompanyHandler(ICompanyRepository repository , IUnitOfWork unitOfWork): IRequestHandler<RegisterCompanyCommand, Guid>{
 
+    /// <summary>Builds the company entity, saves it, and returns the new id.</summary>
     public async Task<Guid> Handle(
         RegisterCompanyCommand request,
         CancellationToken cancellationToken)

@@ -4,11 +4,16 @@ using WorkVault.Domain.Modules.Identity.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Queries.ValidatePasswordReset;
 
+/// <summary>
+/// Validates a password-reset token and returns the user + company details used to
+/// personalise the reset screen. Returns null for any invalid/expired/used token.
+/// </summary>
 public class ValidatePasswordResetHandler(
     IPasswordResetTokenRepository resetTokenRepository,
     ICompanyRepository companyRepository)
     : IRequestHandler<ValidatePasswordResetQuery, ValidatePasswordResetResult?>
 {
+    /// <summary>Resolves the token to email/first-name/company, or null if it can't be used.</summary>
     public async Task<ValidatePasswordResetResult?> Handle(
         ValidatePasswordResetQuery request,
         CancellationToken cancellationToken)

@@ -16,6 +16,11 @@ interface PanelCopy {
   templateUrl: './auth-layout.html',
   styleUrl: './auth-layout.scss',
 })
+/**
+ * Shell for the auth pages: a green brand panel beside the form column. The panel's copy
+ * (kicker/heading/sub) is chosen reactively from the current route so each auth screen
+ * gets tailored messaging.
+ */
 export class AuthLayout {
   private router = inject(Router);
 

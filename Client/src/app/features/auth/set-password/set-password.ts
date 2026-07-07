@@ -11,6 +11,11 @@ import { ApiError, InviteInfo } from '../../../core/models/auth.models';
   templateUrl: './set-password.html',
   styleUrl: './set-password.scss'
 })
+/**
+ * Set-password (accept-invite) page. Validates the invite `?token`, shows a live
+ * password-strength checklist, then sets the password via `AuthService.setPassword`,
+ * which activates the account and auto-logs the user in.
+ */
 export class SetPassword {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);

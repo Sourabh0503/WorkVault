@@ -6,8 +6,13 @@ using WorkVault.Application.Common.Behaviors;
 
 namespace WorkVault.Application;
 
+/// <summary>Registers the Application layer's services (MediatR, FluentValidation, pipeline behaviors).</summary>
 public static class DependencyInjection
 {
+    /// <summary>
+    /// Scans this assembly to register all MediatR handlers and FluentValidation validators,
+    /// and wires the <see cref="ValidationBehavior{TRequest,TResponse}"/> into the MediatR pipeline.
+    /// </summary>
     public static IServiceCollection AddApplication(
         this IServiceCollection services)
     {

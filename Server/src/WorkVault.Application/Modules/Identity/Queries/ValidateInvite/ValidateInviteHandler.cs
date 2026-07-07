@@ -3,11 +3,16 @@ using WorkVault.Domain.Modules.Identity.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Queries.ValidateInvite;
 
+/// <summary>
+/// Validates an invite token and returns the invited user + company details for the
+/// set-password screen. Returns null if the token is unusable or the user is already active.
+/// </summary>
 public class ValidateInviteHandler(
     IInviteTokenRepository inviteTokenRepository,
     ICompanyRepository companyRepository)
     : IRequestHandler<ValidateInviteQuery, ValidateInviteResult?>
 {
+    /// <summary>Resolves the invite token to the invited user's details, or null if invalid.</summary>
     public async Task<ValidateInviteResult?> Handle(
         ValidateInviteQuery request,
         CancellationToken cancellationToken)

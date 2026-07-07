@@ -2,6 +2,10 @@ using FluentValidation;
 
 namespace WorkVault.Application.Modules.Departments.Commands.UpdateDepartment;
 
+/// <summary>
+/// Validates <see cref="UpdateDepartmentCommand"/>: id + name required (name ≤100),
+/// description ≤500, and parent may not equal the department itself.
+/// </summary>
 public class UpdateDepartmentCommandValidator : AbstractValidator<UpdateDepartmentCommand>
 {
     public UpdateDepartmentCommandValidator()
