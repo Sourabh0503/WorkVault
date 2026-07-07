@@ -9,6 +9,7 @@
 !appsettings.json
 appsettings.Development.json
 CLAUDE_CONTEXT.md
+WORKVAULT_ROADMAP.md
 .idea/
 .vscode/
 *.user
@@ -17,4 +18,3 @@ CLAUDE_CONTEXT.md
 *.sln.docstates
 .DS_Store
 /docs
-WORKVAULT_ROADMAP.md
