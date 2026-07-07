@@ -71,3 +71,65 @@ export interface CreateEmployeeResult {
   employeeCode: string;
   inviteLink: string;
 }
+
+//GET api/employees/{id} — response
+// Nested info objects (match backend EmployeeDto)
+export interface DepartmentInfo {
+  id: string;
+  name: string;
+}
+
+export interface DesignationInfo {
+  id: string;
+  title: string;
+  level: number;
+}
+
+export interface ManagerInfo {
+  id: string;
+  employeeCode: string;
+  fullName: string;
+}
+
+// Matches EmployeeDto from GetEmployeeByIdHandler.cs
+export interface EmployeeDetail {
+  id: string;
+  employeeCode: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone: string | null;
+  photoUrl: string | null;
+  dateOfBirth: string | null;
+  joinDate: string;
+  resignationDate: string | null;
+  lastWorkingDay: string | null;
+  status: EmployeeStatus;
+  department: DepartmentInfo | null;
+  designation: DesignationInfo | null;
+  manager: ManagerInfo | null;
+  createdAt: string;
+}
+
+// Matches UpdateEmployeeCommand (backend)
+export interface UpdateEmployeeRequest {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  photoUrl?: string;
+  dateOfBirth?: string;
+  departmentId?: string;
+  designationId?: string;
+  managerId?: string;
+  joinDate: string;
+  resignationDate?: string;
+  lastWorkingDay?: string;
+  status: EmployeeStatus;
+}
+
+// Matches UpdateEmployeeResult
+export interface UpdateEmployeeResult {
+  id: string;
+  employeeCode: string;
+}

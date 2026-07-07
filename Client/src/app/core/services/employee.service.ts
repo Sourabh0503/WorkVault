@@ -2,7 +2,16 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CreateEmployeeRequest, CreateEmployeeResult, EmployeeListItem, EmployeeListQuery, MyTeamResult } from '../models/employee.models';
+import {
+  CreateEmployeeRequest,
+  CreateEmployeeResult,
+  EmployeeDetail,
+  EmployeeListItem,
+  EmployeeListQuery,
+  MyTeamResult,
+  UpdateEmployeeRequest,
+  UpdateEmployeeResult,
+} from '../models/employee.models';
 import { PagedResult } from '../../shared/models/PagedResult.model';
 
 @Injectable({ providedIn: 'root' })
@@ -51,5 +60,23 @@ export class EmployeeService {
   /** POST /api/employees — creates employee + sends invite. HR/Admin only. */
   createEmployee(data: CreateEmployeeRequest): Observable<CreateEmployeeResult> {
     return this.http.post<CreateEmployeeResult>(`${this.apiUrl}/employees`, data);
+  }
+
+  /** GET /api/employees/{id} — full employee detail. */
+  getEmployeeById(id: string): Observable<EmployeeDetail> {
+    return this.http.get<EmployeeDetail>(`${this.apiUrl}/employees/${id}`);
+  }
+
+  /** PUT /api/employees/{id} — update employee. */
+  updateEmployee(id: string, data: UpdateEmployeeRequest): Observable<UpdateEmployeeResult> {
+    return this.http.put<UpdateEmployeeResult>(`${this.apiUrl}/employees/${id}`, data);
+  }
+
+  /** POST /api/employees/{id}/resend-invite — resend invite to Pending employee. */
+  resendInvite(id: string): Observable<{ employeeId: string; email: string; inviteLink: string }> {
+    return this.http.post<{ employeeId: string; email: string; inviteLink: string }>(
+      `${this.apiUrl}/employees/${id}/resend-invite`,
+      {},
+    );
   }
 }

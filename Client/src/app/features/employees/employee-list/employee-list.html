@@ -58,7 +58,7 @@
           </thead>
           <tbody>
             @for (emp of employees(); track emp.id) {
-              <tr>
+              <tr [routerLink]="['/employees', emp.id]" class="clickable-row">
                 <td class="cell-code">{{ emp.employeeCode }}</td>
                 <td class="cell-name">{{ emp.fullName }}</td>
                 <td class="cell-email">{{ emp.email }}</td>

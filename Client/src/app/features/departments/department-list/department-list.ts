@@ -15,15 +15,19 @@ export class DepartmentList implements OnInit {
   private departmentService = inject(DepartmentService);
   private fb = inject(FormBuilder);
 
-  // ---- List state ----
   departments = signal<Department[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
 
-  // ---- Create form state ----
   showForm = signal(false);
   isSubmitting = signal(false);
   formError = signal<string | null>(null);
+
+  // Which department is being edited (null = creating a new one)
+  editingId = signal<string | null>(null);
+
+  // Delete confirmation state
+  deletingId = signal<string | null>(null);
 
   form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -37,7 +41,6 @@ export class DepartmentList implements OnInit {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-
     this.departmentService.getDepartments().subscribe({
       next: (depts) => {
         this.departments.set(depts);
@@ -50,15 +53,34 @@ export class DepartmentList implements OnInit {
     });
   }
 
-  toggleForm(): void {
-    this.showForm.update(v => !v);
+  // ---- Create ----
+  openCreate(): void {
+    this.editingId.set(null);
     this.formError.set(null);
     this.form.reset();
+    this.showForm.set(true);
+  }
+
+  // ---- Edit ----
+  openEdit(dept: Department): void {
+    this.editingId.set(dept.id);
+    this.formError.set(null);
+    this.form.setValue({
+      name: dept.name,
+      description: dept.description ?? ''
+    });
+    this.showForm.set(true);
+  }
+
+  closeForm(): void {
+    this.showForm.set(false);
+    this.editingId.set(null);
+    this.form.reset();
+    this.formError.set(null);
   }
 
   onSubmit(): void {
     this.formError.set(null);
-
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -66,21 +88,61 @@ export class DepartmentList implements OnInit {
 
     this.isSubmitting.set(true);
     const value = this.form.getRawValue();
+    const id = this.editingId();
 
-    this.departmentService.createDepartment({
-      name: value.name,
-      description: value.description || undefined
-    }).subscribe({
+    if (id) {
+      // Update
+      this.departmentService.updateDepartment(id, {
+        id,
+        name: value.name,
+        description: value.description || undefined
+      }).subscribe({
+        next: () => this.onSaveSuccess(),
+        error: (err) => this.onSaveError(err)
+      });
+    } else {
+      // Create
+      this.departmentService.createDepartment({
+        name: value.name,
+        description: value.description || undefined
+      }).subscribe({
+        next: () => this.onSaveSuccess(),
+        error: (err) => this.onSaveError(err)
+      });
+    }
+  }
+
+  private onSaveSuccess(): void {
+    this.isSubmitting.set(false);
+    this.closeForm();
+    this.load();
+  }
+
+  private onSaveError(err: HttpErrorResponse): void {
+    this.isSubmitting.set(false);
+    const apiError = err.error as ApiError;
+    this.formError.set(apiError?.title || 'Could not save department.');
+  }
+
+  // ---- Delete ----
+  confirmDelete(id: string): void {
+    this.deletingId.set(id);
+  }
+
+  cancelDelete(): void {
+    this.deletingId.set(null);
+  }
+
+  doDelete(id: string): void {
+    this.departmentService.deleteDepartment(id).subscribe({
       next: () => {
-        this.isSubmitting.set(false);
-        this.showForm.set(false);
-        this.form.reset();
-        this.load();  // refresh the list
+        this.deletingId.set(null);
+        this.load();
       },
       error: (err: HttpErrorResponse) => {
-        this.isSubmitting.set(false);
         const apiError = err.error as ApiError;
-        this.formError.set(apiError?.title || 'Could not create department.');
+        this.error.set(apiError?.title || 'Could not delete department.');
+        this.deletingId.set(null);
       }
     });
   }

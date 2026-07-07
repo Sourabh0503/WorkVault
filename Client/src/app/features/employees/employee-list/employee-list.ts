@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { EmployeeService } from '../../../core/services/employee.service';
 import {
@@ -10,7 +11,7 @@ import {
 
 @Component({
   selector: 'app-employee-list',
-  imports: [DatePipe],
+  imports: [DatePipe, RouterLink],
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.scss',
 })

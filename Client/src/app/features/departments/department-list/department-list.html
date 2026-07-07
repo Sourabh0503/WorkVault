@@ -1,51 +1,48 @@
 <div class="departments">
-  <!-- Header with action -->
   <header class="page-header">
     <div>
       <h1>Departments</h1>
       <p class="subtitle">Organize your company into teams and units.</p>
     </div>
-    <button class="new-btn" (click)="toggleForm()">
+    <button class="new-btn" (click)="showForm() ? closeForm() : openCreate()">
       {{ showForm() ? 'Cancel' : '+ New Department' }}
     </button>
   </header>
 
-  <!-- Inline create form -->
+  <!-- Create/Edit form -->
   @if (showForm()) {
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="create-form">
+      <div class="form-title">
+        {{ editingId() ? 'Edit department' : 'New department' }}
+      </div>
+
       @if (formError()) {
         <div class="form-error">{{ formError() }}</div>
       }
 
-      <div class="form-row">
-        <div class="field">
-          <label for="name">Department name</label>
-          <input
-            id="name"
-            type="text"
-            formControlName="name"
-            placeholder="e.g. Engineering"
-          />
-          @if (form.controls.name.touched && form.controls.name.errors?.['required']) {
-            <div class="field-error">Name is required.</div>
-          }
-        </div>
+      <div class="field">
+        <label for="name">Department name</label>
+        <input id="name" type="text" formControlName="name" placeholder="e.g. Engineering" />
+        @if (form.controls.name.touched && form.controls.name.errors?.['required']) {
+          <div class="field-error">Name is required.</div>
+        }
       </div>
 
       <div class="field">
         <label for="description">Description <span class="optional">(optional)</span></label>
-        <textarea
-          id="description"
-          formControlName="description"
-          rows="2"
-          placeholder="What does this department do?"
-        ></textarea>
+        <textarea id="description" formControlName="description" rows="2"
+          placeholder="What does this department do?"></textarea>
       </div>
 
       <button type="submit" class="submit-btn" [disabled]="isSubmitting()">
-        {{ isSubmitting() ? 'Creating...' : 'Create department' }}
+        {{ isSubmitting() ? 'Saving...' : (editingId() ? 'Save changes' : 'Create department') }}
       </button>
     </form>
+  }
+
+  <!-- Page-level error (e.g. delete blocked) -->
+  @if (error()) {
+    <div class="page-error">{{ error() }}</div>
   }
 
   <!-- List states -->
@@ -53,11 +50,6 @@
     <div class="state-panel">
       <div class="spinner"></div>
       <p>Loading departments...</p>
-    </div>
-  } @else if (error()) {
-    <div class="state-panel">
-      <p>{{ error() }}</p>
-      <button class="retry-btn" (click)="load()">Retry</button>
     </div>
   } @else if (departments().length === 0) {
     <div class="state-panel empty">
@@ -85,8 +77,18 @@
             @if (dept.headEmployeeName) {
               <span class="meta-item">Head: {{ dept.headEmployeeName }}</span>
             }
-            @if (!dept.parentDepartmentName && !dept.headEmployeeName) {
-              <span class="meta-item muted">No head assigned</span>
+          </div>
+
+          <!-- Card actions -->
+          <div class="card-actions">
+            @if (deletingId() === dept.id) {
+              <!-- Inline delete confirmation -->
+              <span class="confirm-text">Delete?</span>
+              <button class="danger-btn" (click)="doDelete(dept.id)">Yes</button>
+              <button class="ghost-btn" (click)="cancelDelete()">No</button>
+            } @else {
+              <button class="ghost-btn" (click)="openEdit(dept)">Edit</button>
+              <button class="ghost-btn danger" (click)="confirmDelete(dept.id)">Delete</button>
             }
           </div>
         </div>

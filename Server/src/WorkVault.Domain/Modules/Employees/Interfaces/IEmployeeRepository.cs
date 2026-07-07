@@ -54,4 +54,8 @@ public interface IEmployeeRepository : IRepository<Employee>
     Task<Employee?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken);
     
     Task<IReadOnlyList<Employee>> GetByDepartmentAsync(Guid departmentId, CancellationToken cancellationToken);
+    
+    Task<Dictionary<EmployeeStatus, int>> GetStatusCountsAsync(CancellationToken cancellationToken);
+    
+    Task<bool> HasMembersInDepartmentAsync(Guid departmentId, CancellationToken cancellationToken);
 }

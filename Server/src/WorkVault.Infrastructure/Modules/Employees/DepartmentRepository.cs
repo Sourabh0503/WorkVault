@@ -29,18 +29,33 @@ public class DepartmentRepository(AppDbContext context) : IDepartmentRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<bool> ExistsByNameAsync(string name, Guid? excludeId, CancellationToken cancellationToken)
+    public async Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken)
     {
         var query = context.Departments.Where(d => d.Name.ToLower() == name.ToLower());
 
-        if (excludeId.HasValue)
-            query = query.Where(d => d.Id != excludeId.Value);
-
         return await query.AnyAsync(cancellationToken);
+    }
+    
+    public async Task<bool> ExistsByNameExcludingAsync(
+        string name, Guid excludeId, CancellationToken cancellationToken)
+    {
+        return await context.Departments
+            .AnyAsync(d => d.Id != excludeId && d.Name.ToLower() == name.ToLower(), cancellationToken);
     }
 
     public async Task<bool> HasEmployeesAsync(Guid departmentId, CancellationToken cancellationToken)
     {
         return await context.Employees.AnyAsync(e => e.DepartmentId == departmentId, cancellationToken);
+    }
+    
+    public async Task<int> CountAsync(CancellationToken cancellationToken)
+    {
+        return await context.Departments.CountAsync(cancellationToken);
+    }
+    
+    public async Task<bool> HasSubDepartmentsAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await context.Departments
+            .AnyAsync(d => d.ParentDepartmentId == id, cancellationToken);
     }
 }

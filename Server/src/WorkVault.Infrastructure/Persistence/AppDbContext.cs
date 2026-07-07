@@ -32,7 +32,6 @@ public class AppDbContext(
     DbContextOptions<AppDbContext> options,
     ICurrentUserService currentUserService) : DbContext(options)
 {
-    private readonly ICurrentUserService _currentUserService = currentUserService;
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<User> Users => Set<User>();
@@ -66,9 +65,9 @@ public class AppDbContext(
         // Override the generic filter for Company entity.
         modelBuilder.Entity<Company>().HasQueryFilter(c =>
             !c.IsDeleted &&
-            (_currentUserService.IsSuperAdmin ||
-             _currentUserService.CompanyId == null ||
-             c.Id == _currentUserService.CompanyId));
+            (currentUserService.IsSuperAdmin ||
+             currentUserService.CompanyId == null ||
+             c.Id == currentUserService.CompanyId));
 
         // ---- Department ↔ Employee relationships (two separate FKs) ----
 
@@ -128,16 +127,16 @@ public class AppDbContext(
     private void ApplySoftDeleteFilter<T>(ModelBuilder modelBuilder)
         where T : BaseEntity
     {
-        modelBuilder.Entity<T>().HasQueryFilter(e => !e.IsDeleted && (_currentUserService.IsSuperAdmin ||
-                                                                      _currentUserService.CompanyId == null ||
-                                                                      e.CompanyId == _currentUserService.CompanyId));
+        modelBuilder.Entity<T>().HasQueryFilter(e => !e.IsDeleted && (currentUserService.IsSuperAdmin ||
+                                                                      currentUserService.CompanyId == null ||
+                                                                      e.CompanyId == currentUserService.CompanyId));
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
-        var currentUserId = _currentUserService.UserId ?? Guid.Empty;
-        var currentCompanyId = _currentUserService.CompanyId;
+        var currentUserId = currentUserService.UserId ?? Guid.Empty;
+        var currentCompanyId = currentUserService.CompanyId;
 
         foreach (var entry in ChangeTracker.Entries<BaseEntity>())
         {

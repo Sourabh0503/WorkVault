@@ -104,4 +104,22 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
             .Take(200)
             .ToListAsync(cancellationToken);
     }
+    
+    public async Task<Dictionary<EmployeeStatus, int>> GetStatusCountsAsync(
+        CancellationToken cancellationToken)
+    {
+        // One grouped query — tenant filter auto-scopes to current company
+        var counts = await context.Employees
+            .GroupBy(e => e.Status)
+            .Select(g => new { Status = g.Key, Count = g.Count() })
+            .ToListAsync(cancellationToken);
+
+        return counts.ToDictionary(x => x.Status, x => x.Count);
+    }
+    
+    public async Task<bool> HasMembersInDepartmentAsync(Guid departmentId, CancellationToken cancellationToken)
+    {
+        return await context.Employees
+            .AnyAsync(e => e.DepartmentId == departmentId, cancellationToken);
+    }
 }

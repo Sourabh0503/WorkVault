@@ -68,6 +68,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'employees/:id',
+        data: { title: 'Employee' },
+        loadComponent: () =>
+          import('./features/employees/employee-detail-page/employee-detail-page').then(
+            (m) => m.EmployeeDetailPage,
+          ),
+      },
+      {
         path: 'my-team',
         data: { title: 'My Team' },
         loadComponent: () => import('./features/employees/my-team/my-team').then((m) => m.MyTeam),

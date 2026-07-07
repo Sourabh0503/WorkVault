@@ -1,9 +1,6 @@
-.employee-create {
-  max-width: 640px;
-}
-
 // ---- Header ----
 .page-header {
+  max-width: 640px;
   margin-bottom: var(--space-6);
 }
 
@@ -28,6 +25,7 @@
 
 // ---- Form ----
 .form {
+  max-width: 640px; // keep the input form comfortably narrow
   display: flex;
   flex-direction: column;
   gap: var(--space-6);

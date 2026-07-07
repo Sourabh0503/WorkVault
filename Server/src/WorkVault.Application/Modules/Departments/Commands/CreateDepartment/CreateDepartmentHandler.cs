@@ -17,7 +17,7 @@ public class CreateDepartmentHandler(
         CancellationToken cancellationToken)
     {
         // Check for duplicate name
-        if (await departmentRepository.ExistsByNameAsync(request.Name, null, cancellationToken))
+        if (await departmentRepository.ExistsByNameAsync(request.Name, cancellationToken))
             throw new ConflictException($"A department with name '{request.Name}' already exists.");
 
         // Validate parent department exists if provided (tenant-filtered)

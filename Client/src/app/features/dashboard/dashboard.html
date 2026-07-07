@@ -1,4 +1,81 @@
-<div style="padding: 40px;">
-  <h1>Dashboard</h1>
-  <p>You're logged in.</p>
+<div class="dashboard">
+  <!-- Greeting -->
+  <div class="greeting">
+    <h1>Welcome back</h1>
+    <p class="greeting-sub">Here's what's happening in your workspace.</p>
+  </div>
+
+  <!-- HR/Admin: stat cards -->
+  @if (canSeeStats()) {
+    @if (loading()) {
+      <div class="stats-grid">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="stat-card skeleton"></div>
+        }
+      </div>
+    } @else if (stats(); as s) {
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">{{ s.totalEmployees }}</div>
+          <div class="stat-label">Total employees</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ s.activeEmployees }}</div>
+          <div class="stat-label">Active</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ s.pendingInvites }}</div>
+          <div class="stat-label">Pending invites</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ s.totalDepartments }}</div>
+          <div class="stat-label">Departments</div>
+        </div>
+      </div>
+    }
+
+    <!-- Quick actions -->
+    <div class="section">
+      <h2>Quick actions</h2>
+      <div class="action-grid">
+        <a routerLink="/employees/new" class="action-card">
+          <div class="action-icon">＋</div>
+          <div class="action-text">
+            <div class="action-title">Add employee</div>
+            <div class="action-desc">Invite someone to your team</div>
+          </div>
+        </a>
+        <a routerLink="/departments" class="action-card">
+          <div class="action-icon">⊞</div>
+          <div class="action-text">
+            <div class="action-title">Manage departments</div>
+            <div class="action-desc">Organize your company structure</div>
+          </div>
+        </a>
+        <a routerLink="/employees" class="action-card">
+          <div class="action-icon">☰</div>
+          <div class="action-text">
+            <div class="action-title">View employees</div>
+            <div class="action-desc">Browse the directory</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  }
+
+  <!-- Everyone: My Team shortcut -->
+  @else {
+    <div class="section">
+      <h2>Your workspace</h2>
+      <div class="action-grid">
+        <a routerLink="/my-team" class="action-card">
+          <div class="action-icon">◎</div>
+          <div class="action-text">
+            <div class="action-title">My Team</div>
+            <div class="action-desc">See who you work with</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  }
 </div>

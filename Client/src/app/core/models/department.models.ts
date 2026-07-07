@@ -23,3 +23,12 @@ export interface CreateDepartmentResult {
   id: string;
   name: string;
 }
+
+// PUT /api/departments/{id} — request body
+export interface UpdateDepartmentRequest {
+  id: string;
+  name: string;
+  description?: string;
+  parentDepartmentId?: string;
+  headEmployeeId?: string;
+}

@@ -63,6 +63,12 @@ public class UpdateEmployeeHandler(
         if (request.Status == EmployeeStatus.Pending && employee.Status != EmployeeStatus.Pending)
             throw new BusinessRuleException("Employees cannot be reverted to Pending status.");
         
+        // A pending employee can only leave Pending by accepting their invite.
+        // HR cannot manually change their status.
+        if (employee.Status == EmployeeStatus.Pending && request.Status != EmployeeStatus.Pending)
+            throw new BusinessRuleException(
+                "This employee hasn't accepted their invite yet. Status will update automatically once they set their password.");
+        
         // 3. Update User details (name only - email is not changeable)
         if (employee.User is not null)
         {
