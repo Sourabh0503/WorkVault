@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using WorkVault.Application.Common.Exceptions;
 using WorkVault.Domain.Modules.Employees.Enums;
@@ -55,18 +56,18 @@ public class ResendInviteHandler(
             existingInvite.UsedAt = DateTime.UtcNow;
 
         // 4. Create new invite token (defaults: 48h expiry, fresh Guid)
-        var newInvite = new InviteToken
+        var newInviteToken = new InviteToken
         {
             UserId = employee.UserId
         };
-        await inviteTokenRepository.AddAsync(newInvite, cancellationToken);
+        await inviteTokenRepository.AddAsync(newInviteToken, cancellationToken);
 
         // 5. Save — both updates and new insert in one transaction
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         // 6. Log link (later: send real email)
         var frontendUrl = configuration["AppSettings:FrontendUrl"];
-        var inviteLink = $"{frontendUrl}/set-password?token={token}";
+        var inviteLink = $"{frontendUrl}/set-password?token={newInviteToken}";
         logger.LogInformation(
             "Invite resent for {Email}. Link: {InviteLink}",
             employee.User.Email, inviteLink);

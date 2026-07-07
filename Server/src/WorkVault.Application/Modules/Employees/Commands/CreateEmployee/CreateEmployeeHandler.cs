@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using WorkVault.Application.Common.Exceptions;
 using WorkVault.Application.Common.Interfaces;
@@ -124,7 +125,7 @@ public class CreateEmployeeHandler(
 
         // 9. Stub the email — log the link to console for now
         var frontendUrl = configuration["AppSettings:FrontendUrl"];
-        var inviteLink = $"{frontendUrl}/set-password?token={token}";
+        var inviteLink = $"{frontendUrl}/set-password?token={inviteToken}";
         logger.LogInformation(
             "Invite created for {Email}. Link: {InviteLink}",
             user.Email, inviteLink);
