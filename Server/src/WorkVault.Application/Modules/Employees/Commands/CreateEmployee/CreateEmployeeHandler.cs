@@ -49,7 +49,7 @@ public class CreateEmployeeHandler(
     {
         // 1. Check current user company
         var companyId = currentUserService.CompanyId
-                        ?? throw new InvalidOperationException("No company context.");;
+                        ?? throw new InvalidOperationException("No company context.");
         
         // 2. Check email isn't already used in this company
         var existingUser = await userRepository.GetByEmailAsync(request.Email, cancellationToken);
@@ -125,7 +125,7 @@ public class CreateEmployeeHandler(
 
         // 9. Stub the email — log the link to console for now
         var frontendUrl = configuration["AppSettings:FrontendUrl"];
-        var inviteLink = $"{frontendUrl}/set-password?token={inviteToken}";
+        var inviteLink = $"{frontendUrl}/set-password?token={inviteToken.Token}";
         logger.LogInformation(
             "Invite created for {Email}. Link: {InviteLink}",
             user.Email, inviteLink);

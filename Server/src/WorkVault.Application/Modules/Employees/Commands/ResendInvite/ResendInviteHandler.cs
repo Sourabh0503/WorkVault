@@ -67,7 +67,7 @@ public class ResendInviteHandler(
 
         // 6. Log link (later: send real email)
         var frontendUrl = configuration["AppSettings:FrontendUrl"];
-        var inviteLink = $"{frontendUrl}/set-password?token={newInviteToken}";
+        var inviteLink = $"{frontendUrl}/set-password?token={newInviteToken.Token}";
         logger.LogInformation(
             "Invite resent for {Email}. Link: {InviteLink}",
             employee.User.Email, inviteLink);
