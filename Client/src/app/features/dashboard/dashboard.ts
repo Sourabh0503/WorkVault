@@ -1,8 +1,9 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import { DashboardService } from '../../core/services/dashboard.service';
+import { WelcomeCardModel } from './welcome-card';
 import { DashboardStats } from '../../core/models/dashboard.models';
 
 @Component({
@@ -28,6 +29,20 @@ export class Dashboard implements OnInit {
 
   loading = signal(true);
   stats = signal<DashboardStats | null>(null);
+
+  // ---- Welcome card ----
+  // Plain presentation model (not a service). Its timer is bound to this
+  // component's DestroyRef, so it runs only while the page is alive.
+  private welcome = new WelcomeCardModel(
+    this.authService.role,
+    this.authService.companyName,
+    inject(DestroyRef)
+  );
+  card = this.welcome.card;
+
+  nextTip(): void {
+    this.welcome.nextTip();
+  }
 
   ngOnInit(): void {
     if (this.canSeeStats()) {

@@ -45,6 +45,7 @@ export class EmployeeDetailPage implements OnInit {
   // Resend invite state
   isResending = signal(false);
   resendResult = signal<string | null>(null);
+  inviteCopied = signal(false);
 
   // Expose status enum + labels to template
   statusOptions = [
@@ -174,6 +175,7 @@ export class EmployeeDetailPage implements OnInit {
   resendInvite(): void {
     this.isResending.set(true);
     this.resendResult.set(null);
+    this.inviteCopied.set(false);
 
     this.employeeService.resendInvite(this.employeeId).subscribe({
       next: (result) => {
@@ -184,6 +186,16 @@ export class EmployeeDetailPage implements OnInit {
         this.isResending.set(false);
         this.saveError.set('Could not resend invite.');
       }
+    });
+  }
+
+  copyInviteLink(): void {
+    const link = this.resendResult();
+    if (!link) return;
+
+    navigator.clipboard.writeText(link).then(() => {
+      this.inviteCopied.set(true);
+      setTimeout(() => this.inviteCopied.set(false), 2000);
     });
   }
 

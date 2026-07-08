@@ -1,9 +1,24 @@
 <div class="dashboard">
-  <!-- Greeting -->
-  <div class="greeting">
-    <h1>Welcome back</h1>
-    <p class="greeting-sub">Here's what's happening in your workspace.</p>
-  </div>
+  <!-- Welcome card -->
+  @if (card(); as c) {
+    <div class="welcome-card">
+      <div class="welcome-glow"></div>
+      <div class="welcome-content">
+        <div class="welcome-top">
+          <span class="welcome-badge">{{ c.roleLabel }}</span>
+          <span class="welcome-date">{{ c.date }} · {{ c.time }}</span>
+        </div>
+        <h1 class="welcome-title">
+          {{ c.greeting }} <span class="welcome-emoji">{{ c.emoji }}</span>
+        </h1>
+        <p class="welcome-company">Welcome to {{ c.companyName }}</p>
+        <button type="button" class="welcome-tip" (click)="nextTip()" title="Click for another tip">
+          <span class="welcome-tip-icon">💡</span>
+          <span class="welcome-tip-text">{{ c.tip }}</span>
+        </button>
+      </div>
+    </div>
+  }
 
   <!-- HR/Admin: stat cards -->
   @if (canSeeStats()) {

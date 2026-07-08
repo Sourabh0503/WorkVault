@@ -1,23 +1,119 @@
 .dashboard {
-  max-width: 900px;
+  width: 100%;
+  height: auto;
 }
 
-// ---- Greeting ----
-.greeting {
+// ---- Welcome card ----
+.welcome-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
   margin-bottom: var(--space-8);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-border, var(--color-primary)) 100%);
+  color: #fff;
+  box-shadow: var(--shadow-card-hover);
 }
 
-.greeting h1 {
-  font-size: 28px;
+// Soft decorative glow in the corner
+.welcome-glow {
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.welcome-content {
+  position: relative;
+  z-index: 1;
+}
+
+.welcome-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.welcome-badge {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+.welcome-date {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.welcome-title {
+  font-size: 30px;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: var(--color-ink);
-  margin-bottom: 4px;
+  margin: 0 0 4px;
+  color: #fff;
 }
 
-.greeting-sub {
+.welcome-emoji {
+  display: inline-block;
+  animation: wave 2.4s ease-in-out infinite;
+  transform-origin: 70% 70%;
+}
+
+@keyframes wave {
+  0%, 60%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-8deg); }
+  30% { transform: rotate(14deg); }
+  40% { transform: rotate(-4deg); }
+  50% { transform: rotate(10deg); }
+}
+
+.welcome-company {
   font-size: 15px;
-  color: var(--color-ink-muted);
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 var(--space-5);
+}
+
+.welcome-tip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.24);
+  }
+}
+
+.welcome-tip-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.welcome-tip-text {
+  font-size: 14px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 // ---- Stat cards ----

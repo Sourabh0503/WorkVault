@@ -54,7 +54,12 @@
     @if (resendResult(); as link) {
       <div class="invite-result">
         <div class="invite-label">New invite link</div>
-        <input type="text" [value]="link" readonly class="invite-input" />
+        <div class="invite-input-row">
+          <input type="text" [value]="link" readonly class="invite-input" />
+          <button type="button" class="copy-btn" (click)="copyInviteLink()">
+            {{ inviteCopied() ? 'Copied!' : 'Copy' }}
+          </button>
+        </div>
       </div>
     }
 
