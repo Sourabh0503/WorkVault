@@ -198,10 +198,7 @@ var app = builder.Build();
 // ============================================================
 // Middleware Pipeline (order matters!)
 // ============================================================
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
+app.UseForwardedHeaders();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseCors("DefaultPolicy");
 app.UseRateLimiter();  // Rate limiting before auth

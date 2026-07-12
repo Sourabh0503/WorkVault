@@ -20,7 +20,7 @@ namespace WorkVault.Application.Modules.Identity.Commands.Register;
 /// in the employee directory with sensible defaults.
 /// </summary>
 public class RegisterHandler(
-    IMediator mediator,
+    ICompanyRepository companyRepository,
     IUserRepository userRepository,
     IEmployeeRepository employeeRepository,
     IUnitOfWork unitOfWork,
@@ -37,9 +37,17 @@ public class RegisterHandler(
         if (existingUser != null)
             throw new ConflictException("User already exists with this email.");
 
-        var companyRegisterCommand = new RegisterCompanyCommand(
-            request.CompanyName, request.Domain, request.Industry, request.GstNumber);
-        var companyGuid = await mediator.Send(companyRegisterCommand, cancellationToken);
+        // ---- Create the Company ----
+        var company = new Company
+        {
+            Name = request.CompanyName,
+            Domain = request.Domain,
+            Industry = request.Industry,
+            GstNumber = request.GstNumber,
+            Timezone = "Asia/Kolkata"
+        };
+        await companyRepository.AddAsync(company, cancellationToken);
+        var companyGuid = company.Id;
 
         // ---- Create the admin User ----
         var user = new User

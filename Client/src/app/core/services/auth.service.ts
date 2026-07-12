@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, finalize, Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   InviteInfo,
@@ -118,8 +118,10 @@ export class AuthService {
       .pipe(
         tap((response) => {
           this.setTokens(response.accessToken, response.refreshToken);
-          this.refreshInProgress$.next(false);
         }),
+        finalize(() => {
+          this.refreshInProgress$.next(false);
+        })
       );
   }
 
