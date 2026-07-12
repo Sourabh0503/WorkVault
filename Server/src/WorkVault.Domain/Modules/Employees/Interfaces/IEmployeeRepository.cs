@@ -30,8 +30,9 @@ public interface IEmployeeRepository : IRepository<Employee>
         CancellationToken cancellationToken);
 
     /// <summary>
-    /// Counts employees created in a specific year within the current tenant.
+    /// Counts employees created in a specific year for the given company.
     /// </summary>
+    /// <param name="companyId">The company to count for; the global tenant query filter is bypassed and this value is applied explicitly.</param>
     /// <param name="year">The year to count employees for.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The count of employees created that year.</returns>

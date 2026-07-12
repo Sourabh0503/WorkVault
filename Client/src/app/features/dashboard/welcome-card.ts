@@ -2,6 +2,9 @@ import { computed, DestroyRef, Signal, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval } from 'rxjs';
 
+/** Shared beat (ms) for the welcome card: clock refresh and tip rotation. */
+const TICK_INTERVAL_MS = 10_000;
+
 /** View data for the dashboard welcome card. */
 export interface WelcomeCard {
   /** Time-of-day greeting, e.g. "Good morning". */
@@ -62,7 +65,7 @@ export class WelcomeCardModel {
     // A single interval drives everything: tick the clock and advance the tip
     // on the same beat. `card` recomputes because both are signals. The
     // subscription auto-unsubscribes when the owner's DestroyRef fires.
-    interval(6000)
+    interval(TICK_INTERVAL_MS)
       .pipe(takeUntilDestroyed(destroyRef))
       .subscribe(() => {
         this.now.set(new Date());
