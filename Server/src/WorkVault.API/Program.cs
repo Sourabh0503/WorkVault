@@ -201,7 +201,12 @@ var app = builder.Build();
 app.UseForwardedHeaders();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseCors("DefaultPolicy");
-app.UseRateLimiter();  // Rate limiting before auth
+// Rate limiting before auth; can be disabled via configuration
+// (integration tests set RateLimiting:Enabled=false)
+if (app.Configuration.GetValue("RateLimiting:Enabled", true))
+{
+    app.UseRateLimiter();
+}
 app.UseAuthentication();
 app.UseAuthorization();
 
