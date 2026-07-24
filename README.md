@@ -8,14 +8,15 @@
 [![Angular](https://img.shields.io/badge/Angular_17+-DD0031?style=for-the-badge&logo=angular&logoColor=white)](https://angular.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL_16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-[![Azure](https://img.shields.io/badge/Azure-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white)](https://azure.microsoft.com/)
+[![Render](https://img.shields.io/badge/Render-Live-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://render.com/)
 
 <br/>
 
-![Status](https://img.shields.io/badge/Status-Phase_1_In_Progress-yellow?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Live_on_Render-brightgreen?style=flat-square)
+![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
+![Tests](https://img.shields.io/badge/Tests-Testcontainers-success?style=flat-square)
 ![Architecture](https://img.shields.io/badge/Architecture-Modular_Monolith-blue?style=flat-square)
 ![License](https://img.shields.io/badge/License-Proprietary-red?style=flat-square)
-![Target](https://img.shields.io/badge/Target-Indian_SMEs-green?style=flat-square)
 
 <br/>
 
@@ -31,6 +32,20 @@ Built for Indian SMEs with 50–500 employees. Competing with Keka, DarwinBox & 
 [Roadmap](#-roadmap)
 
 </div>
+
+---
+
+<br/>
+
+## 🌐 Live
+
+| Service | URL |
+|---|---|
+| 🖥️ **App (Angular)** | https://workvault.onrender.com |
+| ⚙️ **API (.NET)** | https://workvault-api.onrender.com |
+| ❤️ **Health check** | https://workvault-api.onrender.com/health |
+
+Deployed on **Render** (Docker API + static frontend + managed PostgreSQL). Every push runs the **GitHub Actions** pipeline — build, integration tests (real Postgres via Testcontainers), and a Docker image build — and deploys are **gated behind green tests**.
 
 ---
 
@@ -67,9 +82,9 @@ Built for Indian SMEs with 50–500 employees. Competing with Keka, DarwinBox & 
 <br/><sub>Containers</sub>
 </td>
 <td align="center" width="140">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg" width="40" height="40" alt="Azure"/>
-<br/><b>Azure</b>
-<br/><sub>Cloud (planned)</sub>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain.svg" width="40" height="40" alt="Render"/>
+<br/><b>Render</b>
+<br/><sub>Cloud (live)</sub>
 </td>
 </tr>
 </table>
@@ -103,6 +118,21 @@ WorkVault/
 | **Soft deletes** | Nothing is ever hard deleted. `IsDeleted` flag with automatic query filtering. |
 | **CQRS** | Commands (writes) and Queries (reads) separated via MediatR handlers. |
 | **Modular Monolith** | Feature folders (`Identity/`, `Employees/`, `Assets/`) — can split to microservices later. |
+
+<br/>
+
+## 🔄 CI/CD & Testing
+
+Pipeline in `.github/workflows/ci.yml`, runs on every push and PR to `master`:
+
+| Job | What it does |
+|---|---|
+| **server** | Restores/builds the solution and runs integration tests |
+| **client** | `npm ci` + production Angular build |
+| **docker** | Builds the API image (Dockerfile smoke test) |
+| **deploy** | Test-gated — fires Render deploy hooks **only after** the three jobs pass, on `master` pushes |
+
+**Integration tests** ([`Server/tests/WorkVault.IntegrationTests`](Server/tests/WorkVault.IntegrationTests)) spin up a **real PostgreSQL container** via [Testcontainers](https://testcontainers.com/) and prove multi-tenant isolation end to end — Company A cannot read or write Company B's data (404 via global query filters). The app runs EF Core migrations on startup and exposes `/health` for Render's checks.
 
 <br/>
 
@@ -327,10 +357,14 @@ POST /api/auth/refresh
 - [x] JWT token generation service
 - [x] Refresh token rotation flow
 - [x] Register / Login / Refresh endpoints
-- [ ] `CompanyId` global query filter (tenant isolation)
-- [ ] Employee CRUD + invite flow
+- [x] `CompanyId` global query filter (tenant isolation)
+- [x] Employee / Department / Designation CRUD + invite flow
+- [x] Angular frontend — auth, dashboard, employees, departments
+- [x] Integration tests (Testcontainers) proving tenant isolation
+- [x] CI/CD (GitHub Actions) + live deploy on Render
+- [ ] `DELETE /api/employees/{id}` (soft delete) — only missing endpoint
 - [ ] Employee ID card with QR code
-- [ ] Angular frontend — auth + company wizard
+- [ ] Designation management UI + create-form dropdowns
 
 ### Phase 2 — Asset Management `Planned`
 
