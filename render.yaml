@@ -1,6 +1,8 @@
 # Render Blueprint — infrastructure as code for WorkVault.
 # Matches the live deployment (Render Project "workVault", Production env).
-# Render watches this file; services auto-deploy on commit (autoDeployTrigger).
+# Auto-deploy is OFF (autoDeployTrigger: off): deploys are triggered by the
+# GitHub Actions "deploy" job via Render deploy hooks, and only AFTER the CI
+# build/test/docker jobs pass — see .github/workflows/ci.yml.
 # Docs: https://render.com/docs/blueprint-spec
 #
 # Live URLs:
@@ -31,7 +33,7 @@ projects:
             rootDir: Server
             dockerContext: .
             dockerfilePath: ./Dockerfile
-            autoDeployTrigger: commit
+            autoDeployTrigger: "off"
             healthCheckPath: /health
             envVars:
               - key: ASPNETCORE_ENVIRONMENT
@@ -69,7 +71,7 @@ projects:
             rootDir: Client
             buildCommand: npm install && npm run build -- --configuration production
             staticPublishPath: dist/Client/browser
-            autoDeployTrigger: commit
+            autoDeployTrigger: "off"
             # SPA fallback so deep links like /employees don't 404 on refresh.
             routes:
               - type: rewrite
