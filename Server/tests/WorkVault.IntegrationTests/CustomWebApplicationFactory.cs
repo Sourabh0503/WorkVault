@@ -38,6 +38,16 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         // don't let the app also auto-migrate on startup.
         builder.UseSetting("Database:AutoMigrate", "false");
 
+        // Provide JWT config explicitly so the tests are hermetic and don't
+        // depend on appsettings.Development.json being discovered — that file
+        // loads locally but not on the CI runner, which left SecretKey null
+        // and 500'd every request as the JWT handler initialized.
+        builder.UseSetting("JwtSettings:SecretKey", "WorkVault-Integration-Test-Secret-Key-With-At-Least-32-Characters");
+        builder.UseSetting("JwtSettings:Issuer", "WorkVault");
+        builder.UseSetting("JwtSettings:Audience", "WorkVault");
+        builder.UseSetting("JwtSettings:AccessTokenExpirationMinutes", "15");
+        builder.UseSetting("JwtSettings:RefreshTokenExpirationDays", "7");
+
         builder.ConfigureServices(services =>
         {
             // Remove the existing AppDbContext database configuration
