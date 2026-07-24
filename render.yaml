@@ -1,84 +1,88 @@
 # Render Blueprint — infrastructure as code for WorkVault.
-# Render reads this file when you create a Blueprint from the repo and
-# provisions everything below. See docs: https://render.com/docs/blueprint-spec
+# Matches the live deployment (Render Project "workVault", Production env).
+# Render watches this file; services auto-deploy on commit (autoDeployTrigger).
+# Docs: https://render.com/docs/blueprint-spec
 #
-# One-time setup (see the CD section of the PR description):
-#   1. Render Dashboard → New → Blueprint → connect this repo. Render reads
-#      this file and provisions the database + both services.
-#   2. Copy each service's Deploy Hook URL (Settings → Deploy Hook) into the
-#      GitHub secrets RENDER_DEPLOY_HOOK_API and RENDER_DEPLOY_HOOK_CLIENT.
-#   3. From then on, merges to master auto-deploy via GitHub Actions once
-#      CI passes. The hostnames below assume the service names are available
-#      on onrender.com; if not, see the note on the FrontendUrl var.
+# Live URLs:
+#   API    → https://workvault-api.onrender.com   (service "WorkVault-Api")
+#   Client → https://workvault.onrender.com        (service "WorkVault")
+#
+# NOTE on names: the static site is named "WorkVault", so its host is
+# workvault.onrender.com (NOT workvault-client). The API's CORS/FrontendUrl
+# and Client/src/environments/environment.prod.ts must stay consistent with
+# these hosts.
 
-databases:
-  - name: workvault-db
-    databaseName: workvaultdb
-    user: workvault
-    plan: free # free Postgres (expires 90 days after creation)
+version: "1"
 
-services:
-  # ---------------------------------------------------------------
-  # .NET API — built from the existing Dockerfile.
-  # autoDeploy is off: deploys are triggered by GitHub Actions only
-  # AFTER the CI tests pass (see .github/workflows/ci.yml).
-  # ---------------------------------------------------------------
-  - type: web
-    name: workvault-api
-    runtime: docker
-    plan: free
-    dockerfilePath: Server/Dockerfile
-    dockerContext: Server
-    autoDeploy: false
-    healthCheckPath: /health
-    envVars:
-      - key: ASPNETCORE_ENVIRONMENT
-        value: Production
+projects:
+  - name: workVault
+    environments:
+      - name: Production
+        services:
+          # -----------------------------------------------------------
+          # .NET API — built from Server/Dockerfile.
+          # -----------------------------------------------------------
+          - type: web
+            name: WorkVault-Api
+            runtime: docker
+            repo: https://github.com/Sourabh0503/WorkVault
+            plan: free
+            region: singapore
+            rootDir: Server
+            dockerContext: .
+            dockerfilePath: ./Dockerfile
+            autoDeployTrigger: commit
+            healthCheckPath: /health
+            envVars:
+              - key: ASPNETCORE_ENVIRONMENT
+                value: Production
+              # Injected from the managed database below.
+              - key: ConnectionStrings__DefaultConnection
+                fromDatabase:
+                  name: workvault-db
+                  property: connectionString
+              # Strong random value generated once and kept stable.
+              - key: JwtSettings__SecretKey
+                generateValue: true
+              - key: JwtSettings__Issuer
+                value: WorkVault
+              - key: JwtSettings__Audience
+                value: WorkVault
+              - key: JwtSettings__AccessTokenExpirationMinutes
+                value: "15"
+              - key: JwtSettings__RefreshTokenExpirationDays
+                value: "7"
+              # Full scheme+host of the client; CORS matches Origin exactly.
+              - key: AppSettings__FrontendUrl
+                value: https://workvault.onrender.com
+              - key: CorsSettings__AllowedOrigins__0
+                value: https://workvault.onrender.com
 
-      # Connection string is injected from the managed database above.
-      # Double-underscore maps to the ConnectionStrings:DefaultConnection key.
-      - key: ConnectionStrings__DefaultConnection
-        fromDatabase:
-          name: workvault-db
-          property: connectionString
+          # -----------------------------------------------------------
+          # Angular client — static site. rootDir is Client, so paths
+          # below are relative to it (dist/Client/browser).
+          # -----------------------------------------------------------
+          - type: web
+            name: WorkVault
+            runtime: static
+            repo: https://github.com/Sourabh0503/WorkVault
+            rootDir: Client
+            buildCommand: npm install && npm run build -- --configuration production
+            staticPublishPath: dist/Client/browser
+            autoDeployTrigger: commit
+            # SPA fallback so deep links like /employees don't 404 on refresh.
+            routes:
+              - type: rewrite
+                source: /*
+                destination: /index.html
 
-      # JWT signing key — Render generates a strong random value once and
-      # keeps it stable across deploys. Never commit real secrets.
-      - key: JwtSettings__SecretKey
-        generateValue: true
-      - key: JwtSettings__Issuer
-        value: WorkVault
-      - key: JwtSettings__Audience
-        value: WorkVault
-      - key: JwtSettings__AccessTokenExpirationMinutes
-        value: "15"
-      - key: JwtSettings__RefreshTokenExpirationDays
-        value: "7"
-
-      # Full scheme+host of the deployed client (CORS matches the Origin
-      # header exactly). Matches the static service's default hostname below.
-      # NOTE: if Render appends a suffix due to a global name collision,
-      # update these two values AND Client/src/environments/environment.prod.ts.
-      - key: AppSettings__FrontendUrl
-        value: https://workvault-client.onrender.com
-      - key: CorsSettings__AllowedOrigins__0
-        value: https://workvault-client.onrender.com
-
-  # ---------------------------------------------------------------
-  # Angular client — static site built with the Angular CLI.
-  # @angular/build:application outputs to dist/<project>/browser.
-  # ---------------------------------------------------------------
-  - type: web
-    name: workvault-client
-    runtime: static
-    autoDeploy: false
-    buildCommand: cd Client && npm ci && npm run build
-    staticPublishPath: Client/dist/Client/browser
-    # SPA fallback: serve index.html for client-side routes so a deep link
-    # like /employees doesn't 404 on refresh.
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    # No env vars: the API URL is baked in at build time from
-    # environment.prod.ts (angular.json swaps it in for production builds).
+        databases:
+          - name: workvault-db
+            databaseName: workvault
+            user: workvault
+            plan: free
+            region: singapore
+            postgresMajorVersion: "18"
+            ipAllowList:
+              - source: 0.0.0.0/0
+                description: everywhere
