@@ -103,8 +103,32 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # NOTE: There is no deploy job here. Render deploys the API and client
-  # natively on every commit to master (autoDeployTrigger: commit in
-  # render.yaml). CI's role is verification — build, test, and image build.
-  # To gate deploys behind passing tests instead, switch the Render services
-  # to manual deploy and re-add a deploy job that curls their deploy hooks.
+  # ----------------------------------------------------------------
+  # Continuous Deployment — test-gated. Triggers Render to deploy the
+  # API and client, but only after server/client/docker all pass, and
+  # only on a direct push to master (i.e. after a PR merges). Render's
+  # own auto-deploy is off (render.yaml), so this is the single path to
+  # production. Add the two deploy-hook URLs from the Render dashboard as
+  # repo secrets; until then the job skips gracefully instead of failing.
+  # ----------------------------------------------------------------
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: [server, client, docker]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Trigger Render deploys
+        env:
+          API_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_API }}
+          CLIENT_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_CLIENT }}
+        run: |
+          if [ -z "$API_HOOK" ] || [ -z "$CLIENT_HOOK" ]; then
+            echo "Deploy hooks not configured — skipping deploy."
+            echo "Add RENDER_DEPLOY_HOOK_API and RENDER_DEPLOY_HOOK_CLIENT secrets to enable."
+            exit 0
+          fi
+          echo "Triggering API deploy..."
+          curl -fsS -X POST "$API_HOOK"
+          echo "Triggering client deploy..."
+          curl -fsS -X POST "$CLIENT_HOOK"
