@@ -1,0 +1,104 @@
+name: CI
+
+# Run on every push to master and on every pull request targeting master.
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# If you push twice quickly (or push to an open PR), cancel the older run
+# still in progress so we don't waste runners on stale commits.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ----------------------------------------------------------------
+  # Backend: build the solution and run the integration tests.
+  # The tests use Testcontainers, which starts a real PostgreSQL
+  # container via Docker. GitHub-hosted ubuntu runners ship with
+  # Docker already running, so no extra service setup is needed.
+  # ----------------------------------------------------------------
+  server:
+    name: Server build & integration tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Server
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      # Restore/build/test are split into separate steps so that if one
+      # fails, the log points straight at the stage that broke.
+      - name: Restore
+        run: dotnet restore WorkVault.sln
+
+      - name: Build
+        run: dotnet build WorkVault.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test WorkVault.sln --configuration Release --no-build --verbosity normal
+
+  # ----------------------------------------------------------------
+  # Frontend: install dependencies and produce a production build.
+  # This catches TypeScript / template errors before they reach main.
+  # ----------------------------------------------------------------
+  client:
+    name: Client build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Client
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: Client/package-lock.json
+
+      # 'npm ci' is the CI-friendly install: it installs exactly what's in
+      # package-lock.json and fails if the lockfile is out of sync.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+  # ----------------------------------------------------------------
+  # Verify the production Docker image still builds. This is a smoke
+  # test for deployability — if the Dockerfile breaks, we find out in
+  # CI instead of at deploy time. The image is built but not pushed.
+  # ----------------------------------------------------------------
+  docker:
+    name: Docker image build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build API image
+        uses: docker/build-push-action@v6
+        with:
+          context: Server
+          file: Server/Dockerfile
+          push: false
+          # Cache layers in the GitHub Actions cache so repeat builds are fast.
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
