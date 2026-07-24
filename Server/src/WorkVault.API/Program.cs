@@ -14,12 +14,14 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using WorkVault.API.Middleware;
 using WorkVault.API.Services;
 using WorkVault.Application;
 using WorkVault.Application.Common.Interfaces;
 using WorkVault.Infrastructure;
+using WorkVault.Infrastructure.Persistence;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
@@ -195,6 +197,17 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 var app = builder.Build();
 
+// Apply pending EF Core migrations on startup so a fresh production database
+// (e.g. Render's managed Postgres) gets its schema without a manual step.
+// Safe for single-instance deploys; disabled in integration tests, which
+// create and migrate their own throwaway database explicitly.
+if (app.Configuration.GetValue("Database:AutoMigrate", true))
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
+}
+
 // ============================================================
 // Middleware Pipeline (order matters!)
 // ============================================================
@@ -221,6 +234,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
+// Lightweight, anonymous liveness endpoint for Render's health checks.
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
+
 app.MapControllers();
 app.Run();
 

@@ -34,6 +34,10 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         // Disable rate limiting so tests can make rapid successive requests
         builder.UseSetting("RateLimiting:Enabled", "false");
 
+        // The test fixture migrates its own container in InitializeAsync;
+        // don't let the app also auto-migrate on startup.
+        builder.UseSetting("Database:AutoMigrate", "false");
+
         builder.ConfigureServices(services =>
         {
             // Remove the existing AppDbContext database configuration
