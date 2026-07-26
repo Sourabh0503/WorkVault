@@ -69,6 +69,7 @@ export interface CreateEmployeeRequest {
   departmentId?: string;
   designationId?: string;
   managerId?: string;
+  roleId: string;
 }
 
 // POST /api/employees — response
@@ -97,6 +98,18 @@ export interface ManagerInfo {
   fullName: string;
 }
 
+export interface RoleInfo {
+  id: string;
+  name: string;
+}
+
+// GET /api/employees/managers?departmentId= — dropdown option (matches ManagerOptionDto)
+export interface ManagerOption {
+  id: string;
+  fullName: string;
+  employeeCode: string;
+}
+
 // Matches EmployeeDto from GetEmployeeByIdHandler.cs
 export interface EmployeeDetail {
   id: string;
@@ -114,6 +127,7 @@ export interface EmployeeDetail {
   department: DepartmentInfo | null;
   designation: DesignationInfo | null;
   manager: ManagerInfo | null;
+  role: RoleInfo;
   createdAt: string;
 }
 
@@ -128,6 +142,7 @@ export interface UpdateEmployeeRequest {
   departmentId?: string;
   designationId?: string;
   managerId?: string;
+  roleId: string;
   joinDate: string;
   resignationDate?: string;
   lastWorkingDay?: string;

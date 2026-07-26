@@ -14,6 +14,7 @@ namespace WorkVault.Application.Modules.Employees.Commands.CreateEmployee;
 /// <param name="DepartmentId">Optional department assignment.</param>
 /// <param name="DesignationId">Optional designation/title assignment.</param>
 /// <param name="ManagerId">Optional reporting manager.</param>
+/// <param name="RoleId">Access role to grant (HR, Manager, or Employee).</param>
 public record CreateEmployeeCommand(
     string FirstName,
     string LastName,
@@ -22,7 +23,8 @@ public record CreateEmployeeCommand(
     DateOnly JoinDate,
     Guid? DepartmentId,
     Guid? DesignationId,
-    Guid? ManagerId
+    Guid? ManagerId,
+    Guid RoleId
 ) : IRequest<CreateEmployeeResult>;
 
 /// <summary>Result of creating an employee, including the shareable invite link.</summary>

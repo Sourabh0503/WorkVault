@@ -6,6 +6,7 @@ using WorkVault.Application.Modules.Departments.Queries.GetDepartmentById;
 using WorkVault.Application.Modules.Departments.Queries.GetDepartments;
 using WorkVault.Application.Modules.Employees.Commands.CreateEmployee;
 using WorkVault.Application.Modules.Identity.Commands.Register;
+using WorkVault.SharedKernel.Constants;
 using Xunit;
 
 namespace WorkVault.IntegrationTests;
@@ -99,7 +100,8 @@ public class TenantIsolationTests : IClassFixture<CustomWebApplicationFactory>
             JoinDate: DateOnly.FromDateTime(DateTime.UtcNow),
             DepartmentId: deptBResult.Id, // Belonging to Company B
             DesignationId: null,
-            ManagerId: null
+            ManagerId: null,
+            RoleId: SystemRoles.Employee
         );
 
         var request = new HttpRequestMessage(HttpMethod.Post, "/api/employees")

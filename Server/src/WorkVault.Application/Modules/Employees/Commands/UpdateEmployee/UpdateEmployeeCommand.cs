@@ -28,6 +28,9 @@ public record UpdateEmployeeCommand : IRequest<UpdateEmployeeResult>
     public Guid? DesignationId { get; init; }
     public Guid? ManagerId { get; init; }
 
+    /// <summary>Access role (HR, Manager, or Employee).</summary>
+    public Guid RoleId { get; init; }
+
     // Employment lifecycle
     public DateOnly JoinDate { get; init; }
     public DateOnly? ResignationDate { get; init; }

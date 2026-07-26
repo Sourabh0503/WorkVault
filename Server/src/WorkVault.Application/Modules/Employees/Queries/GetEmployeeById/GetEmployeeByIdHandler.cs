@@ -46,6 +46,9 @@ public class GetEmployeeByIdHandler(IEmployeeRepository repository)
                     employee.Manager.EmployeeCode,
                     $"{employee.Manager.User?.FirstName} {employee.Manager.User?.LastName}".Trim())
                 : null,
+            Role: new RoleInfo(
+                employee.User?.RoleId ?? Guid.Empty,
+                employee.User?.Role?.Name ?? string.Empty),
             CreatedAt: employee.CreatedAt
         );
     }

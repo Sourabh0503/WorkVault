@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using WorkVault.Application.Modules.Employees.Commands.CreateEmployee;
 using WorkVault.Application.Modules.Employees.Commands.DeleteEmployee;
 using WorkVault.Application.Modules.Employees.Commands.ResendInvite;
+using WorkVault.Application.Modules.Employees.Queries.GetDepartmentManagers;
 using WorkVault.Application.Modules.Employees.Queries.GetEmployeeById;
 using WorkVault.Application.Modules.Employees.Commands.UpdateEmployee;
 using WorkVault.Application.Modules.Employees.Queries.GetEmployees;
@@ -194,6 +195,27 @@ public class EmployeesController(IMediator mediator) : ControllerBase
     {
         await mediator.Send(new DeleteEmployeeCommand(id), cancellationToken);
         return NoContent();
+    }
+
+    /// <summary>
+    /// Lists the Active, Manager-role employees in a department.
+    /// </summary>
+    /// <remarks>
+    /// Populates the reporting-manager dropdown on the employee create/edit form.
+    /// </remarks>
+    /// <param name="departmentId">The department whose managers to list.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <response code="200">The department's managers.</response>
+    /// <response code="401">Not authenticated.</response>
+    /// <response code="403">Not authorized (requires HR or CompanyAdmin).</response>
+    [HttpGet("managers")]
+    [Authorize(Roles = $"{SystemRoles.HRRole},{SystemRoles.CompanyAdminRole}")]
+    public async Task<IActionResult> GetDepartmentManagers(
+        [FromQuery] Guid departmentId,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new GetDepartmentManagersQuery(departmentId), cancellationToken);
+        return Ok(result);
     }
 
     /// <summary>

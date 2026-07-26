@@ -69,11 +69,12 @@ public class UpdateEmployeeHandler(
             throw new BusinessRuleException(
                 "This employee hasn't accepted their invite yet. Status will update automatically once they set their password.");
         
-        // 3. Update User details (name only - email is not changeable)
+        // 3. Update User details (name + access role; email is not changeable)
         if (employee.User is not null)
         {
             employee.User.FirstName = request.FirstName;
             employee.User.LastName = request.LastName;
+            employee.User.RoleId = request.RoleId;   // validated to HR/Manager/Employee
         }
 
         // 4. Update personal info

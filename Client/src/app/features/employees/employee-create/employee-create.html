@@ -112,9 +112,9 @@
           <div class="field">
             <label for="designationId">Designation <span class="optional">(optional)</span></label>
             <select id="designationId" formControlName="designationId">
-              <option value="">No designation</option>
-              @for (d of designations(); track d.id) {
-                <option [value]="d.id">{{ d.title }} · {{ d.departmentName }}</option>
+              <option value="">{{ departmentSelected() ? 'No designation' : 'Select a department first' }}</option>
+              @for (d of filteredDesignations(); track d.id) {
+                <option [value]="d.id">{{ d.title }} · L{{ d.level }}</option>
               }
             </select>
           </div>
@@ -122,12 +122,21 @@
           <div class="field">
             <label for="managerId">Reporting manager <span class="optional">(optional)</span></label>
             <select id="managerId" formControlName="managerId">
-              <option value="">No manager</option>
+              <option value="">{{ departmentSelected() ? 'No manager' : 'Select a department first' }}</option>
               @for (m of managers(); track m.id) {
                 <option [value]="m.id">{{ m.fullName }} ({{ m.employeeCode }})</option>
               }
             </select>
           </div>
+        </div>
+
+        <div class="field">
+          <label for="roleId">Access role</label>
+          <select id="roleId" formControlName="roleId">
+            @for (r of roles; track r.id) {
+              <option [value]="r.id">{{ r.label }}</option>
+            }
+          </select>
         </div>
       </div>
 

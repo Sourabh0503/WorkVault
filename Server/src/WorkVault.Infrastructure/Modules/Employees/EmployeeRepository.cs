@@ -3,6 +3,7 @@ using WorkVault.Domain.Modules.Employees;
 using WorkVault.Domain.Modules.Employees.Enums;
 using WorkVault.Domain.Modules.Employees.Interfaces;
 using WorkVault.Infrastructure.Persistence;
+using WorkVault.SharedKernel.Constants;
 
 namespace WorkVault.Infrastructure.Modules.Employees;
 
@@ -21,11 +22,12 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
         // No SaveChanges — handler controls via IUnitOfWork
     }
 
-    /// <summary>Loads a single employee by id with user, department, designation, and manager eager-loaded.</summary>
+    /// <summary>Loads a single employee by id with user (+ role), department, designation, and manager eager-loaded.</summary>
     public async Task<Employee?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await context.Employees
             .Include(e => e.User)
+                .ThenInclude(u => u!.Role)
             .Include(e => e.Department)
             .Include(e => e.Designation)
             .Include(e => e.Manager)
@@ -149,5 +151,19 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
     {
         return await context.Employees
             .AnyAsync(e => e.ManagerId == managerId, cancellationToken);
+    }
+
+    /// <summary>Returns Active, Manager-role employees in a department (user loaded), ordered by name.</summary>
+    public async Task<IReadOnlyList<Employee>> GetManagersByDepartmentAsync(
+        Guid departmentId, CancellationToken cancellationToken)
+    {
+        return await context.Employees
+            .Include(e => e.User)
+            .Where(e => e.DepartmentId == departmentId
+                        && e.Status == EmployeeStatus.Active
+                        && e.User!.RoleId == SystemRoles.Manager)
+            .OrderBy(e => e.User!.FirstName)
+            .ThenBy(e => e.User!.LastName)
+            .ToListAsync(cancellationToken);
     }
 }

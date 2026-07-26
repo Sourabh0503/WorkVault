@@ -115,5 +115,13 @@ public static class SystemRoles
         return null;
     }
 
+    /// <summary>
+    /// Roles HR/CompanyAdmin may assign when creating or editing an employee.
+    /// Excludes <see cref="SuperAdmin"/> (platform-level) and <see cref="CompanyAdmin"/>
+    /// (the founder, established at company registration — never granted via the employee form).
+    /// </summary>
+    public static readonly IReadOnlySet<Guid> AssignableEmployeeRoles =
+        new HashSet<Guid> { HR, Manager, Employee };
+
     #endregion
 }

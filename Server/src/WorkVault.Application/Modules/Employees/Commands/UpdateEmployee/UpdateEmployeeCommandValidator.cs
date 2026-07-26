@@ -1,5 +1,6 @@
 using FluentValidation;
 using WorkVault.Domain.Modules.Employees.Enums;
+using WorkVault.SharedKernel.Constants;
 
 namespace WorkVault.Application.Modules.Employees.Commands.UpdateEmployee;
 
@@ -47,6 +48,10 @@ public class UpdateEmployeeCommandValidator : AbstractValidator<UpdateEmployeeCo
             .GreaterThanOrEqualTo(x => x.ResignationDate)
             .When(x => x.LastWorkingDay.HasValue && x.ResignationDate.HasValue)
             .WithMessage("Last working day must be on or after resignation date.");
+
+        RuleFor(x => x.RoleId)
+            .Must(SystemRoles.AssignableEmployeeRoles.Contains)
+            .WithMessage("Role must be HR, Manager, or Employee.");
 
         // Status transition validations
         RuleFor(x => x.Status)

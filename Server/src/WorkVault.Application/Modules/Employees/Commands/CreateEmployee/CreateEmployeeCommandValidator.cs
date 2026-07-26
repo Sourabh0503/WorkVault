@@ -1,4 +1,5 @@
 using FluentValidation;
+using WorkVault.SharedKernel.Constants;
 
 namespace WorkVault.Application.Modules.Employees.Commands.CreateEmployee;
 
@@ -35,5 +36,9 @@ public class CreateEmployeeCommandValidator : AbstractValidator<CreateEmployeeCo
             .WithMessage("Join date cannot be more than 1 year in the future.")
             .GreaterThan(DateOnly.FromDateTime(DateTime.UtcNow).AddYears(-50))
             .WithMessage("Join date is too far in the past.");
+
+        RuleFor(x => x.RoleId)
+            .Must(SystemRoles.AssignableEmployeeRoles.Contains)
+            .WithMessage("Role must be HR, Manager, or Employee.");
     }
 }

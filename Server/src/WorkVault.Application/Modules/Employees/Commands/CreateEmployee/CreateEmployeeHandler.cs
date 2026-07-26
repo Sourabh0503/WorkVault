@@ -21,7 +21,7 @@ namespace WorkVault.Application.Modules.Employees.Commands.CreateEmployee;
 /// 1. Validate current user company exists
 /// 2. Validate email not already used in company
 /// 3. Validate FK references belong to same tenant (SECURITY)
-/// 4. Create User (no password, IsActive=false, Role=Employee)
+/// 4. Create User (no password, IsActive=false, Role from request)
 /// 5. Generate unique EmployeeCode (EMP-{year}-{sequence})
 /// 6. Create Employee record linked to User
 /// 7. Create InviteToken (48h expiry)
@@ -87,7 +87,7 @@ public class CreateEmployeeHandler(
             FirstName = request.FirstName,
             LastName = request.LastName,
             PasswordHash = string.Empty,           // set later via invite flow
-            RoleId = SystemRoles.Employee,
+            RoleId = request.RoleId,             // validated to HR/Manager/Employee
             IsActive = false,                    // activated when password is set
             CompanyId = companyId,
         };

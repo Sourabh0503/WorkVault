@@ -85,4 +85,13 @@ public interface IEmployeeRepository : IRepository<Employee>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>True if at least one employee has this manager.</returns>
     Task<bool> HasDirectReportsAsync(Guid managerId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns Active employees with the Manager role in the given department.
+    /// Used to populate the reporting-manager dropdown on the employee form.
+    /// </summary>
+    /// <param name="departmentId">The department whose managers to load.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The department's Active manager-role employees (user eager-loaded), ordered by name.</returns>
+    Task<IReadOnlyList<Employee>> GetManagersByDepartmentAsync(Guid departmentId, CancellationToken cancellationToken);
 }

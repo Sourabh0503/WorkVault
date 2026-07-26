@@ -21,9 +21,11 @@ public record EmployeeDto(
     DepartmentInfo? Department,
     DesignationInfo? Designation,
     ManagerInfo? Manager,
+    RoleInfo Role,
     DateTime CreatedAt
 );
 
 public record DepartmentInfo(Guid Id, string Name);
 public record DesignationInfo(Guid Id, string Title, int Level);
 public record ManagerInfo(Guid Id, string EmployeeCode, string FullName);
+public record RoleInfo(Guid Id, string Name);
