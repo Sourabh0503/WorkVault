@@ -55,8 +55,8 @@ export class AuthService {
   // Current user's role — used for showing/hiding UI by permission
   role = computed(() => this._user()?.role ?? '');
 
-  // Human-readable tenant name for branding (empty until the backend supplies it)
-  companyName = computed(() => this._user()?.companyName ?? 'test');
+  // Human-readable tenant name for branding — always supplied by login/set-password.
+  companyName = computed(() => this._user()?.companyName ?? '');
 
   // Derived: is the user logged in?
   isAuthenticated = computed(() => this._user() !== null);
@@ -205,6 +205,7 @@ export class AuthService {
     const user: StoredUser = {
       userId: response.userId,
       companyId: response.companyId,
+      companyName: response.companyName,
       role: this.extractRole(response.accessToken),
     };
     localStorage.setItem(STORAGE_USER, JSON.stringify(user));

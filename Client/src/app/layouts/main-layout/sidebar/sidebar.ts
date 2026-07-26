@@ -34,6 +34,7 @@ export class Sidebar {
     { label: 'My Team',     route: '/my-team',     icon: '◎', roles: [] },
     { label: 'Employees',   route: '/employees',   icon: '☰', roles: ['HR', 'CompanyAdmin'] },
     { label: 'Departments', route: '/departments', icon: '⊞', roles: ['HR', 'CompanyAdmin'] },
+    { label: 'Designations',route: '/designations',icon: '◷', roles: ['HR', 'CompanyAdmin'] },
     { label: 'Assets',      route: '/assets',      icon: '◇', roles: ['HR', 'CompanyAdmin'] },
     { label: 'Settings',    route: '/settings',    icon: '⚙', roles: ['CompanyAdmin'] }
   ];

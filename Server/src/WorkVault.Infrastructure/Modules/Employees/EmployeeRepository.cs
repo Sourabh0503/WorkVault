@@ -143,4 +143,11 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
         return await context.Employees
             .AnyAsync(e => e.DepartmentId == departmentId, cancellationToken);
     }
+
+    /// <summary>True if any employee reports to the given manager (blocks deletion until reassigned).</summary>
+    public async Task<bool> HasDirectReportsAsync(Guid managerId, CancellationToken cancellationToken)
+    {
+        return await context.Employees
+            .AnyAsync(e => e.ManagerId == managerId, cancellationToken);
+    }
 }

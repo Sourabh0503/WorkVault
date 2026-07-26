@@ -4,8 +4,10 @@ import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { DepartmentService } from '../../../core/services/department.service';
-import { CreateEmployeeResult } from '../../../core/models/employee.models';
+import { DesignationService } from '../../../core/services/designation.service';
+import { CreateEmployeeResult, EmployeeListItem } from '../../../core/models/employee.models';
 import { Department } from '../../../core/models/department.models';
+import { Designation } from '../../../core/models/designation.models';
 import { ApiError } from '../../../core/models/auth.models';
 
 @Component({
@@ -23,6 +25,7 @@ export class EmployeeCreate implements OnInit {
   private fb = inject(FormBuilder);
   private employeeService = inject(EmployeeService);
   private departmentService = inject(DepartmentService);
+  private designationService = inject(DesignationService);
   private router = inject(Router);
 
   // ---- Form + state ----
@@ -32,6 +35,8 @@ export class EmployeeCreate implements OnInit {
 
   // ---- Dropdown data ----
   departments = signal<Department[]>([]);
+  designations = signal<Designation[]>([]);
+  managers = signal<EmployeeListItem[]>([]);
 
   // ---- Success state ----
   createdResult = signal<CreateEmployeeResult | null>(null);
@@ -43,14 +48,27 @@ export class EmployeeCreate implements OnInit {
     email: ['', [Validators.required, Validators.email, Validators.maxLength(256)]],
     phone: [''],
     joinDate: ['', [Validators.required]],
-    departmentId: ['']
+    departmentId: [''],
+    designationId: [''],
+    managerId: ['']
   });
 
   ngOnInit(): void {
-    // Load departments for the dropdown
+    // Load dropdown data — the form still works if any of these fail (all optional).
     this.departmentService.getDepartments().subscribe({
       next: (depts) => this.departments.set(depts),
-      error: () => {} // form still works without departments
+      error: () => {}
+    });
+
+    this.designationService.getDesignations().subscribe({
+      next: (items) => this.designations.set(items),
+      error: () => {}
+    });
+
+    // Managers = existing employees. Pull a generous first page for the dropdown.
+    this.employeeService.getEmployees({ pageNumber: 1, pageSize: 100 }).subscribe({
+      next: (result) => this.managers.set(result.items),
+      error: () => {}
     });
   }
 
@@ -72,7 +90,9 @@ export class EmployeeCreate implements OnInit {
       email: value.email,
       phone: value.phone || undefined,
       joinDate: value.joinDate,
-      departmentId: value.departmentId || undefined
+      departmentId: value.departmentId || undefined,
+      designationId: value.designationId || undefined,
+      managerId: value.managerId || undefined
     }).subscribe({
       next: (result) => {
         this.isSubmitting.set(false);

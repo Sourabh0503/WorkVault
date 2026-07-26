@@ -46,9 +46,35 @@
             </button>
           }
           <button class="primary-btn" (click)="startEdit()">Edit</button>
+          <!-- Only a pending invite (never accepted) can be deleted; onboarded employees are offboarded via status. -->
+          @if (isPending()) {
+            <button class="danger-btn" (click)="askDelete()">Delete</button>
+          }
         </div>
       }
     </div>
+
+    <!-- Delete / action error (view mode) -->
+    @if (!editing() && saveError()) {
+      <div class="error-banner">{{ saveError() }}</div>
+    }
+
+    <!-- Delete confirmation -->
+    @if (confirmingDelete()) {
+      <div class="delete-confirm">
+        <p>
+          Delete the pending invite for <strong>{{ emp.firstName }} {{ emp.lastName }}</strong>?
+          They haven't accepted yet — this voids the invite and archives the record. Onboarded
+          employees can't be deleted, only offboarded.
+        </p>
+        <div class="delete-actions">
+          <button class="secondary-btn" (click)="cancelDelete()" [disabled]="isDeleting()">Cancel</button>
+          <button class="danger-btn" (click)="confirmDelete()" [disabled]="isDeleting()">
+            {{ isDeleting() ? 'Deleting...' : 'Delete employee' }}
+          </button>
+        </div>
+      </div>
+    }
 
     <!-- Resend invite result -->
     @if (resendResult(); as link) {

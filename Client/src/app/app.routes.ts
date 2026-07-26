@@ -96,6 +96,14 @@ export const routes: Routes = [
             (m) => m.DepartmentList,
           ),
       },
+      {
+        path: 'designations',
+        data: { title: 'Designations' },
+        loadComponent: () =>
+          import('./features/designations/designation-list/designation-list').then(
+            (m) => m.DesignationList,
+          ),
+      },
       // Future: employees, departments, etc go here
     ],
   },

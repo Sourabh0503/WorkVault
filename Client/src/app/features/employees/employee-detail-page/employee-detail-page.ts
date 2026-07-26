@@ -47,6 +47,10 @@ export class EmployeeDetailPage implements OnInit {
   resendResult = signal<string | null>(null);
   inviteCopied = signal(false);
 
+  // Delete state
+  confirmingDelete = signal(false);
+  isDeleting = signal(false);
+
   // Expose status enum + labels to template
   statusOptions = [
     EmployeeStatus.Active,
@@ -185,6 +189,35 @@ export class EmployeeDetailPage implements OnInit {
       error: () => {
         this.isResending.set(false);
         this.saveError.set('Could not resend invite.');
+      }
+    });
+  }
+
+  // ---- Delete ----
+  askDelete(): void {
+    this.saveError.set(null);
+    this.confirmingDelete.set(true);
+  }
+
+  cancelDelete(): void {
+    this.confirmingDelete.set(false);
+  }
+
+  confirmDelete(): void {
+    this.isDeleting.set(true);
+    this.saveError.set(null);
+
+    this.employeeService.deleteEmployee(this.employeeId).subscribe({
+      next: () => {
+        this.isDeleting.set(false);
+        this.confirmingDelete.set(false);
+        this.router.navigate(['/employees']);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.isDeleting.set(false);
+        this.confirmingDelete.set(false);
+        const apiError = err.error as ApiError;
+        this.saveError.set(apiError?.title || 'Could not delete employee.');
       }
     });
   }

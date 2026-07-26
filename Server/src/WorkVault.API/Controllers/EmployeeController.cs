@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using WorkVault.Application.Modules.Employees.Commands.CreateEmployee;
+using WorkVault.Application.Modules.Employees.Commands.DeleteEmployee;
 using WorkVault.Application.Modules.Employees.Commands.ResendInvite;
 using WorkVault.Application.Modules.Employees.Queries.GetEmployeeById;
 using WorkVault.Application.Modules.Employees.Commands.UpdateEmployee;
@@ -169,6 +170,32 @@ public class EmployeesController(IMediator mediator) : ControllerBase
         return Ok(result);
     }
     
+    /// <summary>
+    /// Deletes a pending employee (invite never accepted) and voids their invite.
+    /// </summary>
+    /// <remarks>
+    /// Only <c>Pending</c> employees can be deleted — onboarded employees are audit
+    /// records and must be suspended/offboarded instead. Data is never physically
+    /// removed (soft delete). Also blocked (400) if the employee still has direct reports.
+    /// </remarks>
+    /// <param name="id">The employee's ID.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <response code="204">Employee deleted successfully.</response>
+    /// <response code="400">Employee is not pending, or still has direct reports.</response>
+    /// <response code="401">Not authenticated.</response>
+    /// <response code="403">Not authorized (requires HR or CompanyAdmin).</response>
+    /// <response code="404">Employee not found.</response>
+    /// <response code="429">Too many requests - rate limit exceeded.</response>
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles = $"{SystemRoles.HRRole},{SystemRoles.CompanyAdminRole}")]
+    public async Task<IActionResult> Delete(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await mediator.Send(new DeleteEmployeeCommand(id), cancellationToken);
+        return NoContent();
+    }
+
     /// <summary>
     /// Returns the members of the current user's own department.
     /// Available to any authenticated user — the team is scoped to

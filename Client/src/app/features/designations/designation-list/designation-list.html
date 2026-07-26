@@ -1,0 +1,107 @@
+<div class="designations">
+  <header class="page-header">
+    <div>
+      <h1>Designations</h1>
+      <p class="subtitle">Define job titles and seniority levels for each department.</p>
+    </div>
+    <button class="new-btn" (click)="showForm() ? closeForm() : openCreate()">
+      {{ showForm() ? 'Cancel' : '+ New Designation' }}
+    </button>
+  </header>
+
+  <!-- Create/Edit form -->
+  @if (showForm()) {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="create-form">
+      <div class="form-title">
+        {{ editingId() ? 'Edit designation' : 'New designation' }}
+      </div>
+
+      @if (formError()) {
+        <div class="form-error">{{ formError() }}</div>
+      }
+
+      <div class="field">
+        <label for="title">Job title</label>
+        <input id="title" type="text" formControlName="title" placeholder="e.g. Senior Engineer" />
+        @if (form.controls.title.touched && form.controls.title.errors?.['required']) {
+          <div class="field-error">Title is required.</div>
+        }
+      </div>
+
+      <div class="form-row-2">
+        <div class="field">
+          <label for="departmentId">Department</label>
+          <select id="departmentId" formControlName="departmentId">
+            <option value="">Select department…</option>
+            @for (dept of departments(); track dept.id) {
+              <option [value]="dept.id">{{ dept.name }}</option>
+            }
+          </select>
+          @if (form.controls.departmentId.touched && form.controls.departmentId.errors?.['required']) {
+            <div class="field-error">Department is required.</div>
+          }
+        </div>
+
+        <div class="field">
+          <label for="level">Level <span class="optional">(1–10 seniority)</span></label>
+          <select id="level" formControlName="level">
+            @for (n of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track n) {
+              <option [value]="n">{{ n }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Saving...' : (editingId() ? 'Save changes' : 'Create designation') }}
+      </button>
+    </form>
+  }
+
+  <!-- Page-level error (e.g. delete blocked) -->
+  @if (error()) {
+    <div class="page-error">{{ error() }}</div>
+  }
+
+  <!-- List states -->
+  @if (loading()) {
+    <div class="state-panel">
+      <div class="spinner"></div>
+      <p>Loading designations...</p>
+    </div>
+  } @else if (designations().length === 0) {
+    <div class="state-panel empty">
+      <div class="empty-icon">◷</div>
+      <h2>No designations yet</h2>
+      <p>Create your first job title to start placing employees by role.</p>
+    </div>
+  } @else {
+    <div class="desig-grid">
+      @for (d of designations(); track d.id) {
+        <div class="desig-card">
+          <div class="desig-header">
+            <h3>{{ d.title }}</h3>
+            <span class="level-badge">L{{ d.level }}</span>
+          </div>
+
+          <div class="desig-meta">
+            <span class="meta-item">{{ d.departmentName || '—' }}</span>
+          </div>
+
+          <!-- Card actions -->
+          <div class="card-actions">
+            @if (deletingId() === d.id) {
+              <!-- Inline delete confirmation -->
+              <span class="confirm-text">Delete?</span>
+              <button class="danger-btn" (click)="doDelete(d.id)">Yes</button>
+              <button class="ghost-btn" (click)="cancelDelete()">No</button>
+            } @else {
+              <button class="ghost-btn" (click)="openEdit(d)">Edit</button>
+              <button class="ghost-btn danger" (click)="confirmDelete(d.id)">Delete</button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

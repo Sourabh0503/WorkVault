@@ -72,6 +72,11 @@ export class EmployeeService {
     return this.http.put<UpdateEmployeeResult>(`${this.apiUrl}/employees/${id}`, data);
   }
 
+  /** DELETE /api/employees/{id} — delete a pending employee (invite not accepted) + void invite. HR/Admin only. */
+  deleteEmployee(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/employees/${id}`);
+  }
+
   /** POST /api/employees/{id}/resend-invite — resend invite to Pending employee. */
   resendInvite(id: string): Observable<{ employeeId: string; email: string; inviteLink: string }> {
     return this.http.post<{ employeeId: string; email: string; inviteLink: string }>(

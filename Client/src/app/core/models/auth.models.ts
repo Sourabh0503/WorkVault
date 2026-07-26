@@ -19,6 +19,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   userId: string;
   companyId: string;
+  companyName: string;
   accessToken: string;
   refreshToken: string;
 }
@@ -101,6 +102,7 @@ export interface SetPasswordRequest {
 export interface SetPasswordResponse {
   userId: string;
   companyId: string;
+  companyName: string;
   accessToken: string;
   refreshToken: string;
 }

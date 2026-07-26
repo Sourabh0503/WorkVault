@@ -19,7 +19,6 @@ public interface IEmployeeRepository : IRepository<Employee>
     /// <param name="search">Search term for name, email, or employee code.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Tuple of employees list and total count.</returns>
-    
     Task<(IReadOnlyList<Employee> Employees, int TotalCount)> GetAllAsync(
         int pageNumber,
         int pageSize,
@@ -54,9 +53,36 @@ public interface IEmployeeRepository : IRepository<Employee>
     /// </remarks>
     Task<Employee?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken);
     
+    /// <summary>
+    /// Returns the employees assigned to a department (capped for list display), ordered by name.
+    /// </summary>
+    /// <param name="departmentId">The department to load members for.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The department's employees.</returns>
     Task<IReadOnlyList<Employee>> GetByDepartmentAsync(Guid departmentId, CancellationToken cancellationToken);
-    
+
+    /// <summary>
+    /// Returns employee counts grouped by <see cref="EmployeeStatus"/> for the current company.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A map of status to headcount (used by the dashboard).</returns>
     Task<Dictionary<EmployeeStatus, int>> GetStatusCountsAsync(CancellationToken cancellationToken);
-    
+
+    /// <summary>
+    /// Checks whether any employee is assigned to the given department.
+    /// Used to block deleting a department that still has members.
+    /// </summary>
+    /// <param name="departmentId">The department to check for members.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>True if at least one employee belongs to the department.</returns>
     Task<bool> HasMembersInDepartmentAsync(Guid departmentId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Checks whether any employee reports to the given manager.
+    /// Used to block deleting a manager who still has direct reports.
+    /// </summary>
+    /// <param name="managerId">The manager (employee) to check for reports.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>True if at least one employee has this manager.</returns>
+    Task<bool> HasDirectReportsAsync(Guid managerId, CancellationToken cancellationToken);
 }

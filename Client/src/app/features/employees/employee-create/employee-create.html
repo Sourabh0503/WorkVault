@@ -107,6 +107,28 @@
             </select>
           </div>
         </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="designationId">Designation <span class="optional">(optional)</span></label>
+            <select id="designationId" formControlName="designationId">
+              <option value="">No designation</option>
+              @for (d of designations(); track d.id) {
+                <option [value]="d.id">{{ d.title }} · {{ d.departmentName }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="managerId">Reporting manager <span class="optional">(optional)</span></label>
+            <select id="managerId" formControlName="managerId">
+              <option value="">No manager</option>
+              @for (m of managers(); track m.id) {
+                <option [value]="m.id">{{ m.fullName }} ({{ m.employeeCode }})</option>
+              }
+            </select>
+          </div>
+        </div>
       </div>
 
       <div class="form-actions">

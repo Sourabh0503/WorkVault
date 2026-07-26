@@ -2,6 +2,9 @@ using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Domain.Modules.Identity.Interfaces;
 
+/// <summary>
+/// Repository interface for <see cref="PasswordResetToken"/> entity operations.
+/// </summary>
 public interface IPasswordResetTokenRepository : IRepository<PasswordResetToken>
 {
     /// <summary>
