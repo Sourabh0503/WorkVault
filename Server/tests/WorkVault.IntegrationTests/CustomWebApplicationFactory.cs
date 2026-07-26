@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
 using WorkVault.Infrastructure.Persistence;
@@ -31,22 +32,30 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        // Disable rate limiting so tests can make rapid successive requests
-        builder.UseSetting("RateLimiting:Enabled", "false");
+        // Inject test config as an in-memory source. This is appended after
+        // appsettings*.json, so it reliably reaches app.Configuration and overrides
+        // any local dev values — unlike UseSetting, which didn't gate the rate limiter.
+        builder.ConfigureAppConfiguration((_, config) =>
+        {
+            config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                // Disable rate limiting so tests can make rapid successive requests
+                // (register/login are otherwise capped at 5/min per IP → 429 across tests).
+                ["RateLimiting:Enabled"] = "false",
 
-        // The test fixture migrates its own container in InitializeAsync;
-        // don't let the app also auto-migrate on startup.
-        builder.UseSetting("Database:AutoMigrate", "false");
+                // The test fixture migrates its own container in InitializeAsync;
+                // don't let the app also auto-migrate on startup.
+                ["Database:AutoMigrate"] = "false",
 
-        // Provide JWT config explicitly so the tests are hermetic and don't
-        // depend on appsettings.Development.json being discovered — that file
-        // loads locally but not on the CI runner, which left SecretKey null
-        // and 500'd every request as the JWT handler initialized.
-        builder.UseSetting("JwtSettings:SecretKey", "WorkVault-Integration-Test-Secret-Key-With-At-Least-32-Characters");
-        builder.UseSetting("JwtSettings:Issuer", "WorkVault");
-        builder.UseSetting("JwtSettings:Audience", "WorkVault");
-        builder.UseSetting("JwtSettings:AccessTokenExpirationMinutes", "15");
-        builder.UseSetting("JwtSettings:RefreshTokenExpirationDays", "7");
+                // Hermetic JWT config — appsettings.Development.json isn't discovered on
+                // the CI runner, which left SecretKey null and 500'd every request.
+                ["JwtSettings:SecretKey"] = "WorkVault-Integration-Test-Secret-Key-With-At-Least-32-Characters",
+                ["JwtSettings:Issuer"] = "WorkVault",
+                ["JwtSettings:Audience"] = "WorkVault",
+                ["JwtSettings:AccessTokenExpirationMinutes"] = "15",
+                ["JwtSettings:RefreshTokenExpirationDays"] = "7",
+            });
+        });
 
         builder.ConfigureServices(services =>
         {

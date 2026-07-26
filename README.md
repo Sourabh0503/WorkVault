@@ -140,8 +140,9 @@ Pipeline in `.github/workflows/ci.yml`, runs on every push and PR to `master`:
 
 | Module | Description | Status |
 |:---:|---|:---:|
-| 🔐 Identity | Company registration, JWT auth, roles, multi-tenancy | 🟡 Building |
-| 👥 Employees | Profiles, lifecycle, ID card + QR, invite flow | ⬜ Next |
+| 🔐 Identity | Company registration, JWT auth, roles, multi-tenancy, `/auth/me` profile | 🟢 Core done |
+| 👥 Employees | Profiles, lifecycle, roles, invite flow, org placement (dept/designation/manager) | 🟡 Building |
+| 🏢 Org Structure | Departments & Designations (full CRUD + UI) | 🟢 Core done |
 | 💻 Assets | Asset register, assignment, service requests | ⬜ Planned |
 | ⏰ Attendance | Clock in/out, leave, timesheets, shifts | ⬜ Planned |
 | 🏢 Bookings | Meeting rooms, desk booking, visitor mgmt | ⬜ Planned |
@@ -179,7 +180,7 @@ public abstract class BaseEntity
 }
 ```
 
-**Current tables:** `Companies` · `Users` · `Roles` (5 seeded system roles) · `RefreshTokens`
+**Current tables:** `Companies` · `Users` · `Roles` (5 seeded system roles) · `RefreshTokens` · `InviteTokens` · `PasswordResetTokens` · `Employees` · `Departments` · `Designations`
 
 <br/>
 
@@ -256,6 +257,7 @@ http://localhost:5080/swagger
 |:---:|---|---|
 | POST | `/api/auth/register` | Register new company + admin user |
 | POST | `/api/auth/login` | Login with email & password |
+| GET | `/api/auth/me` | Current user's profile (account + employee) |
 | POST | `/api/auth/refresh` | Refresh access token |
 
 ### Companies (`/api/companies`)
@@ -359,12 +361,13 @@ POST /api/auth/refresh
 - [x] Register / Login / Refresh endpoints
 - [x] `CompanyId` global query filter (tenant isolation)
 - [x] Employee / Department / Designation CRUD + invite flow
-- [x] Angular frontend — auth, dashboard, employees, departments
+- [x] Employee soft-delete (pending invites only), role assignment, dept-scoped designation/manager dropdowns
+- [x] `GET /api/auth/me` + My Profile page; unified employee view (edit gated to HR/CompanyAdmin)
+- [x] Angular frontend — auth, dashboard, employees, departments, designations, profile
 - [x] Integration tests (Testcontainers) proving tenant isolation
 - [x] CI/CD (GitHub Actions) + live deploy on Render
-- [ ] `DELETE /api/employees/{id}` (soft delete) — only missing endpoint
 - [ ] Employee ID card with QR code
-- [ ] Designation management UI + create-form dropdowns
+- [ ] Attendance / leave (Phase 1 stretch)
 
 ### Phase 2 — Asset Management `Planned`
 
