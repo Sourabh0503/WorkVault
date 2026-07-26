@@ -47,6 +47,11 @@ export class EmployeeDetailPage implements OnInit {
   // Only HR / CompanyAdmin may edit or delete; everyone else sees a read-only profile.
   canManage = computed(() => ['HR', 'CompanyAdmin'].includes(this.authService.role()));
 
+  // Back target depends on where the user can actually go: HR/Admin came from the
+  // Employees list; everyone else reaches this via My Team (they can't open /employees).
+  backRoute = computed(() => (this.canManage() ? '/employees' : '/my-team'));
+  backLabel = computed(() => (this.canManage() ? 'Employees' : 'My Team'));
+
   // ---- State ----
   loading = signal(true);
   error = signal<string | null>(null);

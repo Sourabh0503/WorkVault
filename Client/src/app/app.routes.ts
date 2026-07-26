@@ -1,6 +1,10 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { roleGuard } from './core/guards/role.guard';
+
+// Routes restricted to org managers. Employee/Manager land on the dashboard instead.
+const HR_ADMIN = ['HR', 'CompanyAdmin'];
 
 /**
  * Application routes, grouped into three shells:
@@ -63,13 +67,15 @@ export const routes: Routes = [
       },
       {
         path: 'employees',
-        data: { title: 'Employees' },
+        canActivate: [roleGuard],
+        data: { title: 'Employees', roles: HR_ADMIN },
         loadComponent: () =>
           import('./features/employees/employee-list/employee-list').then((m) => m.EmployeeList),
       },
       {
         path: 'employees/new',
-        data: { title: 'Add Employee' },
+        canActivate: [roleGuard],
+        data: { title: 'Add Employee', roles: HR_ADMIN },
         loadComponent: () =>
           import('./features/employees/employee-create/employee-create').then(
             (m) => m.EmployeeCreate,
@@ -90,7 +96,8 @@ export const routes: Routes = [
       },
       {
         path: 'departments',
-        data: { title: 'Departments' },
+        canActivate: [roleGuard],
+        data: { title: 'Departments', roles: HR_ADMIN },
         loadComponent: () =>
           import('./features/departments/department-list/department-list').then(
             (m) => m.DepartmentList,
@@ -98,7 +105,8 @@ export const routes: Routes = [
       },
       {
         path: 'designations',
-        data: { title: 'Designations' },
+        canActivate: [roleGuard],
+        data: { title: 'Designations', roles: HR_ADMIN },
         loadComponent: () =>
           import('./features/designations/designation-list/designation-list').then(
             (m) => m.DesignationList,

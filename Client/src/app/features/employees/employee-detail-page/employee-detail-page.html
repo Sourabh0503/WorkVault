@@ -11,13 +11,13 @@
   @else if (error()) {
     <div class="state-panel">
       <p>{{ error() }}</p>
-      <a routerLink="/employees" class="link-btn">Back to employees</a>
+      <a [routerLink]="backRoute()" class="link-btn">Back to {{ backLabel() }}</a>
     </div>
   }
 
   <!-- Loaded -->
   @else if (employee(); as emp) {
-    <a routerLink="/employees" class="back-link">← Employees</a>
+    <a [routerLink]="backRoute()" class="back-link">← {{ backLabel() }}</a>
 
     <!-- Profile header -->
     <div class="profile-header">
