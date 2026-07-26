@@ -23,6 +23,10 @@
   --color-primary-text-dim: #6EE7B7;
   --color-success: #16A34A;
 
+  // Brand gradient for hero surfaces (welcome card, team banner) — always carries
+  // white text. Light: bright emerald wash. Overridden to deep emerald in dark mode.
+  --gradient-brand: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-border) 100%);
+
   // ---- Error / danger ----
   --color-error-bg: #FEF2F2;
   --color-error-border: #FECACA;
@@ -99,6 +103,9 @@
     --color-primary-text-light: #6EE7B7;
     --color-primary-text-dim: #34D399;
     --color-success: #22C55E;
+
+    // Deep emerald hero gradient on dark surfaces (the bright wash reads as washed-out here).
+    --gradient-brand: linear-gradient(140deg, #04241B 0%, #0A3D2C 100%);
 
     // ---- Error / danger (muted for dark surfaces) ----
     --color-error-bg: #2A1618;

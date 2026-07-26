@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { EmployeeService } from '../../../core/services/employee.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { TeamMember } from '../../../core/models/employee.models';
 
 @Component({
@@ -16,12 +17,19 @@ import { TeamMember } from '../../../core/models/employee.models';
  */
 export class MyTeam implements OnInit {
   private employeeService = inject(EmployeeService);
+  private authService = inject(AuthService);
   private router = inject(Router);
 
   loading = signal(true);
   error = signal<string | null>(null);
   departmentName = signal<string | null>(null);
   members = signal<TeamMember[]>([]);
+
+  // Viewer's access role, shown in the team banner.
+  myRole = this.authService.role;
+
+  // First letter of the department, for the banner tile.
+  deptInitial = computed(() => (this.departmentName()?.trim().charAt(0) || '·').toUpperCase());
 
   ngOnInit(): void {
     this.employeeService.getMyTeam().subscribe({

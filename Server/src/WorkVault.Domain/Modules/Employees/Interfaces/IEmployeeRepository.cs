@@ -94,4 +94,12 @@ public interface IEmployeeRepository : IRepository<Employee>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The department's Active manager-role employees (user eager-loaded), ordered by name.</returns>
     Task<IReadOnlyList<Employee>> GetManagersByDepartmentAsync(Guid departmentId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Counts employees by their join month within a year (for the dashboard headcount trend).
+    /// </summary>
+    /// <param name="year">The calendar year to bucket by month.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Map of month number (1–12) to the count of employees who joined that month.</returns>
+    Task<Dictionary<int, int>> GetMonthlyJoinCountsAsync(int year, CancellationToken cancellationToken);
 }

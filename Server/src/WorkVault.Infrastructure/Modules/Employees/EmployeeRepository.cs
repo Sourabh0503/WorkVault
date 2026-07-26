@@ -169,4 +169,17 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
             .ThenBy(e => e.User!.LastName)
             .ToListAsync(cancellationToken);
     }
+
+    /// <summary>Counts employees grouped by join month for a given year (tenant-scoped).</summary>
+    public async Task<Dictionary<int, int>> GetMonthlyJoinCountsAsync(
+        int year, CancellationToken cancellationToken)
+    {
+        var counts = await context.Employees
+            .Where(e => e.JoinDate.Year == year)
+            .GroupBy(e => e.JoinDate.Month)
+            .Select(g => new { Month = g.Key, Count = g.Count() })
+            .ToListAsync(cancellationToken);
+
+        return counts.ToDictionary(x => x.Month, x => x.Count);
+    }
 }

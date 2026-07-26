@@ -21,48 +21,68 @@
   }
 
   @else {
-    <div class="team-header">
-      <h1>{{ departmentName() ?? 'My Team' }}</h1>
-      <span class="member-count">{{ members().length }} {{ members().length === 1 ? 'member' : 'members' }}</span>
+    <!-- Department banner -->
+    <div class="team-banner">
+      <div class="banner-tile">{{ deptInitial() }}</div>
+      <div class="banner-meta">
+        <h1>{{ departmentName() ?? 'My Team' }}</h1>
+        <p>{{ members().length }} {{ members().length === 1 ? 'member' : 'members' }}</p>
+      </div>
+      <div class="banner-role">
+        <div class="banner-role-label">Your role</div>
+        <div class="banner-role-value">{{ myRole() || 'Member' }}</div>
+      </div>
     </div>
 
-    <div class="team-grid">
+    <!-- Member rows -->
+    <div class="team-table">
       @for (member of members(); track member.id) {
-        <div
-          class="member-card clickable"
-          [class.is-me]="member.isMe"
-          (click)="openMember(member.id)"
-        >
-          @if (member.isMe) {
-            <span class="you-badge">You</span>
-          }
-
-          <div class="avatar">
-            @if (member.photoUrl) {
-              <img [src]="member.photoUrl" [alt]="member.fullName" />
-            } @else {
-              <span class="avatar-initials">{{ initials(member.fullName) }}</span>
+        <div class="member-row" (click)="openMember(member.id)">
+          <div class="member-avatar-wrap">
+            <div class="member-avatar">
+              @if (member.photoUrl) {
+                <img [src]="member.photoUrl" [alt]="member.fullName" />
+              } @else {
+                {{ initials(member.fullName) }}
+              }
+            </div>
+            @if (member.isMe) {
+              <span class="you-tag">YOU</span>
             }
           </div>
 
-          <div class="member-name">{{ member.fullName }}</div>
-
-          @if (member.designationTitle) {
-            <div class="member-role">{{ member.designationTitle }}</div>
-          }
+          <div class="member-id">
+            <div class="member-name">{{ member.fullName }}</div>
+            <div class="member-code">{{ member.employeeCode }}</div>
+          </div>
 
           <div class="member-contact">
             <a
               [href]="'mailto:' + member.email"
-              class="contact-link"
+              class="member-email"
               (click)="$event.stopPropagation()"
             >{{ member.email }}</a>
-            @if (member.phone) {
-              <div class="contact-phone">{{ member.phone }}</div>
-            }
+            <div class="member-phone">{{ member.phone ?? '—' }}</div>
           </div>
 
-          <div class="member-code">{{ member.employeeCode }}</div>
+          <div class="member-role">{{ member.designationTitle ?? '—' }}</div>
+
+          <div class="member-actions">
+            <a
+              [href]="'mailto:' + member.email"
+              class="icon-btn"
+              title="Email"
+              (click)="$event.stopPropagation()"
+            >✉</a>
+            @if (member.phone) {
+              <a
+                [href]="'tel:' + member.phone"
+                class="icon-btn"
+                title="Call"
+                (click)="$event.stopPropagation()"
+              >✆</a>
+            }
+          </div>
         </div>
       }
     </div>

@@ -45,147 +45,159 @@
   }
 }
 
-// ---- Header ----
-.team-header {
+// ---- Department banner ----
+.team-banner {
   display: flex;
-  align-items: baseline;
-  gap: var(--space-3);
-  margin-bottom: var(--space-6);
-}
-
-.team-header h1 {
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--color-ink);
-}
-
-.member-count {
-  font-size: 14px;
-  color: var(--color-ink-muted);
-  font-weight: 500;
-}
-
-// ---- Grid ----
-.team-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--space-4);
-}
-
-// ---- Card ----
-.member-card {
-  position: relative;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
-  transition: box-shadow 0.15s ease, border-color 0.15s ease;
-
-  &:hover {
-    box-shadow: var(--shadow-card-hover);
-  }
-
-  &.clickable {
-    cursor: pointer;
-
-    &:hover {
-      border-color: var(--color-border-strong);
-    }
-  }
-
-  &.is-me {
-    border-color: var(--color-primary-border);
-    background: var(--color-primary-tint);
-  }
+  gap: var(--space-5);
+  background: var(--gradient-brand);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  color: #fff;
+  box-shadow: var(--shadow-card-hover);
+  margin-bottom: var(--space-5);
 }
 
-.you-badge {
-  position: absolute;
-  top: var(--space-3);
-  right: var(--space-3);
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: white;
-  background: var(--color-primary);
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-}
-
-// ---- Avatar ----
-.avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  overflow: hidden;
-  margin-bottom: var(--space-3);
-  background: var(--color-primary);
+.banner-tile {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: 800;
+  font-size: 20px;
   flex-shrink: 0;
+}
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.banner-meta {
+  flex: 1;
+  min-width: 0;
+
+  h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: #fff; }
+  p { margin: 3px 0 0; font-size: 13px; color: rgba(255, 255, 255, 0.85); }
+}
+
+.banner-role { text-align: right; flex-shrink: 0; }
+.banner-role-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+.banner-role-value { font-size: 14px; font-weight: 700; color: #fff; margin-top: 3px; }
+
+// ---- Member table ----
+.team-table {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.member-row {
+  display: grid;
+  grid-template-columns: auto 1.4fr 1.6fr 1fr auto;
+  gap: 18px;
+  align-items: center;
+  padding: 16px 24px;
+  border-top: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:first-child { border-top: none; }
+  &:hover { background: var(--color-surface-alt); }
+
+  @media (max-width: 720px) {
+    grid-template-columns: auto 1fr auto;
+    .member-contact, .member-role { display: none; }
   }
 }
 
-.avatar-initials {
-  color: white;
-  font-size: 22px;
-  font-weight: 700;
+.member-avatar-wrap { position: relative; }
+
+.member-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--color-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14.5px;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  img { width: 100%; height: 100%; object-fit: cover; }
 }
 
-// ---- Info ----
-.member-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-ink);
-  margin-bottom: 2px;
+.you-tag {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background: var(--color-primary);
+  border-radius: 6px;
+  padding: 1.5px 6px;
+  border: 1.5px solid var(--color-surface);
+  white-space: nowrap;
 }
+
+.member-id { min-width: 0; }
+.member-name { font-size: 14.5px; font-weight: 700; color: var(--color-ink); }
+.member-code {
+  font-size: 11.5px;
+  font-family: monospace;
+  color: var(--color-ink-faint);
+  margin-top: 2px;
+}
+
+.member-contact { min-width: 0; }
+.member-email {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover { color: var(--color-primary-hover); }
+}
+.member-phone { font-size: 12.5px; color: var(--color-ink-muted); margin-top: 2px; }
 
 .member-role {
   font-size: 13px;
-  color: var(--color-ink-muted);
-  font-weight: 500;
-  margin-bottom: var(--space-3);
-}
-
-.member-contact {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-bottom: var(--space-3);
-}
-
-.contact-link {
-  font-size: 13px;
-  color: var(--color-primary);
-  font-weight: 500;
-  word-break: break-all;
-
-  &:hover {
-    color: var(--color-primary-hover);
-  }
-}
-
-.contact-phone {
-  font-size: 13px;
-  color: var(--color-ink-body);
-}
-
-.member-code {
-  font-size: 11px;
-  color: var(--color-ink-faint);
   font-weight: 600;
-  letter-spacing: 0.04em;
-  margin-top: auto;
+  color: var(--color-ink-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.member-actions { display: flex; gap: 8px; }
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: 9px;
+  color: var(--color-ink-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  transition: border-color 0.15s ease, color 0.15s ease;
+
+  &:hover { border-color: var(--color-primary); color: var(--color-primary); }
 }

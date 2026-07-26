@@ -79,26 +79,27 @@
     <div class="desig-grid">
       @for (d of designations(); track d.id) {
         <div class="desig-card">
-          <div class="desig-header">
-            <h3>{{ d.title }}</h3>
-            <span class="level-badge">L{{ d.level }}</span>
-          </div>
+          <div class="desig-tile">{{ d.title.charAt(0).toUpperCase() }}</div>
+          <div class="desig-body">
+            <div class="desig-head">
+              <span class="desig-name">{{ d.title }}</span>
+              <span class="level-badge">Level {{ d.level }}</span>
+            </div>
 
-          <div class="desig-meta">
-            <span class="meta-item">{{ d.departmentName || '—' }}</span>
-          </div>
+            <div class="desig-foot">
+              <span class="desig-meta">{{ d.departmentName || '—' }}</span>
 
-          <!-- Card actions -->
-          <div class="card-actions">
-            @if (deletingId() === d.id) {
-              <!-- Inline delete confirmation -->
-              <span class="confirm-text">Delete?</span>
-              <button class="danger-btn" (click)="doDelete(d.id)">Yes</button>
-              <button class="ghost-btn" (click)="cancelDelete()">No</button>
-            } @else {
-              <button class="ghost-btn" (click)="openEdit(d)">Edit</button>
-              <button class="ghost-btn danger" (click)="confirmDelete(d.id)">Delete</button>
-            }
+              <div class="card-actions">
+                @if (deletingId() === d.id) {
+                  <span class="confirm-text">Delete?</span>
+                  <button class="danger-btn" (click)="doDelete(d.id)">Yes</button>
+                  <button class="ghost-btn" (click)="cancelDelete()">No</button>
+                } @else {
+                  <button class="ghost-btn" (click)="openEdit(d)">Edit</button>
+                  <button class="ghost-btn danger" (click)="confirmDelete(d.id)">Delete</button>
+                }
+              </div>
+            </div>
           </div>
         </div>
       }

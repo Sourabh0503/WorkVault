@@ -61,35 +61,38 @@
     <div class="dept-grid">
       @for (dept of departments(); track dept.id) {
         <div class="dept-card">
-          <div class="dept-header">
-            <h3>{{ dept.name }}</h3>
-            <span class="member-badge">{{ dept.memberCount }}</span>
-          </div>
+          <div class="dept-tile">{{ dept.name.charAt(0).toUpperCase() }}</div>
+          <div class="dept-body">
+            <div class="dept-head">
+              <span class="dept-name">{{ dept.name }}</span>
+              <span class="member-badge">
+                {{ dept.memberCount }} {{ dept.memberCount === 1 ? 'member' : 'members' }}
+              </span>
+            </div>
 
-          @if (dept.description) {
-            <p class="dept-desc">{{ dept.description }}</p>
-          }
+            @if (dept.description) {
+              <p class="dept-desc">{{ dept.description }}</p>
+            }
 
-          <div class="dept-meta">
-            @if (dept.parentDepartmentName) {
-              <span class="meta-item">Under {{ dept.parentDepartmentName }}</span>
-            }
-            @if (dept.headEmployeeName) {
-              <span class="meta-item">Head: {{ dept.headEmployeeName }}</span>
-            }
-          </div>
+            <div class="dept-foot">
+              <span class="dept-meta">
+                {{ dept.headEmployeeName ? 'Head: ' + dept.headEmployeeName : 'No head assigned' }}
+                @if (dept.parentDepartmentName) {
+                  · Under {{ dept.parentDepartmentName }}
+                }
+              </span>
 
-          <!-- Card actions -->
-          <div class="card-actions">
-            @if (deletingId() === dept.id) {
-              <!-- Inline delete confirmation -->
-              <span class="confirm-text">Delete?</span>
-              <button class="danger-btn" (click)="doDelete(dept.id)">Yes</button>
-              <button class="ghost-btn" (click)="cancelDelete()">No</button>
-            } @else {
-              <button class="ghost-btn" (click)="openEdit(dept)">Edit</button>
-              <button class="ghost-btn danger" (click)="confirmDelete(dept.id)">Delete</button>
-            }
+              <div class="card-actions">
+                @if (deletingId() === dept.id) {
+                  <span class="confirm-text">Delete?</span>
+                  <button class="danger-btn" (click)="doDelete(dept.id)">Yes</button>
+                  <button class="ghost-btn" (click)="cancelDelete()">No</button>
+                } @else {
+                  <button class="ghost-btn" (click)="openEdit(dept)">Edit</button>
+                  <button class="ghost-btn danger" (click)="confirmDelete(dept.id)">Delete</button>
+                }
+              </div>
+            </div>
           </div>
         </div>
       }

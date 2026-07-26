@@ -6,3 +6,9 @@ export interface DashboardStats {
   totalDepartments: number;
 }
 
+/** One month's joiner count from `GET /api/dashboard/headcount`. */
+export interface HeadcountPoint {
+  month: string; // "Jan"
+  count: number;
+}
+
