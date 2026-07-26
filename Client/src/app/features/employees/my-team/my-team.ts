@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { TeamMember } from '../../../core/models/employee.models';
 
@@ -15,6 +16,7 @@ import { TeamMember } from '../../../core/models/employee.models';
  */
 export class MyTeam implements OnInit {
   private employeeService = inject(EmployeeService);
+  private router = inject(Router);
 
   loading = signal(true);
   error = signal<string | null>(null);
@@ -33,6 +35,11 @@ export class MyTeam implements OnInit {
         this.loading.set(false);
       }
     });
+  }
+
+  // Open a member's profile (read-only unless the viewer is HR/CompanyAdmin).
+  openMember(id: string): void {
+    this.router.navigate(['/employees', id]);
   }
 
   // First-letter avatar fallback when no photo

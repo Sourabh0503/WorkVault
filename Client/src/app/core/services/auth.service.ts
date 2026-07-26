@@ -35,10 +35,10 @@ interface StoredUser {
   userId: string;
   companyId: string;
   role: string;
-  // Human-readable tenant name. Only known at register time today — the login
-  // response and JWT carry companyId (a GUID), not the name. Optional until the
-  // backend returns companyName from /auth/login (or a /me endpoint).
+  // Human-readable tenant name, supplied by login/register/set-password.
   companyName?: string;
+  // The user's first name, for greetings/sidebar. Supplied by login/register/set-password.
+  firstName?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -56,8 +56,11 @@ export class AuthService {
   // Current user's role — used for showing/hiding UI by permission
   role = computed(() => this._user()?.role ?? '');
 
-  // Human-readable tenant name for branding — always supplied by login/set-password.
+  // Human-readable tenant name for branding — seeded by login, refreshed from /me.
   companyName = computed(() => this._user()?.companyName ?? '');
+
+  // The user's first name — sourced from /me (kept fresh across HR edits), '' until loaded.
+  firstName = computed(() => this._user()?.firstName ?? '');
 
   // Derived: is the user logged in?
   isAuthenticated = computed(() => this._user() !== null);
@@ -86,6 +89,29 @@ export class AuthService {
   /** GET /api/auth/me — the signed-in user's full profile (account + employee details). */
   getMe(): Observable<CurrentUserProfile> {
     return this.http.get<CurrentUserProfile>(`${this.apiUrl}/auth/me`);
+  }
+
+  /**
+   * Refreshes the cached display profile (first name, company name) from /me.
+   * Called on app startup and after auth, so these fields reflect the source of
+   * truth rather than a stale login snapshot. No-op when not authenticated.
+   */
+  loadProfile(): void {
+    if (!this.getAccessToken()) return;
+    this.getMe().subscribe({
+      next: (profile) => {
+        const current = this._user();
+        if (!current) return;
+        const updated: StoredUser = {
+          ...current,
+          firstName: profile.firstName,
+          companyName: profile.companyName,
+        };
+        localStorage.setItem(STORAGE_USER, JSON.stringify(updated));
+        this._user.set(updated);
+      },
+      error: () => {}, // interceptor handles 401; a transient failure just keeps cached values
+    });
   }
 
   /**
@@ -211,8 +237,9 @@ export class AuthService {
     const user: StoredUser = {
       userId: response.userId,
       companyId: response.companyId,
-      companyName: response.companyName,
       role: this.extractRole(response.accessToken),
+      // companyName + firstName are populated by loadProfile() from /auth/me
+      // (the source of truth) once the authenticated shell loads.
     };
     localStorage.setItem(STORAGE_USER, JSON.stringify(user));
     this._user.set(user);

@@ -25,7 +25,6 @@ namespace WorkVault.Application.Modules.Identity.Commands.Login;
 /// </remarks>
 public class LoginHandler(
     IUserRepository userRepository,
-    ICompanyRepository companyRepository,
     IUnitOfWork unitOfWork,
     IJwtTokenService jwtTokenService,
     IRefreshTokenRepository refreshTokenRepository,
@@ -59,17 +58,10 @@ public class LoginHandler(
         user.LastLogin = DateTime.UtcNow; // Update last login
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // Resolve the tenant display name for UI branding. An authenticated user always
-        // has a valid CompanyId (FK), and at login the tenant filter is permissive (no
-        // CompanyId claim yet) — so a null here means a corrupt tenant reference. Fail loud (500).
-        var company = await companyRepository.GetByIdAsync(user.CompanyId, cancellationToken)
-            ?? throw new InvalidOperationException(
-                $"Company '{user.CompanyId}' not found for authenticated user '{user.Id}'.");
-
+        // Display profile (name, company) is sourced from /auth/me, not duplicated here.
         return new LoginResponse(
             user.Id,
             user.CompanyId,
-            company.Name,
             accessToken,
             refreshTokenString);
     }

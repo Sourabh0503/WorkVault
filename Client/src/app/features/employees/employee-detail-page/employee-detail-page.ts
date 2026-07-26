@@ -7,6 +7,7 @@ import { DatePipe } from '@angular/common';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { DepartmentService } from '../../../core/services/department.service';
 import { DesignationService } from '../../../core/services/designation.service';
+import { AuthService } from '../../../core/services/auth.service';
 import {
   EmployeeDetail,
   EmployeeStatus,
@@ -40,7 +41,11 @@ export class EmployeeDetailPage implements OnInit {
   private employeeService = inject(EmployeeService);
   private departmentService = inject(DepartmentService);
   private designationService = inject(DesignationService);
+  private authService = inject(AuthService);
   private destroyRef = inject(DestroyRef);
+
+  // Only HR / CompanyAdmin may edit or delete; everyone else sees a read-only profile.
+  canManage = computed(() => ['HR', 'CompanyAdmin'].includes(this.authService.role()));
 
   // ---- State ----
   loading = signal(true);

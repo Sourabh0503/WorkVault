@@ -28,7 +28,11 @@
 
     <div class="team-grid">
       @for (member of members(); track member.id) {
-        <div class="member-card" [class.is-me]="member.isMe">
+        <div
+          class="member-card clickable"
+          [class.is-me]="member.isMe"
+          (click)="openMember(member.id)"
+        >
           @if (member.isMe) {
             <span class="you-badge">You</span>
           }
@@ -48,7 +52,11 @@
           }
 
           <div class="member-contact">
-            <a [href]="'mailto:' + member.email" class="contact-link">{{ member.email }}</a>
+            <a
+              [href]="'mailto:' + member.email"
+              class="contact-link"
+              (click)="$event.stopPropagation()"
+            >{{ member.email }}</a>
             @if (member.phone) {
               <div class="contact-phone">{{ member.phone }}</div>
             }

@@ -38,7 +38,8 @@
         </div>
       </div>
 
-      @if (!editing()) {
+      <!-- Management actions are HR/CompanyAdmin only; others see a read-only profile. -->
+      @if (!editing() && canManage()) {
         <div class="header-actions">
           @if (isPending()) {
             <button class="secondary-btn" (click)="resendInvite()" [disabled]="isResending()">

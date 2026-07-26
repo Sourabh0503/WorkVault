@@ -29,7 +29,6 @@ namespace WorkVault.Application.Modules.Identity.Commands.SetPassword;
 public class SetPasswordHandler(
     IInviteTokenRepository inviteTokenRepository,
     IEmployeeRepository employeeRepository,
-    ICompanyRepository companyRepository,
     IRefreshTokenRepository refreshTokenRepository,
     IJwtTokenService jwtTokenService,
     IUnitOfWork unitOfWork,
@@ -79,17 +78,10 @@ public class SetPasswordHandler(
         // 6. Single SaveChanges
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // Resolve the tenant display name for UI branding. The invited user always has a
-        // valid CompanyId (FK), and this public endpoint runs with a permissive tenant
-        // filter — so a null here means a corrupt tenant reference. Fail loud (500).
-        var company = await companyRepository.GetByIdAsync(user.CompanyId, cancellationToken)
-            ?? throw new InvalidOperationException(
-                $"Company '{user.CompanyId}' not found for user '{user.Id}' during invite acceptance.");
-
+        // Display profile (name, company) is sourced from /auth/me, not duplicated here.
         return new SetPasswordResult(
             UserId: user.Id,
             CompanyId: user.CompanyId,
-            CompanyName: company.Name,
             AccessToken: accessToken,
             RefreshToken: refreshTokenString);
     }

@@ -90,6 +90,14 @@
     box-shadow: var(--shadow-card-hover);
   }
 
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--color-border-strong);
+    }
+  }
+
   &.is-me {
     border-color: var(--color-primary-border);
     background: var(--color-primary-tint);
