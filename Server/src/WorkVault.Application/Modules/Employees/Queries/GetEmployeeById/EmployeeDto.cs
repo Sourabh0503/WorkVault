@@ -7,6 +7,7 @@ namespace WorkVault.Application.Modules.Employees.Queries.GetEmployeeById;
 /// </summary>
 public record EmployeeDto(
     Guid Id,
+    Guid UserId,
     string EmployeeCode,
     string Email,
     string FirstName,

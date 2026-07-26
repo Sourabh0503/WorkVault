@@ -1,7 +1,9 @@
 using MediatR;
 using WorkVault.Application.Common.Exceptions;
+using WorkVault.Application.Common.Interfaces;
 using WorkVault.Domain.Modules.Employees.Enums;
 using WorkVault.Domain.Modules.Employees.Interfaces;
+using WorkVault.SharedKernel.Constants;
 using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Employees.Commands.UpdateEmployee;
@@ -13,12 +15,14 @@ namespace WorkVault.Application.Modules.Employees.Commands.UpdateEmployee;
 /// SECURITY: All FK references (DepartmentId, DesignationId, ManagerId) are validated
 /// via repository lookups that apply tenant filtering. This prevents cross-tenant
 /// data injection where a valid GUID from Company B could be assigned to an
-/// employee in Company A.
+/// employee in Company A. A user also cannot change their own role (which would let an
+/// admin self-demote and lock the company out) — that's blocked up front.
 /// </remarks>
 public class UpdateEmployeeHandler(
     IEmployeeRepository employeeRepository,
     IDepartmentRepository departmentRepository,
     IDesignationRepository designationRepository,
+    ICurrentUserService currentUserService,
     IUnitOfWork unitOfWork)
     : IRequestHandler<UpdateEmployeeCommand, UpdateEmployeeResult>
 {
@@ -30,6 +34,25 @@ public class UpdateEmployeeHandler(
         var employee = await employeeRepository.GetByIdAsync(request.Id, cancellationToken);
         if (employee is null)
             throw new NotFoundException($"Employee with ID '{request.Id}' not found.");
+
+        // A user can't change their OWN role — that's how the sole CompanyAdmin could
+        // self-demote and lock the company out. Editing their other details is fine.
+        if (employee.UserId == currentUserService.UserId && request.RoleId != employee.User?.RoleId)
+            throw new BusinessRuleException(
+                "You can't change your own role. Ask another admin to do it.");
+
+        // Only a company admin can manage another company admin — HR can view an admin's
+        // profile but can't edit or demote them. (Editing your own record is handled above.)
+        if (employee.User?.RoleId == SystemRoles.CompanyAdmin
+            && employee.UserId != currentUserService.UserId
+            && currentUserService.Role != SystemRoles.CompanyAdminRole)
+            throw new BusinessRuleException("Only a company admin can edit an admin's record.");
+
+        // Only a company admin can grant the CompanyAdmin role (promote someone to admin).
+        if (request.RoleId == SystemRoles.CompanyAdmin
+            && employee.User?.RoleId != SystemRoles.CompanyAdmin
+            && currentUserService.Role != SystemRoles.CompanyAdminRole)
+            throw new BusinessRuleException("Only a company admin can grant the Company Admin role.");
 
         // 2. Validate FK references belong to same tenant
         // Repository queries apply CompanyId filter, so cross-tenant IDs return null

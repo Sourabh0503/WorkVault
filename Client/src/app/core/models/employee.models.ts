@@ -113,6 +113,7 @@ export interface ManagerOption {
 // Matches EmployeeDto from GetEmployeeByIdHandler.cs
 export interface EmployeeDetail {
   id: string;
+  userId: string;
   employeeCode: string;
   email: string;
   firstName: string;

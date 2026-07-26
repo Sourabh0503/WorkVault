@@ -50,7 +50,12 @@ public class CreateEmployeeHandler(
         // 1. Check current user company
         var companyId = currentUserService.CompanyId
                         ?? throw new InvalidOperationException("No company context.");
-        
+
+        // Only a company admin can grant the CompanyAdmin role (HR can't mint admins).
+        if (request.RoleId == SystemRoles.CompanyAdmin
+            && currentUserService.Role != SystemRoles.CompanyAdminRole)
+            throw new BusinessRuleException("Only a company admin can grant the Company Admin role.");
+
         // 2. Check email isn't already used in this company
         var existingUser = await userRepository.GetByEmailAsync(request.Email, cancellationToken);
         if (existingUser is not null)

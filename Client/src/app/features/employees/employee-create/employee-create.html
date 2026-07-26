@@ -133,7 +133,7 @@
         <div class="field">
           <label for="roleId">Access role</label>
           <select id="roleId" formControlName="roleId">
-            @for (r of roles; track r.id) {
+            @for (r of roles(); track r.id) {
               <option [value]="r.id">{{ r.label }}</option>
             }
           </select>

@@ -20,6 +20,7 @@ public class GetEmployeeByIdHandler(IEmployeeRepository repository)
 
         return new EmployeeDto(
             Id: employee.Id,
+            UserId: employee.UserId,
             EmployeeCode: employee.EmployeeCode,
             Email: employee.User?.Email ?? string.Empty,
             FirstName: employee.User?.FirstName ?? string.Empty,

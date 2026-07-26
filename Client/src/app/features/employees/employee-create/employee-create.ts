@@ -9,7 +9,8 @@ import { DesignationService } from '../../../core/services/designation.service';
 import { CreateEmployeeResult, ManagerOption } from '../../../core/models/employee.models';
 import { Department } from '../../../core/models/department.models';
 import { Designation } from '../../../core/models/designation.models';
-import { ASSIGNABLE_ROLES, EMPLOYEE_ROLE_ID } from '../../../core/models/role.models';
+import { AuthService } from '../../../core/services/auth.service';
+import { ASSIGNABLE_ROLES, COMPANY_ADMIN_ROLE_ID, EMPLOYEE_ROLE_ID } from '../../../core/models/role.models';
 import { ApiError } from '../../../core/models/auth.models';
 
 @Component({
@@ -32,6 +33,7 @@ export class EmployeeCreate implements OnInit {
   private employeeService = inject(EmployeeService);
   private departmentService = inject(DepartmentService);
   private designationService = inject(DesignationService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
@@ -44,7 +46,13 @@ export class EmployeeCreate implements OnInit {
   departments = signal<Department[]>([]);
   private allDesignations = signal<Designation[]>([]);
   managers = signal<ManagerOption[]>([]);
-  readonly roles = ASSIGNABLE_ROLES;
+
+  // Only a company admin can create another company admin.
+  roles = computed(() =>
+    this.authService.role() === 'CompanyAdmin'
+      ? ASSIGNABLE_ROLES
+      : ASSIGNABLE_ROLES.filter((r) => r.id !== COMPANY_ADMIN_ROLE_ID),
+  );
 
   // Department currently selected — drives the dependent dropdowns.
   private selectedDepartmentId = signal<string>('');

@@ -16,7 +16,7 @@ import {
 } from '../../../core/models/employee.models';
 import { Department } from '../../../core/models/department.models';
 import { Designation } from '../../../core/models/designation.models';
-import { ASSIGNABLE_ROLES, EMPLOYEE_ROLE_ID } from '../../../core/models/role.models';
+import { ASSIGNABLE_ROLES, COMPANY_ADMIN_ROLE_ID, EMPLOYEE_ROLE_ID } from '../../../core/models/role.models';
 import { ApiError } from '../../../core/models/auth.models';
 
 @Component({
@@ -44,13 +44,24 @@ export class EmployeeDetailPage implements OnInit {
   private authService = inject(AuthService);
   private destroyRef = inject(DestroyRef);
 
-  // Only HR / CompanyAdmin may edit or delete; everyone else sees a read-only profile.
-  canManage = computed(() => ['HR', 'CompanyAdmin'].includes(this.authService.role()));
+  // Org managers reach this from the Employees list; everyone else via My Team.
+  private isOrgManager = computed(() => ['HR', 'CompanyAdmin'].includes(this.authService.role()));
 
-  // Back target depends on where the user can actually go: HR/Admin came from the
-  // Employees list; everyone else reaches this via My Team (they can't open /employees).
-  backRoute = computed(() => (this.canManage() ? '/employees' : '/my-team'));
-  backLabel = computed(() => (this.canManage() ? 'Employees' : 'My Team'));
+  // Viewing your own record? You can edit your details, but not your own role.
+  isSelf = computed(() => this.employee()?.userId === this.authService.user()?.userId);
+
+  // HR / CompanyAdmin can edit/delete employees — but only a CompanyAdmin may manage
+  // another CompanyAdmin (HR can view an admin's profile, not edit or demote them).
+  canManage = computed(() => {
+    if (!this.isOrgManager()) return false;
+    const targetIsAdmin = this.employee()?.role?.id === COMPANY_ADMIN_ROLE_ID;
+    if (targetIsAdmin && this.authService.role() !== 'CompanyAdmin') return false;
+    return true;
+  });
+
+  // Back target depends on where the user can actually go.
+  backRoute = computed(() => (this.isOrgManager() ? '/employees' : '/my-team'));
+  backLabel = computed(() => (this.isOrgManager() ? 'Employees' : 'My Team'));
 
   // ---- State ----
   loading = signal(true);
@@ -64,7 +75,17 @@ export class EmployeeDetailPage implements OnInit {
   departments = signal<Department[]>([]);
   private allDesignations = signal<Designation[]>([]);
   managers = signal<ManagerOption[]>([]);
-  readonly roles = ASSIGNABLE_ROLES;
+
+  // Only a company admin can grant the Company Admin role. Keep the option visible when the
+  // employee is already an admin so their current role still renders for other editors.
+  roles = computed(() => {
+    const canAssignAdmin =
+      this.authService.role() === 'CompanyAdmin' ||
+      this.employee()?.role?.id === COMPANY_ADMIN_ROLE_ID;
+    return canAssignAdmin
+      ? ASSIGNABLE_ROLES
+      : ASSIGNABLE_ROLES.filter((r) => r.id !== COMPANY_ADMIN_ROLE_ID);
+  });
 
   // Department selected in the edit form — drives the dependent dropdowns.
   private selectedDepartmentId = signal<string>('');
@@ -212,6 +233,13 @@ export class EmployeeDetailPage implements OnInit {
       this.managers.set([]);
     }
 
+    // You can't change your own role (self-demote would lock the company out).
+    if (this.isSelf()) {
+      this.form.controls.roleId.disable({ emitEvent: false });
+    } else {
+      this.form.controls.roleId.enable({ emitEvent: false });
+    }
+
     this.saveError.set(null);
     this.editing.set(true);
   }
@@ -323,5 +351,9 @@ export class EmployeeDetailPage implements OnInit {
 
   statusLabel(status: EmployeeStatus): string {
     return this.statusLabels[status] ?? 'Unknown';
+  }
+
+  roleLabel(name: string): string {
+    return name === 'CompanyAdmin' ? 'Company Admin' : name;
   }
 }

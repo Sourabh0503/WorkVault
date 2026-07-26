@@ -116,12 +116,12 @@ public static class SystemRoles
     }
 
     /// <summary>
-    /// Roles HR/CompanyAdmin may assign when creating or editing an employee.
-    /// Excludes <see cref="SuperAdmin"/> (platform-level) and <see cref="CompanyAdmin"/>
-    /// (the founder, established at company registration — never granted via the employee form).
+    /// Roles that may be assigned when creating or editing an employee. Excludes only
+    /// <see cref="SuperAdmin"/> (platform-level). CompanyAdmin is assignable so a tenant
+    /// can have more than one admin (and isn't locked out if the founder leaves/self-demotes).
     /// </summary>
     public static readonly IReadOnlySet<Guid> AssignableEmployeeRoles =
-        new HashSet<Guid> { HR, Manager, Employee };
+        new HashSet<Guid> { CompanyAdmin, HR, Manager, Employee };
 
     #endregion
 }
