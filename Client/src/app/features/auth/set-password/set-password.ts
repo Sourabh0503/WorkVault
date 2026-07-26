@@ -1,9 +1,22 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, effect, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, computed, inject, signal } from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ApiError, InviteInfo } from '../../../core/models/auth.models';
+
+/** Group validator: flags a mismatch between `password` and `confirmPassword`. */
+function passwordsMatch(group: AbstractControl): ValidationErrors | null {
+  const password = group.get('password')?.value;
+  const confirm = group.get('confirmPassword')?.value;
+  return password && confirm && password !== confirm ? { passwordMismatch: true } : null;
+}
 
 @Component({
   selector: 'app-set-password',
@@ -29,9 +42,14 @@ export class SetPassword {
   invite = signal<InviteInfo | null>(null);
   errorMessage = signal<string | null>(null);
   showPassword = signal(false);
+  showConfirmPassword = signal(false);
 
   togglePassword(): void {
     this.showPassword.update(v => !v);
+  }
+
+  toggleConfirmPassword(): void {
+    this.showConfirmPassword.update(v => !v);
   }
 
   // Password field is a signal so we can drive live checklist off it
@@ -55,8 +73,9 @@ export class SetPassword {
       Validators.pattern(/[a-z]/),
       Validators.pattern(/[0-9]/),
       Validators.pattern(/[^a-zA-Z0-9]/)
-    ]]
-  });
+    ]],
+    confirmPassword: ['', [Validators.required]]
+  }, { validators: passwordsMatch });
 
   private token: string | null = null;
 
