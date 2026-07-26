@@ -8,6 +8,41 @@
   position: relative;
 }
 
+// ---- Build banner ----
+.build-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 24px;
+  background: var(--color-primary);
+  color: var(--color-primary-text-light);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+
+  strong {
+    color: #fff;
+    font-weight: 700;
+  }
+}
+
+.build-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.18);
+  animation: build-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes build-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
 // ---- Nav ----
 .nav {
   position: sticky;

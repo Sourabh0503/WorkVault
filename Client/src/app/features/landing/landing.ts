@@ -47,7 +47,7 @@ export class Landing {
     },
     {
       name: 'Starter',
-      price: '₹2,999',
+      price: '₹0',
       unit: '/mo',
       seats: 'Up to 50 employees',
       features: ['All Phase 1–3', 'Email notifications', 'Excel import', 'ID card export'],
@@ -57,7 +57,7 @@ export class Landing {
     },
     {
       name: 'Growth · Popular',
-      price: '₹7,999',
+      price: '₹0',
       unit: '/mo',
       seats: 'Up to 200 employees',
       features: ['Everything in Starter', 'Full analytics suite', 'Document vault', 'Google SSO', 'API access'],
