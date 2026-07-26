@@ -9,6 +9,7 @@ using WorkVault.Application.Modules.Identity.Commands.Register;
 using WorkVault.Application.Modules.Identity.Commands.RefreshTokens;
 using WorkVault.Application.Modules.Identity.Commands.ResetPassword;
 using WorkVault.Application.Modules.Identity.Commands.SetPassword;
+using WorkVault.Application.Modules.Identity.Queries.GetCurrentUser;
 using WorkVault.Application.Modules.Identity.Queries.ValidateInvite;
 using WorkVault.Application.Modules.Identity.Queries.ValidatePasswordReset;
 
@@ -93,6 +94,22 @@ public class AuthController(IMediator mediator) : ControllerBase
     {
         await mediator.Send(command, cancellationToken);
         return NoContent();
+    }
+
+    /// <summary>
+    /// Returns the authenticated user's own profile (account + employee details).
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The current user's profile.</returns>
+    /// <response code="200">Profile returned.</response>
+    /// <response code="401">Not authenticated.</response>
+    [HttpGet("me")]
+    [Authorize]
+    [EnableRateLimiting("authenticated")]
+    public async Task<IActionResult> Me(CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new GetCurrentUserQuery(), cancellationToken);
+        return result is null ? Unauthorized() : Ok(result);
     }
 
     /// <summary>

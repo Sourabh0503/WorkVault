@@ -104,6 +104,11 @@ export const routes: Routes = [
             (m) => m.DesignationList,
           ),
       },
+      {
+        path: 'profile',
+        data: { title: 'My Profile' },
+        loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
+      },
       // Future: employees, departments, etc go here
     ],
   },

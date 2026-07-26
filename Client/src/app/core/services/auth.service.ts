@@ -16,6 +16,7 @@ import {
   SetPasswordRequest,
   SetPasswordResponse,
 } from '../models/auth.models';
+import { CurrentUserProfile } from '../models/profile.models';
 
 // Shape of the claims inside the access token.
 // The role claim uses the full .NET claim URI.
@@ -80,6 +81,11 @@ export class AuthService {
     return this.http
       .post<LoginResponse>(`${this.apiUrl}/auth/login`, credentials)
       .pipe(tap((response) => this.persistSession(response)));
+  }
+
+  /** GET /api/auth/me — the signed-in user's full profile (account + employee details). */
+  getMe(): Observable<CurrentUserProfile> {
+    return this.http.get<CurrentUserProfile>(`${this.apiUrl}/auth/me`);
   }
 
   /**

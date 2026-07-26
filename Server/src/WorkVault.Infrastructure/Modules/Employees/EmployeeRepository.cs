@@ -104,11 +104,14 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
                 cancellationToken);
     }
 
-    /// <summary>Finds the employee record linked to a given user id (department eager-loaded).</summary>
+    /// <summary>Finds the employee record linked to a given user id (department, designation, and manager eager-loaded).</summary>
     public async Task<Employee?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         return await context.Employees
             .Include(e => e.Department)
+            .Include(e => e.Designation)
+            .Include(e => e.Manager)
+                .ThenInclude(m => m!.User)
             .FirstOrDefaultAsync(e => e.UserId == userId, cancellationToken);
     }
 

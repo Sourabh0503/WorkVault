@@ -76,6 +76,17 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-2);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--color-surface-chip);
+  }
+
+  &.active {
+    background: var(--color-primary-tint);
+  }
 }
 
 .user-avatar {

@@ -1,0 +1,95 @@
+<div class="profile">
+  @if (loading()) {
+    <div class="state-panel">
+      <div class="spinner"></div>
+      <p>Loading your profile...</p>
+    </div>
+  } @else if (error()) {
+    <div class="state-panel state-error">
+      <p>{{ error() }}</p>
+      <button type="button" class="retry-btn" (click)="load()">Retry</button>
+    </div>
+  } @else if (profile(); as p) {
+    <!-- Header -->
+    <div class="profile-header">
+      <div class="avatar">{{ initials() }}</div>
+      <div class="profile-meta">
+        <h1>{{ p.firstName }} {{ p.lastName }}</h1>
+        <div class="profile-sub">
+          <span class="role-badge">{{ p.roleName }}</span>
+          <span class="company">{{ p.companyName }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account -->
+    <section class="card">
+      <h2>Account</h2>
+      <dl class="fields">
+        <div class="row">
+          <dt>Full name</dt>
+          <dd>{{ p.firstName }} {{ p.lastName }}</dd>
+        </div>
+        <div class="row">
+          <dt>Email</dt>
+          <dd>{{ p.email }}</dd>
+        </div>
+        <div class="row">
+          <dt>Role</dt>
+          <dd>{{ p.roleName }}</dd>
+        </div>
+        <div class="row">
+          <dt>Company</dt>
+          <dd>{{ p.companyName }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Employment -->
+    @if (p.employee; as e) {
+      <section class="card">
+        <h2>Employment</h2>
+        <dl class="fields">
+          <div class="row">
+            <dt>Employee code</dt>
+            <dd>{{ e.employeeCode }}</dd>
+          </div>
+          <div class="row">
+            <dt>Department</dt>
+            <dd>{{ e.departmentName ?? '—' }}</dd>
+          </div>
+          <div class="row">
+            <dt>Designation</dt>
+            <dd>{{ e.designationTitle ?? '—' }}</dd>
+          </div>
+          <div class="row">
+            <dt>Phone</dt>
+            <dd>{{ e.phone ?? '—' }}</dd>
+          </div>
+          <div class="row">
+            <dt>Reporting manager</dt>
+            <dd>
+              @if (e.manager; as m) {
+                {{ m.fullName }} <span class="muted">({{ m.employeeCode }})</span>
+              } @else {
+                —
+              }
+            </dd>
+          </div>
+          <div class="row">
+            <dt>Joined</dt>
+            <dd>{{ e.joinDate | date: 'dd MMM yyyy' }}</dd>
+          </div>
+          <div class="row">
+            <dt>Status</dt>
+            <dd>
+              <span class="status-badge" [attr.data-status]="e.status">
+                {{ statusLabel(e.status) }}
+              </span>
+            </dd>
+          </div>
+        </dl>
+      </section>
+    }
+  }
+</div>

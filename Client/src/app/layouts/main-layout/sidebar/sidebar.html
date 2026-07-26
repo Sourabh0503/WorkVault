@@ -18,15 +18,15 @@
 
   <div class="sidebar-footer">
     @if (user(); as u) {
-      <div class="user-info">
+      <a routerLink="/profile" routerLinkActive="active" class="user-info">
         <div class="user-avatar">
           {{ u.userId.charAt(0).toUpperCase() }}
         </div>
         <div class="user-meta">
-          <div class="user-label">Signed in</div>
-          <div class="user-id">{{ u.userId.substring(0, 8) }}...</div>
+          <div class="user-label">View profile</div>
+          <div class="user-id">{{ companyName() }}</div>
         </div>
-      </div>
+      </a>
     }
     <button (click)="onLogout()" class="logout-btn">
       Sign out
