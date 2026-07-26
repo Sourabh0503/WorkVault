@@ -69,6 +69,17 @@ public class AppDbContext(
              currentUserService.CompanyId == null ||
              c.Id == currentUserService.CompanyId));
 
+        // Roles are special: system roles are seeded with CompanyId = Guid.Empty and must
+        // stay visible to every tenant. Otherwise a user's required Role gets filtered out
+        // and the User (or Employee) row is dropped via the inner join — e.g. GET /auth/me
+        // returning null. Allow system roles plus any tenant-owned roles.
+        modelBuilder.Entity<Role>().HasQueryFilter(r =>
+            !r.IsDeleted &&
+            (r.CompanyId == Guid.Empty ||
+             currentUserService.IsSuperAdmin ||
+             currentUserService.CompanyId == null ||
+             r.CompanyId == currentUserService.CompanyId));
+
         // ---- Department ↔ Employee relationships (two separate FKs) ----
 
         // A department HAS MANY employees (via Employee.DepartmentId)
