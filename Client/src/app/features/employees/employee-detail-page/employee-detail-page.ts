@@ -12,7 +12,7 @@ import {
   EmployeeDetail,
   EmployeeStatus,
   EMPLOYEE_STATUS_LABELS,
-  ManagerOption
+  DepartmentMember
 } from '../../../core/models/employee.models';
 import { Department } from '../../../core/models/department.models';
 import { Designation } from '../../../core/models/designation.models';
@@ -74,7 +74,7 @@ export class EmployeeDetailPage implements OnInit {
 
   departments = signal<Department[]>([]);
   private allDesignations = signal<Designation[]>([]);
-  managers = signal<ManagerOption[]>([]);
+  deptMembers = signal<DepartmentMember[]>([]);
 
   // Only a company admin can grant the Company Admin role. Keep the option visible when the
   // employee is already an admin so their current role still renders for other editors.
@@ -176,9 +176,10 @@ export class EmployeeDetailPage implements OnInit {
     });
   }
 
-  private loadManagers(departmentId: string): void {
-    this.employeeService.getDepartmentManagers(departmentId).subscribe({
-      next: (items) => this.managers.set(items),
+  private loadDeptMembers(departmentId: string): void {
+    this.employeeService.getDepartmentMembers(departmentId).subscribe({
+      // Exclude this employee — you can't report to yourself.
+      next: (items) => this.deptMembers.set(items.filter((m) => m.id !== this.employeeId)),
       error: () => {}
     });
   }
@@ -188,7 +189,7 @@ export class EmployeeDetailPage implements OnInit {
     this.selectedDepartmentId.set(departmentId);
     this.form.controls.designationId.setValue('');
     this.form.controls.managerId.setValue('');
-    this.managers.set([]);
+    this.deptMembers.set([]);
 
     if (!departmentId) {
       this.form.controls.designationId.disable();
@@ -198,7 +199,7 @@ export class EmployeeDetailPage implements OnInit {
 
     this.form.controls.designationId.enable();
     this.form.controls.managerId.enable();
-    this.loadManagers(departmentId);
+    this.loadDeptMembers(departmentId);
   }
 
   // ---- Edit mode ----
@@ -226,11 +227,11 @@ export class EmployeeDetailPage implements OnInit {
     if (deptId) {
       this.form.controls.designationId.enable({ emitEvent: false });
       this.form.controls.managerId.enable({ emitEvent: false });
-      this.loadManagers(deptId);
+      this.loadDeptMembers(deptId);
     } else {
       this.form.controls.designationId.disable({ emitEvent: false });
       this.form.controls.managerId.disable({ emitEvent: false });
-      this.managers.set([]);
+      this.deptMembers.set([]);
     }
 
     // You can't change your own role (self-demote would lock the company out).

@@ -6,7 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { DepartmentService } from '../../../core/services/department.service';
 import { DesignationService } from '../../../core/services/designation.service';
-import { CreateEmployeeResult, ManagerOption } from '../../../core/models/employee.models';
+import { CreateEmployeeResult, DepartmentMember } from '../../../core/models/employee.models';
 import { Department } from '../../../core/models/department.models';
 import { Designation } from '../../../core/models/designation.models';
 import { AuthService } from '../../../core/services/auth.service';
@@ -26,7 +26,7 @@ import { ApiError } from '../../../core/models/auth.models';
  *
  * Designation and manager are department-scoped: both are disabled until a department is
  * chosen; designations are filtered to that department client-side, and managers are
- * fetched per department (Active Manager-role employees only).
+ * fetched per department (any Active employee in that department).
  */
 export class EmployeeCreate implements OnInit {
   private fb = inject(FormBuilder);
@@ -45,7 +45,7 @@ export class EmployeeCreate implements OnInit {
   // ---- Dropdown data ----
   departments = signal<Department[]>([]);
   private allDesignations = signal<Designation[]>([]);
-  managers = signal<ManagerOption[]>([]);
+  deptMembers = signal<DepartmentMember[]>([]);
 
   // Only a company admin can create another company admin.
   roles = computed(() =>
@@ -104,7 +104,7 @@ export class EmployeeCreate implements OnInit {
     // Clear selections that no longer apply to the new department.
     this.form.controls.designationId.setValue('');
     this.form.controls.managerId.setValue('');
-    this.managers.set([]);
+    this.deptMembers.set([]);
 
     if (!departmentId) {
       this.form.controls.designationId.disable();
@@ -114,8 +114,8 @@ export class EmployeeCreate implements OnInit {
 
     this.form.controls.designationId.enable();
     this.form.controls.managerId.enable();
-    this.employeeService.getDepartmentManagers(departmentId).subscribe({
-      next: (items) => this.managers.set(items),
+    this.employeeService.getDepartmentMembers(departmentId).subscribe({
+      next: (items) => this.deptMembers.set(items),
       error: () => {}
     });
   }
@@ -172,7 +172,7 @@ export class EmployeeCreate implements OnInit {
     this.createdResult.set(null);
     this.form.reset({ roleId: EMPLOYEE_ROLE_ID });
     this.selectedDepartmentId.set('');
-    this.managers.set([]);
+    this.deptMembers.set([]);
   }
 
   goToList(): void {

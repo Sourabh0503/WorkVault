@@ -87,13 +87,13 @@ public interface IEmployeeRepository : IRepository<Employee>
     Task<bool> HasDirectReportsAsync(Guid managerId, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Returns Active employees with the Manager role in the given department.
-    /// Used to populate the reporting-manager dropdown on the employee form.
+    /// Returns Active employees in the given department (any role) — candidates for the
+    /// reporting-manager dropdown on the employee form.
     /// </summary>
-    /// <param name="departmentId">The department whose managers to load.</param>
+    /// <param name="departmentId">The department whose members to load.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>The department's Active manager-role employees (user eager-loaded), ordered by name.</returns>
-    Task<IReadOnlyList<Employee>> GetManagersByDepartmentAsync(Guid departmentId, CancellationToken cancellationToken);
+    /// <returns>The department's Active employees (user eager-loaded), ordered by name.</returns>
+    Task<IReadOnlyList<Employee>> GetDepartmentMembersAsync(Guid departmentId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Counts employees by their join month within a year (for the dashboard headcount trend).

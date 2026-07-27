@@ -123,7 +123,7 @@
             <label for="managerId">Reporting manager <span class="optional">(optional)</span></label>
             <select id="managerId" formControlName="managerId">
               <option value="">{{ departmentSelected() ? 'No manager' : 'Select a department first' }}</option>
-              @for (m of managers(); track m.id) {
+              @for (m of deptMembers(); track m.id) {
                 <option [value]="m.id">{{ m.fullName }} ({{ m.employeeCode }})</option>
               }
             </select>

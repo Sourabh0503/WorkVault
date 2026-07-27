@@ -3,7 +3,6 @@ using WorkVault.Domain.Modules.Employees;
 using WorkVault.Domain.Modules.Employees.Enums;
 using WorkVault.Domain.Modules.Employees.Interfaces;
 using WorkVault.Infrastructure.Persistence;
-using WorkVault.SharedKernel.Constants;
 
 namespace WorkVault.Infrastructure.Modules.Employees;
 
@@ -156,15 +155,14 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
             .AnyAsync(e => e.ManagerId == managerId, cancellationToken);
     }
 
-    /// <summary>Returns Active, Manager-role employees in a department (user loaded), ordered by name.</summary>
-    public async Task<IReadOnlyList<Employee>> GetManagersByDepartmentAsync(
+    /// <summary>Returns Active employees in a department (user loaded), ordered by name — reporting-manager candidates.</summary>
+    public async Task<IReadOnlyList<Employee>> GetDepartmentMembersAsync(
         Guid departmentId, CancellationToken cancellationToken)
     {
         return await context.Employees
             .Include(e => e.User)
             .Where(e => e.DepartmentId == departmentId
-                        && e.Status == EmployeeStatus.Active
-                        && e.User!.RoleId == SystemRoles.Manager)
+                        && e.Status == EmployeeStatus.Active)
             .OrderBy(e => e.User!.FirstName)
             .ThenBy(e => e.User!.LastName)
             .ToListAsync(cancellationToken);

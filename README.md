@@ -363,6 +363,8 @@ POST /api/auth/refresh
 - [x] Employee / Department / Designation CRUD + invite flow
 - [x] Employee soft-delete (pending invites only), role assignment, dept-scoped designation/manager dropdowns
 - [x] `GET /api/auth/me` + My Profile page; unified employee view (edit gated to HR/CompanyAdmin)
+- [x] Role model: assignable roles, only-admin-grants-admin, no self-demote, route + API role guards
+- [x] Dashboard redesign (KPIs, headcount chart, workforce pulse) + refreshed team/department/designation UI
 - [x] Angular frontend — auth, dashboard, employees, departments, designations, profile
 - [x] Integration tests (Testcontainers) proving tenant isolation
 - [x] CI/CD (GitHub Actions) + live deploy on Render

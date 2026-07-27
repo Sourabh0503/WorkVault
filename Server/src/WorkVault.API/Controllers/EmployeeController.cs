@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using WorkVault.Application.Modules.Employees.Commands.CreateEmployee;
 using WorkVault.Application.Modules.Employees.Commands.DeleteEmployee;
 using WorkVault.Application.Modules.Employees.Commands.ResendInvite;
-using WorkVault.Application.Modules.Employees.Queries.GetDepartmentManagers;
+using WorkVault.Application.Modules.Employees.Queries.GetDepartmentMembers;
 using WorkVault.Application.Modules.Employees.Queries.GetEmployeeById;
 using WorkVault.Application.Modules.Employees.Commands.UpdateEmployee;
 using WorkVault.Application.Modules.Employees.Queries.GetEmployees;
@@ -198,23 +198,24 @@ public class EmployeesController(IMediator mediator) : ControllerBase
     }
 
     /// <summary>
-    /// Lists the Active, Manager-role employees in a department.
+    /// Lists the Active employees in a department (any role).
     /// </summary>
     /// <remarks>
-    /// Populates the reporting-manager dropdown on the employee create/edit form.
+    /// Populates the reporting-manager dropdown on the employee create/edit form —
+    /// any active member of the department can be a reporting manager.
     /// </remarks>
-    /// <param name="departmentId">The department whose managers to list.</param>
+    /// <param name="departmentId">The department whose members to list.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <response code="200">The department's managers.</response>
+    /// <response code="200">The department's members.</response>
     /// <response code="401">Not authenticated.</response>
     /// <response code="403">Not authorized (requires HR or CompanyAdmin).</response>
-    [HttpGet("managers")]
+    [HttpGet("department-members")]
     [Authorize(Roles = $"{SystemRoles.HRRole},{SystemRoles.CompanyAdminRole}")]
-    public async Task<IActionResult> GetDepartmentManagers(
+    public async Task<IActionResult> GetDepartmentMembers(
         [FromQuery] Guid departmentId,
         CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new GetDepartmentManagersQuery(departmentId), cancellationToken);
+        var result = await mediator.Send(new GetDepartmentMembersQuery(departmentId), cancellationToken);
         return Ok(result);
     }
 

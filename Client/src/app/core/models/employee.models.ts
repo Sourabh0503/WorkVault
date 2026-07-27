@@ -103,8 +103,8 @@ export interface RoleInfo {
   name: string;
 }
 
-// GET /api/employees/managers?departmentId= — dropdown option (matches ManagerOptionDto)
-export interface ManagerOption {
+// GET /api/employees/department-members?departmentId= — reporting-manager option (matches DepartmentMemberDto)
+export interface DepartmentMember {
   id: string;
   fullName: string;
   employeeCode: string;

@@ -8,7 +8,7 @@ import {
   EmployeeDetail,
   EmployeeListItem,
   EmployeeListQuery,
-  ManagerOption,
+  DepartmentMember,
   MyTeamResult,
   UpdateEmployeeRequest,
   UpdateEmployeeResult,
@@ -68,10 +68,10 @@ export class EmployeeService {
     return this.http.get<EmployeeDetail>(`${this.apiUrl}/employees/${id}`);
   }
 
-  /** GET /api/employees/managers?departmentId= — Active Manager-role employees in a department. */
-  getDepartmentManagers(departmentId: string): Observable<ManagerOption[]> {
+  /** GET /api/employees/department-members?departmentId= — Active employees in a department (reporting-manager candidates). */
+  getDepartmentMembers(departmentId: string): Observable<DepartmentMember[]> {
     const params = new HttpParams().set('departmentId', departmentId);
-    return this.http.get<ManagerOption[]>(`${this.apiUrl}/employees/managers`, { params });
+    return this.http.get<DepartmentMember[]>(`${this.apiUrl}/employees/department-members`, { params });
   }
 
   /** PUT /api/employees/{id} — update employee. */
