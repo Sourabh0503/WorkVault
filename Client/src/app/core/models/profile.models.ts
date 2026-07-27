@@ -18,6 +18,7 @@ export interface CurrentUserProfile {
 export interface EmployeeProfile {
   employeeCode: string;
   phone: string | null;
+  dateOfBirth: string | null; // "yyyy-MM-dd"
   joinDate: string; // "yyyy-MM-dd"
   departmentName: string | null;
   designationTitle: string | null;

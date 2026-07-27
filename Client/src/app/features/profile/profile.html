@@ -10,86 +10,72 @@
       <button type="button" class="retry-btn" (click)="load()">Retry</button>
     </div>
   } @else if (profile(); as p) {
-    <!-- Header -->
-    <div class="profile-header">
-      <div class="avatar">{{ initials() }}</div>
-      <div class="profile-meta">
-        <h1>{{ p.firstName }} {{ p.lastName }}</h1>
-        <div class="profile-sub">
-          <span class="role-badge">{{ p.roleName }}</span>
-          <span class="company">{{ p.companyName }}</span>
+    <!-- Banner -->
+    <div class="profile-banner">
+      <div class="banner-avatar">{{ initials() }}</div>
+      <div class="banner-meta">
+        <div class="banner-title-row">
+          <h1>{{ p.firstName }} {{ p.lastName }}</h1>
+          @if (p.employee; as e) {
+            <span class="banner-status"><span class="st-dot"></span>{{ statusLabel(e.status) }}</span>
+          }
         </div>
+        <p class="banner-sub">
+          {{ roleLabel(p.roleName) }}
+          @if (p.employee?.departmentName; as dept) { · {{ dept }} }
+          @if (p.employee?.employeeCode; as code) { · <span class="mono">{{ code }}</span> }
+        </p>
+        <p class="banner-sub-dim">
+          @if (p.employee?.joinDate; as joined) { Joined {{ joined | date: 'dd MMM yyyy' }} · }
+          {{ p.companyName }}
+        </p>
       </div>
     </div>
 
-    <!-- Account -->
-    <section class="card">
-      <h2>Account</h2>
-      <dl class="fields">
-        <div class="row">
-          <dt>Full name</dt>
-          <dd>{{ p.firstName }} {{ p.lastName }}</dd>
-        </div>
-        <div class="row">
-          <dt>Email</dt>
-          <dd>{{ p.email }}</dd>
-        </div>
-        <div class="row">
-          <dt>Role</dt>
-          <dd>{{ p.roleName }}</dd>
-        </div>
-        <div class="row">
-          <dt>Company</dt>
-          <dd>{{ p.companyName }}</dd>
-        </div>
-      </dl>
-    </section>
+    <!-- Managed-by-HR note -->
+    <div class="hr-note">
+      <span class="hr-note-ico">ℹ</span>
+      <span>
+        Need something changed? Your name, contact, and work details are managed by your HR —
+        reach out to them for updates. You'll be able to change your own profile photo soon.
+      </span>
+    </div>
 
-    <!-- Employment -->
-    @if (p.employee; as e) {
-      <section class="card">
-        <h2>Employment</h2>
-        <dl class="fields">
-          <div class="row">
-            <dt>Employee code</dt>
-            <dd>{{ e.employeeCode }}</dd>
+    <!-- Info cards -->
+    <div class="profile-grid">
+      <section class="info-card">
+        <h3>Personal information</h3>
+        <p class="card-sub">Only you and admins can see this.</p>
+        <div class="field-grid">
+          <div class="fld"><div class="fld-label">First name</div><div class="fld-value">{{ p.firstName }}</div></div>
+          <div class="fld"><div class="fld-label">Last name</div><div class="fld-value">{{ p.lastName }}</div></div>
+          <div class="fld"><div class="fld-label">Email</div><div class="fld-value">{{ p.email }}</div></div>
+          <div class="fld"><div class="fld-label">Phone</div><div class="fld-value">{{ p.employee?.phone ?? '—' }}</div></div>
+          <div class="fld">
+            <div class="fld-label">Date of birth</div>
+            <div class="fld-value">
+              {{ p.employee?.dateOfBirth ? (p.employee!.dateOfBirth | date: 'dd MMM yyyy') : '—' }}
+            </div>
           </div>
-          <div class="row">
-            <dt>Department</dt>
-            <dd>{{ e.departmentName ?? '—' }}</dd>
-          </div>
-          <div class="row">
-            <dt>Designation</dt>
-            <dd>{{ e.designationTitle ?? '—' }}</dd>
-          </div>
-          <div class="row">
-            <dt>Phone</dt>
-            <dd>{{ e.phone ?? '—' }}</dd>
-          </div>
-          <div class="row">
-            <dt>Reporting manager</dt>
-            <dd>
-              @if (e.manager; as m) {
-                {{ m.fullName }} <span class="muted">({{ m.employeeCode }})</span>
-              } @else {
-                —
-              }
-            </dd>
-          </div>
-          <div class="row">
-            <dt>Joined</dt>
-            <dd>{{ e.joinDate | date: 'dd MMM yyyy' }}</dd>
-          </div>
-          <div class="row">
-            <dt>Status</dt>
-            <dd>
-              <span class="status-badge" [attr.data-status]="e.status">
-                {{ statusLabel(e.status) }}
-              </span>
-            </dd>
-          </div>
-        </dl>
+        </div>
       </section>
-    }
+
+      <section class="info-card">
+        <h3>Work</h3>
+        <p class="card-sub">Managed by your workspace admin.</p>
+        <div class="field-grid">
+          <div class="fld"><div class="fld-label">Company</div><div class="fld-value">{{ p.companyName }}</div></div>
+          <div class="fld"><div class="fld-label">Access role</div><div class="fld-value">{{ roleLabel(p.roleName) }}</div></div>
+          @if (p.employee; as e) {
+            <div class="fld"><div class="fld-label">Employee code</div><div class="fld-value mono">{{ e.employeeCode }}</div></div>
+            <div class="fld"><div class="fld-label">Department</div><div class="fld-value">{{ e.departmentName ?? '—' }}</div></div>
+            <div class="fld"><div class="fld-label">Designation</div><div class="fld-value">{{ e.designationTitle ?? '—' }}</div></div>
+            <div class="fld"><div class="fld-label">Reporting manager</div><div class="fld-value">{{ e.manager?.fullName ?? '—' }}</div></div>
+            <div class="fld"><div class="fld-label">Join date</div><div class="fld-value">{{ e.joinDate | date: 'dd MMM yyyy' }}</div></div>
+            <div class="fld"><div class="fld-label">Status</div><div class="fld-value">{{ statusLabel(e.status) }}</div></div>
+          }
+        </div>
+      </section>
+    </div>
   }
 </div>

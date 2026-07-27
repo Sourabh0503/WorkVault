@@ -107,6 +107,12 @@
             <span class="detail-label">Phone</span>
             <span class="detail-value">{{ emp.phone ?? '—' }}</span>
           </div>
+          <div class="detail-row">
+            <span class="detail-label">Date of birth</span>
+            <span class="detail-value">
+              {{ emp.dateOfBirth ? (emp.dateOfBirth | date: 'dd MMM yyyy') : '—' }}
+            </span>
+          </div>
         </section>
 
         <section class="detail-card">
@@ -168,9 +174,15 @@
             </div>
           </div>
 
-          <div class="field">
-            <label for="phone">Phone</label>
-            <input id="phone" type="tel" formControlName="phone" />
+          <div class="row-2">
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" type="tel" formControlName="phone" />
+            </div>
+            <div class="field">
+              <label for="dateOfBirth">Date of birth</label>
+              <input id="dateOfBirth" type="date" formControlName="dateOfBirth" />
+            </div>
           </div>
 
           <div class="row-2">

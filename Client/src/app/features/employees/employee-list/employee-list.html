@@ -1,85 +1,86 @@
 <div class="employee-list">
-  <!-- Header: search (left) · filter + add (right) -->
-  <header class="list-header">
-    <input
-      type="text"
-      class="search-input"
-      placeholder="Search name, email, or code…"
-      (input)="onSearchInput($any($event.target).value)"
-    />
+  <!-- Toolbar: status pills · search · add -->
+  <header class="list-toolbar">
+    <div class="status-pills">
+      @for (f of statusFilters; track f.label) {
+        <button
+          type="button"
+          class="pill"
+          [class.active]="status() === f.value"
+          (click)="setStatus(f.value)"
+        >
+          {{ f.label }}
+        </button>
+      }
+    </div>
 
-    <div class="list-actions">
-      <select
-        class="status-filter"
-        (change)="onStatusChange($any($event.target).value)"
-      >
-        <option value="">All</option>
-        <option value="0">Pending</option>
-        <option value="1">Active</option>
-        <option value="2">On Notice</option>
-        <option value="3">Suspended</option>
-        <option value="4">Offboarded</option>
-      </select>
-
-      <a routerLink="/employees/new" class="add-btn">+ Add Employee</a>
+    <div class="toolbar-right">
+      <div class="search-box">
+        <svg class="search-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line>
+        </svg>
+        <input
+          type="text"
+          placeholder="Name, email, or code…"
+          (input)="onSearchInput($any($event.target).value)"
+        />
+      </div>
+      <a routerLink="/employees/new" class="add-btn">+ Add employee</a>
     </div>
   </header>
 
-  <!-- Loading state -->
   @if (loading()) {
-    <div class="state-panel">
-      <p>Loading employees…</p>
-    </div>
+    <div class="state-panel"><p>Loading employees…</p></div>
   } @else if (error()) {
-    <!-- Error state -->
     <div class="state-panel state-error">
       <p>{{ error() }}</p>
       <button type="button" class="retry-btn" (click)="load()">Retry</button>
     </div>
   } @else {
-    <!-- Loaded state -->
-    @if (employees().length === 0) {
-      <div class="state-panel">
-        <p>No employees found.</p>
-      </div>
-    } @else {
-      <div class="table-wrap">
-        <table class="employee-table">
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Department</th>
-              <th>Designation</th>
-              <th>Status</th>
-              <th>Joined</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (emp of employees(); track emp.id) {
-              <tr [routerLink]="['/employees', emp.id]" class="clickable-row">
-                <td class="cell-code">{{ emp.employeeCode }}</td>
-                <td class="cell-name">{{ emp.fullName }}</td>
-                <td class="cell-email">{{ emp.email }}</td>
-                <td>{{ emp.departmentName ?? '—' }}</td>
-                <td>{{ emp.designationTitle ?? '—' }}</td>
-                <td>
-                  <span class="status-badge" [attr.data-status]="emp.status">
-                    {{ statusLabel(emp.status) }}
-                  </span>
-                </td>
-                <td>{{ emp.joinDate | date: 'dd MMM yyyy'}}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
+    <div class="table-panel">
+      <div class="table-head">
+        <span>Employee</span>
+        <span>Email</span>
+        <span>Department</span>
+        <span>Designation</span>
+        <span>Status</span>
+        <span class="right">Joined</span>
+        <span></span>
       </div>
 
-      <!-- Pager -->
-      <footer class="list-footer">
-        <span class="page-info">
-          Page {{ pageNumber() }} of {{ totalPages() }} · {{ totalCount() }} total
+      @if (employees().length === 0) {
+        <div class="table-empty">No employees found.</div>
+      } @else {
+        @for (emp of employees(); track emp.id) {
+          <a [routerLink]="['/employees', emp.id]" class="emp-row">
+            <div class="emp-cell">
+              <div class="emp-avatar">{{ initials(emp.fullName) }}</div>
+              <div class="emp-id">
+                <div class="emp-name">{{ emp.fullName }}</div>
+                <div class="emp-code">{{ emp.employeeCode }}</div>
+              </div>
+            </div>
+            <span class="emp-email">{{ emp.email }}</span>
+            <span>
+              @if (emp.departmentName) {
+                <span class="dept-pill">{{ emp.departmentName }}</span>
+              } @else {
+                <span class="muted">—</span>
+              }
+            </span>
+            <span class="emp-desig">{{ emp.designationTitle ?? '—' }}</span>
+            <span class="emp-status" [attr.data-status]="emp.status">
+              <span class="st-dot"></span>{{ statusLabel(emp.status) }}
+            </span>
+            <span class="emp-joined">{{ emp.joinDate | date: 'dd MMM yyyy' }}</span>
+            <span class="emp-chevron">›</span>
+          </a>
+        }
+      }
+
+      <div class="table-foot">
+        <span class="foot-info">
+          Showing <b>{{ employees().length }}</b> · page {{ pageNumber() }} of {{ totalPages() }} · {{ totalCount() }} total
         </span>
         <div class="pager">
           <button
@@ -87,19 +88,15 @@
             class="pager-btn"
             [disabled]="pageNumber() <= 1"
             (click)="goToPage(pageNumber() - 1)"
-          >
-            Previous
-          </button>
+          >← Prev</button>
           <button
             type="button"
             class="pager-btn"
             [disabled]="pageNumber() >= totalPages()"
             (click)="goToPage(pageNumber() + 1)"
-          >
-            Next
-          </button>
+          >Next →</button>
         </div>
-      </footer>
-    }
+      </div>
+    </div>
   }
 </div>

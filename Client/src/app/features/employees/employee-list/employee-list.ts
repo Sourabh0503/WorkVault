@@ -91,9 +91,20 @@ export class EmployeeList implements OnInit, OnDestroy {
     this.searchInput$.next(value);
   }
 
-  /** Status filter changed — parse the raw select value, reset to page 1, reload. */
-  onStatusChange(value: string): void {
-    this.status.set(value === '' ? null : (Number(value) as EmployeeStatus));
+  // Segmented status-filter pills. `null` = All.
+  readonly statusFilters: { label: string; value: EmployeeStatus | null }[] = [
+    { label: 'All', value: null },
+    { label: 'Active', value: EmployeeStatus.Active },
+    { label: 'Pending', value: EmployeeStatus.Pending },
+    { label: 'On Notice', value: EmployeeStatus.OnNotice },
+    { label: 'Suspended', value: EmployeeStatus.Suspended },
+    { label: 'Offboarded', value: EmployeeStatus.Offboarded },
+  ];
+
+  /** Pick a status filter pill — reset to page 1, reload. */
+  setStatus(value: EmployeeStatus | null): void {
+    if (this.status() === value) return;
+    this.status.set(value);
     this.pageNumber.set(1);
     this.load();
   }
@@ -106,5 +117,13 @@ export class EmployeeList implements OnInit, OnDestroy {
 
   statusLabel(status: EmployeeStatus): string {
     return EMPLOYEE_STATUS_LABELS[status] ?? 'Unknown';
+  }
+
+  /** First-letter avatar fallback. */
+  initials(fullName: string): string {
+    const parts = fullName.trim().split(/\s+/);
+    const first = parts[0]?.charAt(0) ?? '';
+    const last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : '';
+    return (first + last).toUpperCase() || '?';
   }
 }

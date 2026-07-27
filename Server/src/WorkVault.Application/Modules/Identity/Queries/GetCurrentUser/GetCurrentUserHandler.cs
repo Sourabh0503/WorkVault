@@ -43,6 +43,7 @@ public class GetCurrentUserHandler(
             : new EmployeeProfileDto(
                 EmployeeCode: employee.EmployeeCode,
                 Phone: employee.Phone,
+                DateOfBirth: employee.DateOfBirth,
                 JoinDate: employee.JoinDate,
                 DepartmentName: employee.Department?.Name,
                 DesignationTitle: employee.Designation?.Title,

@@ -9,6 +9,7 @@ import { WelcomeCardModel } from './welcome-card';
 import { DashboardStats, HeadcountPoint } from '../../core/models/dashboard.models';
 import { EmployeeListItem, EmployeeStatus } from '../../core/models/employee.models';
 import { Department } from '../../core/models/department.models';
+import { CurrentUserProfile } from '../../core/models/profile.models';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,9 +29,41 @@ export class Dashboard implements OnInit {
   private departmentService = inject(DepartmentService);
 
   private role = this.authService.role;
+  firstName = this.authService.firstName;
 
   // Can this user see company stats? (HR/Admin only)
   canSeeStats = computed(() => this.role() === 'HR' || this.role() === 'CompanyAdmin');
+
+  // ---- Celebrations (own birthday / work anniversary today) ----
+  private myProfile = signal<CurrentUserProfile | null>(null);
+
+  celebration = computed(() => {
+    const emp = this.myProfile()?.employee;
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+
+    let birthday = false;
+    let anniversaryYears: number | null = null;
+
+    if (emp?.dateOfBirth) {
+      const [, bm, bd] = emp.dateOfBirth.split('-').map(Number);
+      if (bm === month && bd === day) birthday = true;
+    }
+    if (emp?.joinDate) {
+      const [jy, jm, jd] = emp.joinDate.split('-').map(Number);
+      if (jm === month && jd === day) {
+        const years = now.getFullYear() - jy;
+        if (years >= 1) anniversaryYears = years;
+      }
+    }
+    return { birthday, anniversaryYears };
+  });
+
+  hasCelebration = computed(() => {
+    const c = this.celebration();
+    return c.birthday || c.anniversaryYears !== null;
+  });
 
   loading = signal(true);
   stats = signal<DashboardStats | null>(null);
@@ -84,6 +117,12 @@ export class Dashboard implements OnInit {
   }
 
   ngOnInit(): void {
+    // Load own profile to check for birthday / work anniversary (all roles).
+    this.authService.getMe().subscribe({
+      next: (p) => this.myProfile.set(p),
+      error: () => {},
+    });
+
     if (!this.canSeeStats()) {
       this.loading.set(false);
       return;

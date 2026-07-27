@@ -122,6 +122,7 @@ export class EmployeeDetailPage implements OnInit {
     firstName: ['', [Validators.required, Validators.maxLength(100)]],
     lastName: ['', [Validators.required, Validators.maxLength(100)]],
     phone: [''],
+    dateOfBirth: [''],
     joinDate: ['', [Validators.required]],
     departmentId: [''],
     // Disabled until a department is chosen (department-scoped).
@@ -215,6 +216,7 @@ export class EmployeeDetailPage implements OnInit {
       firstName: emp.firstName,
       lastName: emp.lastName,
       phone: emp.phone ?? '',
+      dateOfBirth: emp.dateOfBirth ?? '',
       joinDate: emp.joinDate,
       departmentId: deptId,
       designationId: emp.designation?.id ?? '',
@@ -275,8 +277,8 @@ export class EmployeeDetailPage implements OnInit {
       managerId: value.managerId || undefined,
       roleId: value.roleId,
       status: Number(value.status),
+      dateOfBirth: value.dateOfBirth || undefined,
       // Preserve fields not exposed in this form
-      dateOfBirth: emp.dateOfBirth ?? undefined,
       resignationDate: emp.resignationDate ?? undefined,
       lastWorkingDay: emp.lastWorkingDay ?? undefined
     }).subscribe({

@@ -37,7 +37,7 @@ interface StoredUser {
   role: string;
   // Human-readable tenant name, supplied by login/register/set-password.
   companyName?: string;
-  // The user's first name, for greetings/sidebar. Supplied by login/register/set-password.
+  // The user's first name, for greetings/sidebar/avatar. Sourced from /me.
   firstName?: string;
 }
 

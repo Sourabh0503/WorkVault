@@ -32,6 +32,7 @@ public record CurrentUserDto(
 /// <summary>Employment details shown on the profile page.</summary>
 /// <param name="EmployeeCode">Human-readable employee code.</param>
 /// <param name="Phone">Contact phone, if set.</param>
+/// <param name="DateOfBirth">Date of birth, if set.</param>
 /// <param name="JoinDate">Date the employee joined.</param>
 /// <param name="DepartmentName">Department name, if assigned.</param>
 /// <param name="DesignationTitle">Designation/title, if assigned.</param>
@@ -40,6 +41,7 @@ public record CurrentUserDto(
 public record EmployeeProfileDto(
     string EmployeeCode,
     string? Phone,
+    DateOnly? DateOfBirth,
     DateOnly JoinDate,
     string? DepartmentName,
     string? DesignationTitle,

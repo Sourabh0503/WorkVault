@@ -1,4 +1,21 @@
 <div class="dashboard">
+  <!-- ============ Celebrations (birthday / anniversary) ============ -->
+  @if (hasCelebration()) {
+    <div class="celebrate">
+      <span class="celebrate-emoji">🎉</span>
+      <div class="celebrate-text">
+        @if (celebration().birthday) {
+          <span class="celebrate-line">Happy Birthday, {{ firstName() || 'there' }}! 🎂</span>
+        }
+        @if (celebration().anniversaryYears; as yrs) {
+          <span class="celebrate-line">
+            Happy {{ yrs }}-year work anniversary! 🎊 Thanks for being part of the team.
+          </span>
+        }
+      </div>
+    </div>
+  }
+
   <!-- ============ Welcome card (everyone) ============ -->
   @if (card(); as c) {
     <div class="welcome-card">

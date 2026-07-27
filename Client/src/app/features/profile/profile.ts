@@ -50,4 +50,8 @@ export class Profile implements OnInit {
   statusLabel(status: EmployeeStatus): string {
     return EMPLOYEE_STATUS_LABELS[status] ?? 'Unknown';
   }
+
+  roleLabel(name: string): string {
+    return name === 'CompanyAdmin' ? 'Company Admin' : name;
+  }
 }
