@@ -33,7 +33,7 @@ public class SmtpEmailSender : IEmailSender
         mail.From = new MailAddress(_settings.FromEmail, _settings.FromName);
         mail.Subject = message.Subject;
         mail.Body = message.Body;
-        mail.IsBodyHtml = false;  // plaintext for now; HTML template comes next
+        mail.IsBodyHtml = true;  // bodies are branded HTML (see EmailTemplate)
         
         mail.To.Add(message.To);
 

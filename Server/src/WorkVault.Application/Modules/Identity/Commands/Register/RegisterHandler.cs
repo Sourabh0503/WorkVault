@@ -109,11 +109,13 @@ public class RegisterHandler(
         var inviteLink = $"{frontendUrl}/register/{inviteToken.Token}";
         await emailPublisher.PublishAsync(new EmailMessage(
             To: user.Email,
-            Subject: "Confirm your WorkVault account",
-            Body: $"Hi {user.FirstName},\n\nYour company \"{company.Name}\" is ready on WorkVault. " +
-                  $"Set your password to activate your admin account and sign in:\n\n{inviteLink}\n\n" +
-                  "This link expires in 48 hours.",
-            Type: EmailType.Invite
+            Subject: $"Verify your email to activate {company.Name} on WorkVault",
+            Body: EmailTemplate.VerifyEmail(
+                firstName: user.FirstName,
+                companyName: company.Name,
+                ctaUrl: inviteLink,
+                expiryText: "This link expires in 48 hours. If you didn't create this account, you can safely ignore this email."),
+            Type: EmailType.Registration
         ), cancellationToken);
 
         return new RegisterResponse(companyGuid, user.Id, user.Email);

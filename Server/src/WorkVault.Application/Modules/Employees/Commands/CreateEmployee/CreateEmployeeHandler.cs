@@ -71,11 +71,13 @@ public class CreateEmployeeHandler(
 
         // 3. Validate FK references belong to same tenant
         // Repository queries apply CompanyId filter, so cross-tenant IDs return null
+        string? departmentName = null;
         if (request.DepartmentId.HasValue)
         {
             var dept = await departmentRepository.GetByIdAsync(request.DepartmentId.Value, cancellationToken);
             if (dept is null)
                 throw new NotFoundException($"Department with ID '{request.DepartmentId}' not found.");
+            departmentName = dept.Name;
         }
 
         if (request.DesignationId.HasValue)
@@ -140,9 +142,14 @@ public class CreateEmployeeHandler(
         var inviteLink = $"{frontendUrl}/set-password?token={inviteToken.Token}";
         await emailPublisher.PublishAsync(new EmailMessage(
             To: user.Email,
-            Subject: "You've been invited to WorkVault",
-            Body: $"Hi {user.FirstName},\n\nYou've been invited to join {company.Name} on WorkVault. " +
-                  $"Set your password to get started:\n\n{inviteLink}\n\nThis link expires in 48 hours.",
+            Subject: $"You're invited to join {company.Name} on WorkVault",
+            Body: EmailTemplate.Invite(
+                companyName: company.Name,
+                roleName: (SystemRoles.FromId(request.RoleId)?.ToString()) ?? "Employee",
+                department: departmentName,
+                employeeCode: employeeCode,
+                ctaUrl: inviteLink,
+                expiryText: "This invitation expires in 48 hours. You'll set your password after accepting."),
             Type: EmailType.Invite
         ), cancellationToken);
 

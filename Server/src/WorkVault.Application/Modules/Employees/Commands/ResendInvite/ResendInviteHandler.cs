@@ -8,6 +8,7 @@ using WorkVault.Domain.Modules.Employees.Enums;
 using WorkVault.Domain.Modules.Employees.Interfaces;
 using WorkVault.Domain.Modules.Identity;
 using WorkVault.Domain.Modules.Identity.Interfaces;
+using WorkVault.SharedKernel.Constants;
 using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Employees.Commands.ResendInvite;
@@ -27,7 +28,8 @@ namespace WorkVault.Application.Modules.Employees.Commands.ResendInvite;
 public class ResendInviteHandler(
     IEmployeeRepository employeeRepository,
     IInviteTokenRepository inviteTokenRepository,
-    IEmailPublisher emailPublisher, 
+    ICompanyRepository companyRepository,
+    IEmailPublisher emailPublisher,
     IUnitOfWork unitOfWork,
     IConfiguration configuration,
     ILogger<ResendInviteHandler> logger)
@@ -69,15 +71,19 @@ public class ResendInviteHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         // 6. send link
+        var company = await companyRepository.GetByIdAsync(employee.User.CompanyId, cancellationToken);
         var frontendUrl = configuration["AppSettings:FrontendUrl"];
         var inviteLink = $"{frontendUrl}/set-password?token={newInviteToken.Token}";
         await emailPublisher.PublishAsync(new EmailMessage(
             To: employee.User.Email,
-            Subject: "Your WorkVault invite (resent)",
-            Body: $"Hi {employee.User.FirstName},\n\n" +
-                  $"Here's your invite link to join WorkVault. " +
-                  $"Set your password to get started:\n\n{inviteLink}\n\n" +
-                  $"This link expires in 48 hours.",
+            Subject: $"You're invited to join {company?.Name ?? "WorkVault"} on WorkVault",
+            Body: EmailTemplate.Invite(
+                companyName: company?.Name ?? "WorkVault",
+                roleName: (SystemRoles.FromId(employee.User.RoleId)?.ToString()) ?? "Employee",
+                department: null,
+                employeeCode: employee.EmployeeCode,
+                ctaUrl: inviteLink,
+                expiryText: "This invitation expires in 48 hours. You'll set your password after accepting."),
             Type: EmailType.Invite
         ), cancellationToken);
 

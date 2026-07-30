@@ -72,10 +72,11 @@ public class ForgotPasswordHandler(
         await emailPublisher.PublishAsync(new EmailMessage(
             To: user.Email,
             Subject: "Reset your WorkVault password",
-            Body: $"Hi {user.FirstName},\n\n" +
-                  $"We received a request to reset your WorkVault password. " +
-                  $"Click the link below to choose a new one:\n\n{resetLink}\n\n" +
-                  $"This link expires in 2 hours. If you didn't request this, you can safely ignore this email.",
+            Body: EmailTemplate.PasswordReset(
+                firstName: user.FirstName,
+                email: user.Email,
+                ctaUrl: resetLink,
+                expiryText: "This link expires in 2 hours and can be used once."),
             Type: EmailType.PasswordReset
         ), cancellationToken);
     }

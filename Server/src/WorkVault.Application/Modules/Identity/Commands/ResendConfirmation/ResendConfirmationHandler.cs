@@ -57,12 +57,13 @@ public class ResendConfirmationHandler(
         var inviteLink = $"{frontendUrl}/register/{newInviteToken.Token}";
         await emailPublisher.PublishAsync(new EmailMessage(
             To: user.Email,
-            Subject: "Confirm your WorkVault account",
-            Body: $"Hi {user.FirstName},\n\n" +
-                  "Here's a fresh link to activate your WorkVault admin account. " +
-                  $"Set your password to sign in:\n\n{inviteLink}\n\n" +
-                  "This link expires in 48 hours.",
-            Type: EmailType.Invite
+            Subject: "Verify your email to activate your WorkVault account",
+            Body: EmailTemplate.VerifyEmail(
+                firstName: user.FirstName,
+                companyName: "your workspace",
+                ctaUrl: inviteLink,
+                expiryText: "This link expires in 48 hours. If you didn't request this, you can safely ignore this email."),
+            Type: EmailType.Registration
         ), cancellationToken);
     }
 }
