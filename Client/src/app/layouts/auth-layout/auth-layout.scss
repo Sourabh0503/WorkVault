@@ -107,6 +107,13 @@ h2 {
   overflow-y: auto;
 }
 
+// Home-page-style logo at the top of the form column — hidden on wide screens
+// where the brand panel already carries the logo.
+.mobile-logo {
+  display: none;
+  align-self: flex-start;
+}
+
 // ---- Narrow screens: drop the brand panel, form takes the full width ----
 @media (max-width: 768px) {
   .auth-shell {
@@ -117,7 +124,16 @@ h2 {
     display: none;
   }
 
+  // Stack the top logo above the form, both left-aligned.
   .form-column {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
     padding: var(--space-6);
+    gap: var(--space-8);
+  }
+
+  .mobile-logo {
+    display: inline-block;
   }
 }

@@ -1,0 +1,94 @@
+// Shared form-field styles for the registration wizard steps.
+// Each step component pulls these in with `@use '../fields' as *;` so the
+// look stays consistent without duplicating rules per step.
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-ink-muted);
+}
+
+.section-hint {
+  font-size: 13px;
+  color: var(--color-ink-muted);
+  font-weight: 500;
+  margin-top: calc(-1 * var(--space-2));
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink-strong);
+}
+
+.optional {
+  font-weight: 500;
+  color: var(--color-ink-faint);
+  margin-left: 4px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-input);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &::placeholder {
+    color: var(--color-ink-faint);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--focus-ring);
+  }
+}
+
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
+.field-error {
+  font-size: 13px;
+  color: var(--color-error-text);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.password-note {
+  font-size: 13px;
+  color: var(--color-ink-muted);
+  font-weight: 500;
+  margin-top: var(--space-1);
+}

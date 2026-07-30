@@ -1,0 +1,59 @@
+<div class="section" [formGroup]="form">
+  <div class="section-label">Setup authentication</div>
+  <p class="section-hint">This is how you'll sign in. We'll email you a link to set your password.</p>
+
+  <div class="row-2">
+    <div class="field">
+      <label for="firstName">First name</label>
+      <input
+        id="firstName"
+        type="text"
+        formControlName="firstName"
+        autocomplete="given-name"
+      />
+      @if (form.get('firstName')?.touched && form.get('firstName')?.errors?.['required']) {
+        <div class="field-error">Required.</div>
+      }
+    </div>
+
+    <div class="field">
+      <label for="lastName">Last name</label>
+      <input
+        id="lastName"
+        type="text"
+        formControlName="lastName"
+        autocomplete="family-name"
+      />
+      @if (form.get('lastName')?.touched && form.get('lastName')?.errors?.['required']) {
+        <div class="field-error">Required.</div>
+      }
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="email">Work email</label>
+    <input
+      id="email"
+      type="email"
+      formControlName="email"
+      placeholder="you@company.com"
+      autocomplete="email"
+    />
+    @if (form.get('email')?.touched && form.get('email')?.invalid) {
+      <div class="field-error">
+        @if (form.get('email')?.errors?.['required']) {
+          Email is required.
+        } @else if (form.get('email')?.errors?.['email']) {
+          Please enter a valid email.
+        }
+      </div>
+    }
+    @for (msg of fieldErrors['Email']; track msg) {
+      <div class="field-error">{{ msg }}</div>
+    }
+  </div>
+
+  <p class="password-note">
+    No password needed here — we'll email you a link to set one and sign in.
+  </p>
+</div>
