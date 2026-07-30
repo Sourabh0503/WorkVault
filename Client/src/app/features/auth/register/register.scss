@@ -155,6 +155,47 @@ select {
   }
 }
 
+// ---- Password note (no password collected at signup) ----
+.password-note {
+  font-size: 13px;
+  color: var(--color-ink-muted);
+  font-weight: 500;
+  margin-top: var(--space-1);
+}
+
+// ---- Confirmation panel (invite email sent) ----
+.confirm-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 460px;
+
+  h1 {
+    margin-bottom: 0;
+  }
+
+  .subtitle strong {
+    color: var(--color-ink-strong);
+    font-weight: 700;
+  }
+}
+
+.confirm-icon {
+  font-size: 44px;
+  line-height: 1;
+  margin-bottom: var(--space-1);
+}
+
+.confirm-hint {
+  font-size: 14px;
+  color: var(--color-ink-muted);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
 // ---- Alt action ----
 .alt-action {
   font-size: 14px;

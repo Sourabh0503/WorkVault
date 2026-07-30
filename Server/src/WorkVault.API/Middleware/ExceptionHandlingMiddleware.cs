@@ -51,6 +51,10 @@ public class ExceptionHandlingMiddleware(
         {
             await WriteErrorAsync(context, 400, "BusinessRuleViolation", ex.Message);
         }
+        catch (AccountNotActivatedException ex)
+        {
+            await WriteErrorAsync(context, 403, "AccountNotActivated", ex.Message);
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unhandled exception");

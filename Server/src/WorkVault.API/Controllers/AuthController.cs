@@ -7,6 +7,7 @@ using WorkVault.Application.Modules.Identity.Commands.Login;
 using WorkVault.Application.Modules.Identity.Commands.Logout;
 using WorkVault.Application.Modules.Identity.Commands.Register;
 using WorkVault.Application.Modules.Identity.Commands.RefreshTokens;
+using WorkVault.Application.Modules.Identity.Commands.ResendConfirmation;
 using WorkVault.Application.Modules.Identity.Commands.ResetPassword;
 using WorkVault.Application.Modules.Identity.Commands.SetPassword;
 using WorkVault.Application.Modules.Identity.Queries.GetCurrentUser;
@@ -197,6 +198,24 @@ public class AuthController(IMediator mediator) : ControllerBase
         return Ok(result);
     }
     
+    /// <summary>
+    /// Resend the account-confirmation (set-password) email to a self-registered
+    /// company admin who never activated. Always returns 204 — it only actually
+    /// sends when the email belongs to an inactive CompanyAdmin.
+    /// </summary>
+    /// <response code="204">Request accepted (email sent only if applicable).</response>
+    /// <response code="429">Too many requests - rate limit exceeded.</response>
+    [HttpPost("resend-confirmation")]
+    [AllowAnonymous]
+    [EnableRateLimiting("forgot-password")]
+    public async Task<IActionResult> ResendConfirmation(
+        [FromBody] ResendConfirmationCommand command,
+        CancellationToken cancellationToken)
+    {
+        await mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+
     /// <summary>
     /// Request a password reset link. Always returns 200 to prevent
     /// email enumeration attacks — the response is identical whether

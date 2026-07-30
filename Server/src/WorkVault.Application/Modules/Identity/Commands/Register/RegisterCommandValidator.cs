@@ -4,7 +4,7 @@ namespace WorkVault.Application.Modules.Identity.Commands.Register;
 
 /// <summary>
 /// Validates <see cref="RegisterCommand"/>: required company/name fields with length
-/// limits, valid email, and a strong password (min 8 chars, upper/lower/digit/special).
+/// limits and a valid email. No password — the admin sets it via the emailed invite link.
 /// </summary>
 public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
@@ -18,14 +18,6 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
             .NotEmpty().WithMessage("Email is required.")
             .EmailAddress().WithMessage("Email format is invalid.")
             .MaximumLength(256);
-
-        RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("Password is required.")
-            .MinimumLength(8).WithMessage("Password must be at least 8 characters.")
-            .Matches("[A-Z]").WithMessage("Password must contain an uppercase letter.")
-            .Matches("[a-z]").WithMessage("Password must contain a lowercase letter.")
-            .Matches("[0-9]").WithMessage("Password must contain a digit.")
-            .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain a special character.");
 
         RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("First name is required.")

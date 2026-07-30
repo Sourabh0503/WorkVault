@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { ApiError } from '../../../core/models/auth.models';
@@ -12,23 +12,23 @@ import { ApiError } from '../../../core/models/auth.models';
   styleUrl: './register.scss'
 })
 /**
- * Registration page — self-serve signup that creates a company + admin user in one
- * step via `AuthService.register`. Handles field-level API validation errors and
- * password visibility.
+ * Registration page — self-serve signup that creates a company + admin user via
+ * `AuthService.register`. No password is collected: on success we show a
+ * "check your email" confirmation, and the admin sets their password and signs
+ * in through the emailed set-password link. Handles field-level API validation errors.
  */
 export class Register {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private router = inject(Router);
 
   isSubmitting = signal(false);
   errorMessage = signal<string | null>(null);
   fieldErrors = signal<Record<string, string[]>>({});
-  showPassword = signal(false);
 
-  togglePassword(): void {
-    this.showPassword.update(v => !v);
-  }
+  // On success we swap the form for a confirmation panel and remember the
+  // address we sent the invite to, so we can show "we emailed you at …".
+  emailSent = signal(false);
+  sentToEmail = signal('');
 
   form = this.fb.nonNullable.group({
     // Company info
@@ -38,15 +38,7 @@ export class Register {
     // Admin details
     firstName: ['', [Validators.required, Validators.maxLength(100)]],
     lastName: ['', [Validators.required, Validators.maxLength(100)]],
-    email: ['', [Validators.required, Validators.email, Validators.maxLength(256)]],
-    password: ['', [
-      Validators.required,
-      Validators.minLength(8),
-      Validators.pattern(/[A-Z]/),        // one uppercase
-      Validators.pattern(/[a-z]/),        // one lowercase
-      Validators.pattern(/[0-9]/),        // one digit
-      Validators.pattern(/[^a-zA-Z0-9]/)  // one special char
-    ]]
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(256)]]
   });
 
   industries = [
@@ -75,16 +67,16 @@ export class Register {
     const payload = {
       companyName: value.companyName,
       email: value.email,
-      password: value.password,
       firstName: value.firstName,
       lastName: value.lastName,
       industry: value.industry || undefined
     };
 
     this.authService.register(payload).subscribe({
-      next: () => {
+      next: (response) => {
         this.isSubmitting.set(false);
-        this.router.navigate(['/dashboard']);
+        this.sentToEmail.set(response.email);
+        this.emailSent.set(true);
       },
       error: (err: HttpErrorResponse) => {
         this.isSubmitting.set(false);
@@ -93,7 +85,11 @@ export class Register {
         if (apiError?.errors) {
           // Validation errors from backend — map to field-level messages
           this.fieldErrors.set(apiError.errors);
+        } else if (err.status >= 500) {
+          // Server-side failure — don't leak internals, keep it friendly.
+          this.errorMessage.set('We are facing some problem, please try again later.');
         } else {
+          // Client errors (e.g. 409 conflict) carry a meaningful message — show it.
           this.errorMessage.set(apiError?.title || 'Registration failed. Try again.');
         }
       }

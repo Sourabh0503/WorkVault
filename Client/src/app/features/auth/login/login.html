@@ -6,8 +6,23 @@
 
   <!-- Error banner -->
   @if (errorMessage()) {
-    <div class="error-banner">
-      {{ errorMessage() }}
+    <div class="error-banner" [class.info]="notActivated()">
+      <span>{{ errorMessage() }}</span>
+
+      @if (notActivated()) {
+        @if (resendState() === 'sent') {
+          <span class="resend-done">✓ Confirmation link sent — check your inbox.</span>
+        } @else {
+          <button
+            type="button"
+            class="resend-btn"
+            (click)="resendConfirmation()"
+            [disabled]="resendState() === 'sending'"
+          >
+            {{ resendState() === 'sending' ? 'Sending…' : 'Resend confirmation email' }}
+          </button>
+        }
+      }
     </div>
   }
 

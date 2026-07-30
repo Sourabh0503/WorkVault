@@ -4,7 +4,8 @@ namespace WorkVault.Application.Modules.Identity.Commands.Register;
 
 /// <summary>
 /// Self-serve signup: creates a new company (tenant) together with its first
-/// admin user in a single operation.
+/// admin user. No password is collected here — the admin is created inactive
+/// and receives an email invite to set their password (same flow as employees).
 /// </summary>
 /// <param name="CompanyName">Display name of the new company/tenant.</param>
 /// <param name="Domain">Optional email domain for the company.</param>
@@ -13,7 +14,6 @@ namespace WorkVault.Application.Modules.Identity.Commands.Register;
 /// <param name="FirstName">Admin user's first name.</param>
 /// <param name="LastName">Admin user's last name.</param>
 /// <param name="Email">Admin user's login email (also the tenant owner).</param>
-/// <param name="Password">Admin user's plaintext password (hashed before storage).</param>
 public record RegisterCommand(
     // Company fields
     string CompanyName,
@@ -24,18 +24,18 @@ public record RegisterCommand(
     // Admin user fields
     string FirstName,
     string LastName,
-    string Email,
-    string Password
+    string Email
 ) : IRequest<RegisterResponse>;
 
-/// <summary>Identifiers and tokens returned after a successful company + admin registration.</summary>
+/// <summary>
+/// Confirmation that registration succeeded and an invite email was sent.
+/// No tokens — the admin activates and logs in via the set-password link.
+/// </summary>
 /// <param name="CompanyId">The newly created tenant id.</param>
 /// <param name="UserId">The newly created admin user id.</param>
-/// <param name="AccessToken">Short-lived JWT access token (user is auto-logged-in).</param>
-/// <param name="RefreshToken">Long-lived refresh token.</param>
+/// <param name="Email">The email the invite link was sent to.</param>
 public record RegisterResponse(
     Guid CompanyId,
     Guid UserId,
-    string AccessToken,
-    string RefreshToken
+    string Email
 );

@@ -122,26 +122,12 @@ export class AuthService {
 
   /**
    * POST /api/auth/register
+   * Creates the company + admin and sends an invite email. Does NOT log the
+   * user in — the admin activates and signs in via the emailed set-password
+   * link (same flow as an invited employee).
    */
   register(data: RegisterRequest): Observable<RegisterResponse> {
-    return this.http.post<RegisterResponse>(`${this.apiUrl}/auth/register`, data).pipe(
-      tap((response) => {
-        // Register returns companyId + tokens but no userId.
-        // We don't know the userId until the /me endpoint is added.
-        // For now, store what we have.
-        this.setTokens(response.accessToken, response.refreshToken);
-        const user: StoredUser = {
-          userId: response.userId,
-          companyId: response.companyId,
-          role: this.extractRole(response.accessToken),
-          // The register response omits companyName, but we have it from the
-          // request the user just submitted.
-          companyName: data.companyName,
-        };
-        localStorage.setItem(STORAGE_USER, JSON.stringify(user));
-        this._user.set(user);
-      }),
-    );
+    return this.http.post<RegisterResponse>(`${this.apiUrl}/auth/register`, data);
   }
 
   /**
@@ -188,6 +174,15 @@ export class AuthService {
     return this.http
       .post<SetPasswordResponse>(`${this.apiUrl}/auth/set-password`, data)
       .pipe(tap((response) => this.persistSession(response)));
+  }
+
+  /**
+   * POST /api/auth/resend-confirmation
+   * Resends the account-confirmation link to a self-registered admin who never
+   * activated. Always resolves 204 — the server only sends when applicable.
+   */
+  resendConfirmation(email: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/resend-confirmation`, { email });
   }
 
   /**

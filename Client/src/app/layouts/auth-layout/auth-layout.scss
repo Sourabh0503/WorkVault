@@ -106,3 +106,18 @@ h2 {
   background: var(--color-surface);
   overflow-y: auto;
 }
+
+// ---- Narrow screens: drop the brand panel, form takes the full width ----
+@media (max-width: 768px) {
+  .auth-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-panel {
+    display: none;
+  }
+
+  .form-column {
+    padding: var(--space-6);
+  }
+}
