@@ -62,6 +62,11 @@ export class AuthService {
   // The user's first name — sourced from /me (kept fresh across HR edits), '' until loaded.
   firstName = computed(() => this._user()?.firstName ?? '');
 
+  // Full current-user profile from /me — populated by loadProfile(), shared so pages don't
+  // each re-fetch /me. Null until the first load resolves.
+  private _profile = signal<CurrentUserProfile | null>(null);
+  profile = this._profile.asReadonly();
+
   // Derived: is the user logged in?
   isAuthenticated = computed(() => this._user() !== null);
 
@@ -100,6 +105,7 @@ export class AuthService {
     if (!this.getAccessToken()) return;
     this.getMe().subscribe({
       next: (profile) => {
+        this._profile.set(profile);
         const current = this._user();
         if (!current) return;
         const updated: StoredUser = {
@@ -255,6 +261,7 @@ export class AuthService {
     localStorage.removeItem(STORAGE_REFRESH);
     localStorage.removeItem(STORAGE_USER);
     this._user.set(null);
+    this._profile.set(null);
   }
 
   private loadUserFromStorage(): StoredUser | null {

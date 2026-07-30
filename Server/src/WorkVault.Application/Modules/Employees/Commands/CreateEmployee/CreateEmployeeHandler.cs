@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using WorkVault.Application.Common.Exceptions;
 using WorkVault.Application.Common.Interfaces;
+using WorkVault.Application.Common.Messaging;
 using WorkVault.Domain.Modules.Employees;
 using WorkVault.Domain.Modules.Employees.Enums;
 using WorkVault.Domain.Modules.Employees.Interfaces;
@@ -37,7 +38,9 @@ public class CreateEmployeeHandler(
     IDepartmentRepository departmentRepository,
     IDesignationRepository designationRepository,
     IInviteTokenRepository inviteTokenRepository,
+    ICompanyRepository companyRepository,
     ICurrentUserService currentUserService,
+    IEmailPublisher emailPublisher,
     IConfiguration configuration,
     IUnitOfWork unitOfWork,
     ILogger<CreateEmployeeHandler> logger)
@@ -50,6 +53,10 @@ public class CreateEmployeeHandler(
         // 1. Check current user company
         var companyId = currentUserService.CompanyId
                         ?? throw new InvalidOperationException("No company context.");
+        
+        var company = await companyRepository.GetByIdAsync(companyId, cancellationToken);
+        if (company == null)
+            throw new ApplicationException("Company not found.");
 
         // Only a company admin can grant the CompanyAdmin role (HR can't mint admins).
         if (request.RoleId == SystemRoles.CompanyAdmin
@@ -131,9 +138,13 @@ public class CreateEmployeeHandler(
         // 9. Stub the email — log the link to console for now
         var frontendUrl = configuration["AppSettings:FrontendUrl"];
         var inviteLink = $"{frontendUrl}/set-password?token={inviteToken.Token}";
-        logger.LogInformation(
-            "Invite created for {Email}. Link: {InviteLink}",
-            user.Email, inviteLink);
+        await emailPublisher.PublishAsync(new EmailMessage(
+            To: user.Email,
+            Subject: "You've been invited to WorkVault",
+            Body: $"Hi {user.FirstName},\n\nYou've been invited to join {company.Name} on WorkVault. " +
+                  $"Set your password to get started:\n\n{inviteLink}\n\nThis link expires in 48 hours.",
+            Type: EmailType.Invite
+        ), cancellationToken);
 
         // 10. Return result
         return new CreateEmployeeResult(

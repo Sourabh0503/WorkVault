@@ -359,4 +359,7 @@ export class EmployeeDetailPage implements OnInit {
   roleLabel(name: string): string {
     return name === 'CompanyAdmin' ? 'Company Admin' : name;
   }
+
+  // Today (yyyy-MM-dd) — caps the date-of-birth picker so a future date can't be chosen.
+  readonly todayStr = new Date().toISOString().slice(0, 10);
 }

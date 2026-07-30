@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using WorkVault.Application.Common.Exceptions;
+using WorkVault.Application.Common.Interfaces;
+using WorkVault.Application.Common.Messaging;
 using WorkVault.Domain.Modules.Employees.Enums;
 using WorkVault.Domain.Modules.Employees.Interfaces;
 using WorkVault.Domain.Modules.Identity;
@@ -25,6 +27,7 @@ namespace WorkVault.Application.Modules.Employees.Commands.ResendInvite;
 public class ResendInviteHandler(
     IEmployeeRepository employeeRepository,
     IInviteTokenRepository inviteTokenRepository,
+    IEmailPublisher emailPublisher, 
     IUnitOfWork unitOfWork,
     IConfiguration configuration,
     ILogger<ResendInviteHandler> logger)
@@ -65,12 +68,18 @@ public class ResendInviteHandler(
         // 5. Save — both updates and new insert in one transaction
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // 6. Log link (later: send real email)
+        // 6. send link
         var frontendUrl = configuration["AppSettings:FrontendUrl"];
         var inviteLink = $"{frontendUrl}/set-password?token={newInviteToken.Token}";
-        logger.LogInformation(
-            "Invite resent for {Email}. Link: {InviteLink}",
-            employee.User.Email, inviteLink);
+        await emailPublisher.PublishAsync(new EmailMessage(
+            To: employee.User.Email,
+            Subject: "Your WorkVault invite (resent)",
+            Body: $"Hi {employee.User.FirstName},\n\n" +
+                  $"Here's your invite link to join WorkVault. " +
+                  $"Set your password to get started:\n\n{inviteLink}\n\n" +
+                  $"This link expires in 48 hours.",
+            Type: EmailType.Invite
+        ), cancellationToken);
 
         return new ResendInviteResult(
             EmployeeId: employee.Id,

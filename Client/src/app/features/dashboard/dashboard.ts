@@ -9,7 +9,6 @@ import { WelcomeCardModel } from './welcome-card';
 import { DashboardStats, HeadcountPoint } from '../../core/models/dashboard.models';
 import { EmployeeListItem, EmployeeStatus } from '../../core/models/employee.models';
 import { Department } from '../../core/models/department.models';
-import { CurrentUserProfile } from '../../core/models/profile.models';
 
 @Component({
   selector: 'app-dashboard',
@@ -35,10 +34,9 @@ export class Dashboard implements OnInit {
   canSeeStats = computed(() => this.role() === 'HR' || this.role() === 'CompanyAdmin');
 
   // ---- Celebrations (own birthday / work anniversary today) ----
-  private myProfile = signal<CurrentUserProfile | null>(null);
-
+  // Reuses the profile AuthService already loaded from /me (no extra request).
   celebration = computed(() => {
-    const emp = this.myProfile()?.employee;
+    const emp = this.authService.profile()?.employee;
     const now = new Date();
     const month = now.getMonth() + 1;
     const day = now.getDate();
@@ -117,12 +115,6 @@ export class Dashboard implements OnInit {
   }
 
   ngOnInit(): void {
-    // Load own profile to check for birthday / work anniversary (all roles).
-    this.authService.getMe().subscribe({
-      next: (p) => this.myProfile.set(p),
-      error: () => {},
-    });
-
     if (!this.canSeeStats()) {
       this.loading.set(false);
       return;

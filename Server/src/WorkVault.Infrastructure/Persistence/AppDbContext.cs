@@ -97,8 +97,19 @@ public class AppDbContext(
             .OnDelete(DeleteBehavior.SetNull); // if head employee deleted, dept keeps existing, head becomes null
 
         SeedRolesData(modelBuilder);
-
-        modelBuilder.Entity<User>().HasIndex(u => new { u.Email, u.CompanyId }).IsUnique();
+        
+        // Email unique only among non-deleted users — a soft-deleted (cancelled-invite)
+        // user frees up their email for reuse.
+        modelBuilder.Entity<User>()
+            .HasIndex(u => new { u.Email, u.CompanyId })
+            .IsUnique()
+            .HasFilter("\"IsDeleted\" = false");
+        
+        modelBuilder.Entity<Employee>()
+            .HasIndex(e => e.EmployeeCode)
+            .IsUnique()
+            .HasFilter("\"IsDeleted\" = false");
+        
         modelBuilder.Entity<RefreshToken>().HasQueryFilter(rt => !rt.User.IsDeleted);
     }
 

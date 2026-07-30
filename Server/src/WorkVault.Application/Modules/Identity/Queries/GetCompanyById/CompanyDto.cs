@@ -3,7 +3,7 @@ namespace WorkVault.Application.Modules.Identity.Queries.GetCompanyById;
 /// <summary>Read model describing a company/tenant profile.</summary>
 /// <param name="Id">Company id.</param>
 /// <param name="Name">Display name.</param>
-/// <param name="Domain">Email domain.</param>
+/// <param name="Domain">Email domain, if set.</param>
 /// <param name="Industry">Industry classification.</param>
 /// <param name="GstNumber">GST registration number, if any.</param>
 /// <param name="Logo">Logo URL, if any.</param>
@@ -13,7 +13,7 @@ namespace WorkVault.Application.Modules.Identity.Queries.GetCompanyById;
 public record CompanyDto(
     Guid Id,
     string Name,
-    string Domain,
+    string? Domain,
     string Industry,
     string? GstNumber,
     string? Logo,

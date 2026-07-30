@@ -6,6 +6,7 @@ using WorkVault.Application.Common.Settings;
 using WorkVault.Domain.Modules.Employees.Interfaces;
 using WorkVault.Domain.Modules.Identity.Interfaces;
 using WorkVault.Infrastructure.Auth;
+using WorkVault.Infrastructure.Messaging;
 using WorkVault.Infrastructure.Modules.Employees;
 using WorkVault.Infrastructure.Modules.Identity;
 using WorkVault.Infrastructure.Persistence;
@@ -24,6 +25,7 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        RegisterMessagingServices(services,configuration);
         
         // Database
         services.AddDbContext<AppDbContext>(options =>
@@ -48,6 +50,21 @@ public static class DependencyInjection
         services.AddScoped<IDesignationRepository, DesignationRepository>();
 
         return services;
+    }
+
+    private static void RegisterMessagingServices(IServiceCollection services , IConfiguration configuration)
+    {
+        //Services
+        services.AddSingleton<IEmailPublisher, RabbitMqEmailPublisher>();
+        
+        // Email settings from config
+        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+
+        // The SMTP sender (scoped — resolved per message in the consumer's scope)
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
+
+        // The background consumer that drains the queue
+        services.AddHostedService<EmailConsumerService>();
     }
     
 }

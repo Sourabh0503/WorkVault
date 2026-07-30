@@ -141,7 +141,7 @@ Pipeline in `.github/workflows/ci.yml`, runs on every push and PR to `master`:
 | Module | Description | Status |
 |:---:|---|:---:|
 | 🔐 Identity | Company registration, JWT auth, roles, multi-tenancy, `/auth/me` profile | 🟢 Core done |
-| 👥 Employees | Profiles, lifecycle, roles, invite flow, org placement (dept/designation/manager) | 🟡 Building |
+| 👥 Employees | Profiles (incl. DOB), lifecycle, roles, invite flow, org placement (dept/designation/manager) | 🟡 Building |
 | 🏢 Org Structure | Departments & Designations (full CRUD + UI) | 🟢 Core done |
 | 💻 Assets | Asset register, assignment, service requests | ⬜ Planned |
 | ⏰ Attendance | Clock in/out, leave, timesheets, shifts | ⬜ Planned |
@@ -364,7 +364,8 @@ POST /api/auth/refresh
 - [x] Employee soft-delete (pending invites only), role assignment, dept-scoped designation/manager dropdowns
 - [x] `GET /api/auth/me` + My Profile page; unified employee view (edit gated to HR/CompanyAdmin)
 - [x] Role model: assignable roles, only-admin-grants-admin, no self-demote, route + API role guards
-- [x] Dashboard redesign (KPIs, headcount chart, workforce pulse) + refreshed team/department/designation UI
+- [x] Date of birth (nullable) + dashboard birthday / work-anniversary greetings
+- [x] Full UI redesign — dashboard (KPIs, headcount chart, pulse), employees, team, departments, designations, profile
 - [x] Angular frontend — auth, dashboard, employees, departments, designations, profile
 - [x] Integration tests (Testcontainers) proving tenant isolation
 - [x] CI/CD (GitHub Actions) + live deploy on Render
