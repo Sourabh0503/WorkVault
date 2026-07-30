@@ -137,7 +137,14 @@ public class CreateEmployeeHandler(
         // 8. Single SaveChanges — all 3 inserts in one transaction
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // 9. Stub the email — log the link to console for now
+        // 9. Send the invite email — name the inviter when we can resolve them.
+        var inviter = currentUserService.UserId is { } inviterId
+            ? await userRepository.GetByIdAsync(inviterId, cancellationToken)
+            : null;
+        var inviterName = inviter is null
+            ? null
+            : $"{inviter.FirstName} {inviter.LastName}".Trim();
+
         var frontendUrl = configuration["AppSettings:FrontendUrl"];
         var inviteLink = $"{frontendUrl}/set-password?token={inviteToken.Token}";
         await emailPublisher.PublishAsync(new EmailMessage(
@@ -149,7 +156,8 @@ public class CreateEmployeeHandler(
                 department: departmentName,
                 employeeCode: employeeCode,
                 ctaUrl: inviteLink,
-                expiryText: "This invitation expires in 48 hours. You'll set your password after accepting."),
+                expiryText: "This invitation expires in 48 hours. You'll set your password after accepting.",
+                inviterName: inviterName),
             Type: EmailType.Invite
         ), cancellationToken);
 

@@ -43,12 +43,19 @@ public static class EmailTemplate
     /// <summary>Employee invite (see <c>emails/hr-invite.html</c>).</summary>
     public static string Invite(
         string companyName, string roleName, string? department,
-        string employeeCode, string ctaUrl, string expiryText)
+        string employeeCode, string ctaUrl, string expiryText,
+        string? inviterName = null)
     {
         var company = Enc(companyName);
 
+        // Name the inviter when we have it ("Sourabh Agrawal has invited you…"),
+        // otherwise fall back to a neutral phrasing.
+        var intro = string.IsNullOrWhiteSpace(inviterName)
+            ? $"""You've been invited to join the <strong style="color:#04241B;">{company}</strong> workspace on WorkVault."""
+            : $"""<strong style="color:#04241B;">{Enc(inviterName)}</strong> has invited you to join the <strong style="color:#04241B;">{company}</strong> workspace on WorkVault.""";
+
         var topBody = $"""
-            <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#334155;line-height:22px;padding-bottom:20px;">You've been invited to join the <strong style="color:#04241B;">{company}</strong> workspace on WorkVault.</td></tr>
+            <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#334155;line-height:22px;padding-bottom:20px;">{intro}</td></tr>
             {InfoBox(roleName, department, employeeCode)}
             """;
 
