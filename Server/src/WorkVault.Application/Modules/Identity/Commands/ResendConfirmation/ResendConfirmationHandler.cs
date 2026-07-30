@@ -54,7 +54,7 @@ public class ResendConfirmationHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var frontendUrl = configuration["AppSettings:FrontendUrl"];
-        var inviteLink = $"{frontendUrl}/set-password?token={newInviteToken.Token}";
+        var inviteLink = $"{frontendUrl}/register/{newInviteToken.Token}";
         await emailPublisher.PublishAsync(new EmailMessage(
             To: user.Email,
             Subject: "Confirm your WorkVault account",

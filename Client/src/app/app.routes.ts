@@ -36,6 +36,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
       },
       {
+        // Confirmation link from the registration email — reopens the wizard at
+        // the "Setup password" step with the invite token.
+        path: 'register/:token',
+        loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
+      },
+      {
         path: 'set-password',
         loadComponent: () =>
           import('./features/auth/set-password/set-password').then((m) => m.SetPassword),

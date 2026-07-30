@@ -106,7 +106,7 @@ public class AppDbContext(
             .HasFilter("\"IsDeleted\" = false");
         
         modelBuilder.Entity<Employee>()
-            .HasIndex(e => e.EmployeeCode)
+            .HasIndex(e => new {e.EmployeeCode , e.CompanyId})
             .IsUnique()
             .HasFilter("\"IsDeleted\" = false");
         

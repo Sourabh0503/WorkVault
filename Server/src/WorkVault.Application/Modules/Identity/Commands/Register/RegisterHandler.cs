@@ -102,9 +102,11 @@ public class RegisterHandler(
         // ---- Single atomic save ----
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // ---- Send the invite email with the set-password link ----
+        // ---- Send the confirmation email with the set-password link ----
+        // Points back into the registration wizard (step 3), not the employee
+        // invite page — the admin finishes signup where they started.
         var frontendUrl = configuration["AppSettings:FrontendUrl"];
-        var inviteLink = $"{frontendUrl}/set-password?token={inviteToken.Token}";
+        var inviteLink = $"{frontendUrl}/register/{inviteToken.Token}";
         await emailPublisher.PublishAsync(new EmailMessage(
             To: user.Email,
             Subject: "Confirm your WorkVault account",

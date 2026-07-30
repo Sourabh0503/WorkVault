@@ -16,6 +16,25 @@
       <a routerLink="/login">Sign in</a>
     </div>
   </div>
+} @else if (validatingToken()) {
+  <!-- Confirmation link — validating the token -->
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>Validating your link…</p>
+  </div>
+} @else if (invalidToken()) {
+  <!-- Confirmation link invalid / expired / used -->
+  <div class="confirm-panel">
+    <div class="confirm-icon">⚠️</div>
+    <h1>Link invalid</h1>
+    <p class="subtitle">
+      This confirmation link has expired, been used, or doesn't exist.
+    </p>
+    <p class="confirm-hint">
+      Try signing in — you can resend a fresh confirmation link from there.
+    </p>
+    <a routerLink="/login" class="alt-action-btn">Go to sign in</a>
+  </div>
 } @else {
   <div class="register-wizard">
     <div class="header">
@@ -46,11 +65,14 @@
       @case (2) {
         <app-step-auth [form]="form" [fieldErrors]="fieldErrors()" />
       }
+      @case (3) {
+        <app-step-password [form]="form" [invite]="invite()" />
+      }
     }
 
     <!-- Navigation -->
     <div class="wizard-nav">
-      @if (currentStep() > 1) {
+      @if (canGoBack()) {
         <button type="button" class="btn-secondary" (click)="back()" [disabled]="isSubmitting()">
           ← Back
         </button>

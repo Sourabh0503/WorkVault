@@ -161,3 +161,45 @@ h1 {
   font-weight: 500;
   line-height: 1.5;
 }
+
+.alt-action-btn {
+  display: inline-block;
+  padding: 12px 20px;
+  margin-top: var(--space-2);
+  background: var(--color-primary);
+  color: white;
+  text-align: center;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+
+  &:hover {
+    background: var(--color-primary-hover);
+    color: white;
+  }
+}
+
+// ---- Token validation (loading) ----
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-16) 0;
+  color: var(--color-ink-muted);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border-strong);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
