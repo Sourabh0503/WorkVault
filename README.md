@@ -41,11 +41,11 @@ Built for Indian SMEs with 50–500 employees. Competing with Keka, DarwinBox & 
 
 | Service | URL |
 |---|---|
-| 🖥️ **App (Angular)** | https://workvault.onrender.com |
-| ⚙️ **API (.NET)** | https://workvault-api.onrender.com |
-| ❤️ **Health check** | https://workvault-api.onrender.com/health |
+| 🖥️ **App (Angular)** | https://workvault.co.in |
+| ⚙️ **API (.NET)** | https://api.workvault.co.in |
+| ❤️ **Health check** | https://api.workvault.co.in/health |
 
-Deployed on **Render** (Docker API + static frontend + managed PostgreSQL). Every push runs the **GitHub Actions** pipeline — build, integration tests (real Postgres via Testcontainers), and a Docker image build — and deploys are **gated behind green tests**.
+Served on a **custom domain — `workvault.co.in`, registered on GoDaddy**. Its DNS maps `workvault.co.in` (app) and `api.workvault.co.in` (API) onto the underlying **Render** deployment (Docker API + static frontend + managed PostgreSQL). Every push runs the **GitHub Actions** pipeline — build, integration tests (real Postgres via Testcontainers), and a Docker image build — and deploys are **gated behind green tests**.
 
 ---
 
@@ -53,7 +53,7 @@ Deployed on **Render** (Docker API + static frontend + managed PostgreSQL). Ever
 
 ## ⚡ The Big Idea
 
-> **AI-powered setup in minutes.** A new company admin registers, picks their industry, and gets departments, designations, asset types, and leave policies auto-generated. No competitor does this.
+> **AI-powered setup in minutes.** A new company admin registers through a guided multi-step wizard, confirms their email to set a password, picks their industry, and gets departments, designations, asset types, and leave policies auto-generated. No competitor does this.
 
 <br/>
 
@@ -94,6 +94,7 @@ Deployed on **Render** (Docker API + static frontend + managed PostgreSQL). Ever
 | 🏗️ | **Modular Monolith + Clean Architecture** | Scalable without microservice complexity |
 | 📨 | **MediatR (CQRS)** | Separated commands & queries |
 | 🔐 | **JWT + Refresh Tokens + BCrypt** | Stateless, secure authentication |
+| 📧 | **RabbitMQ + Brevo SMTP** | Async, branded email — invites, account confirmations, password resets |
 | 📦 | **Entity Framework Core 9** | Type-safe ORM with global tenant filters |
 
 <br/>
@@ -132,7 +133,24 @@ Pipeline in `.github/workflows/ci.yml`, runs on every push and PR to `master`:
 | **docker** | Builds the API image (Dockerfile smoke test) |
 | **deploy** | Test-gated — fires Render deploy hooks **only after** the three jobs pass, on `master` pushes |
 
-**Integration tests** ([`Server/tests/WorkVault.IntegrationTests`](Server/tests/WorkVault.IntegrationTests)) spin up a **real PostgreSQL container** via [Testcontainers](https://testcontainers.com/) and prove multi-tenant isolation end to end — Company A cannot read or write Company B's data (404 via global query filters). The app runs EF Core migrations on startup and exposes `/health` for Render's checks.
+**Integration tests** ([`Server/tests/WorkVault.IntegrationTests`](Server/tests/WorkVault.IntegrationTests)) spin up a **real PostgreSQL container** via [Testcontainers](https://testcontainers.com/) and prove multi-tenant isolation end to end — Company A cannot read or write Company B's data (404 via global query filters). Messaging (RabbitMQ/SMTP) is stubbed in the test host so runs are hermetic. The app runs EF Core migrations on startup and exposes `/health` for Render's checks.
+
+<br/>
+
+## 📧 Email
+
+Transactional emails — **admin verification, employee invites, and password resets** — are decoupled and branded:
+
+- **Async delivery** — command handlers publish an `EmailMessage` to **RabbitMQ**; a background `EmailConsumerService` drains the queue and sends via **Brevo SMTP**. The HTTP request never blocks on mail delivery.
+- **Branded HTML** — a shared `EmailTemplate` builds table-based, client-safe HTML (dark header band, kicker, CTA button, info/warning boxes) that renders consistently across **Gmail, Outlook and Apple Mail**. All dynamic values are HTML-encoded.
+- **Inline logo** — the brand mark is **embedded in the message** as a `cid:` attachment (bundled as an embedded resource in the API), so it displays even though Gmail/Outlook strip inline SVG — with **no dependency on the separately-hosted frontend/CDN**.
+- **Sending domain** — mail is sent from **`no-reply@workvault.co.in`**. The domain (registered on **GoDaddy**) has **SPF, DKIM and DMARC** records in its DNS so Brevo can authenticate as the sender and stay out of spam.
+
+| Email | Trigger | Link target |
+|---|---|---|
+| Verify your email | Company registration · resend confirmation | `/register/{token}` (reopens the signup wizard at "Setup password") |
+| You're invited | HR adds an employee · resend invite | `/set-password?token=…` |
+| Reset your password | Forgot-password request | `/reset-password?token=…` |
 
 <br/>
 
@@ -140,8 +158,8 @@ Pipeline in `.github/workflows/ci.yml`, runs on every push and PR to `master`:
 
 | Module | Description | Status |
 |:---:|---|:---:|
-| 🔐 Identity | Company registration, JWT auth, roles, multi-tenancy, `/auth/me` profile | 🟢 Core done |
-| 👥 Employees | Profiles, lifecycle, roles, invite flow, org placement (dept/designation/manager) | 🟡 Building |
+| 🔐 Identity | Email-confirmed company registration (invite/set-password), JWT auth, roles, multi-tenancy, `/auth/me` profile | 🟢 Core done |
+| 👥 Employees | Profiles (incl. DOB), lifecycle, roles, invite flow, org placement (dept/designation/manager) | 🟡 Building |
 | 🏢 Org Structure | Departments & Designations (full CRUD + UI) | 🟢 Core done |
 | 💻 Assets | Asset register, assignment, service requests | ⬜ Planned |
 | ⏰ Attendance | Clock in/out, leave, timesheets, shifts | ⬜ Planned |
@@ -227,9 +245,29 @@ Create `src/WorkVault.API/appsettings.Development.json`:
     "Audience": "WorkVault",
     "AccessTokenExpirationMinutes": 15,
     "RefreshTokenExpirationDays": 7
+  },
+  "AppSettings": {
+    "FrontendUrl": "http://localhost:4200"
+  },
+  "RabbitMQ": {
+    "ConnectionString": "amqp://guest:guest@localhost:5672/"
+  },
+  "EmailSettings": {
+    "SmtpHost": "smtp-relay.brevo.com",
+    "SmtpPort": 587,
+    "SmtpUser": "your-brevo-login",
+    "SmtpKey": "your-brevo-smtp-key",
+    "FromEmail": "no-reply@yourdomain.com",
+    "FromName": "WorkVault"
   }
 }
 ```
+
+> `AppSettings:FrontendUrl` is used to build the email links — admin confirmation reopens the signup wizard (`{FrontendUrl}/register/{token}`), while employee invites use `{FrontendUrl}/set-password?token=…`. Emails are published to **RabbitMQ** and delivered by a background consumer via **SMTP**, so a running RabbitMQ broker is required for registration/invite emails. Spin one up locally with:
+>
+> ```bash
+> docker run -d --name workvault-mq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+> ```
 
 ### 4️⃣ Migrate & Run
 
@@ -255,10 +293,16 @@ http://localhost:5080/swagger
 
 | Method | Endpoint | Description |
 |:---:|---|---|
-| POST | `/api/auth/register` | Register new company + admin user |
+| POST | `/api/auth/register` | Register new company + admin (no password — sends a confirmation email) |
 | POST | `/api/auth/login` | Login with email & password |
 | GET | `/api/auth/me` | Current user's profile (account + employee) |
 | POST | `/api/auth/refresh` | Refresh access token |
+| POST | `/api/auth/logout` | Revoke the current refresh token |
+| GET | `/api/auth/invite/{token}` | Validate an invite / confirmation token |
+| POST | `/api/auth/set-password` | Set password from the email link (activates account + auto-login) |
+| POST | `/api/auth/resend-confirmation` | Resend the confirmation email to an unactivated admin |
+| POST | `/api/auth/forgot-password` | Request a password-reset link |
+| POST | `/api/auth/reset-password` | Complete a password reset with a token |
 
 ### Companies (`/api/companies`)
 
@@ -270,6 +314,11 @@ http://localhost:5080/swagger
 <details>
 <summary><b>Example: Register Company + Admin</b></summary>
 
+Registration collects **no password**. The admin is created inactive and emailed a
+confirmation link (`/register/{token}`, 48h expiry) that reopens the signup wizard at
+the "Setup password" step; setting a password activates the account and logs them in.
+One email can own only one company.
+
 ```bash
 POST /api/auth/register
 ```
@@ -279,18 +328,41 @@ POST /api/auth/register
   "companyName": "WorkVault",
   "domain": "workvault.com",
   "industry": "Technology",
-  "timezone": "Asia/Kolkata",
   "gstNumber": "22AAAAA0000A1Z5",
   "firstName": "John",
   "lastName": "Doe",
-  "email": "john@workvault.com",
+  "email": "john@workvault.com"
+}
+```
+
+**Response** — no tokens; the confirmation email carries the next step:
+```json
+{
+  "companyId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "userId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "email": "john@workvault.com"
+}
+```
+</details>
+
+<details>
+<summary><b>Example: Set Password (accept the emailed confirmation link)</b></summary>
+
+```bash
+POST /api/auth/set-password
+```
+
+```json
+{
+  "token": "0f8fad5b-d9cb-469f-a165-70867728950e",
   "password": "SecureP@ss123"
 }
 ```
 
-**Response:**
+**Response** — account activated, tokens issued (auto-login):
 ```json
 {
+  "userId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
   "companyId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
   "accessToken": "eyJhbGciOiJIUzI1NiIs...",
   "refreshToken": "dGhpcyBpcyBhIHJlZnJlc2..."
@@ -359,12 +431,16 @@ POST /api/auth/refresh
 - [x] JWT token generation service
 - [x] Refresh token rotation flow
 - [x] Register / Login / Refresh endpoints
+- [x] Email messaging pipeline (RabbitMQ publisher + SMTP consumer)
+- [x] Email-confirmed registration — no password at signup, invite/set-password link, one-company-per-email
+- [x] Multi-step signup wizard (componentised steps) + resend-confirmation for unactivated admins
 - [x] `CompanyId` global query filter (tenant isolation)
 - [x] Employee / Department / Designation CRUD + invite flow
 - [x] Employee soft-delete (pending invites only), role assignment, dept-scoped designation/manager dropdowns
 - [x] `GET /api/auth/me` + My Profile page; unified employee view (edit gated to HR/CompanyAdmin)
 - [x] Role model: assignable roles, only-admin-grants-admin, no self-demote, route + API role guards
-- [x] Dashboard redesign (KPIs, headcount chart, workforce pulse) + refreshed team/department/designation UI
+- [x] Date of birth (nullable) + dashboard birthday / work-anniversary greetings
+- [x] Full UI redesign — dashboard (KPIs, headcount chart, pulse), employees, team, departments, designations, profile
 - [x] Angular frontend — auth, dashboard, employees, departments, designations, profile
 - [x] Integration tests (Testcontainers) proving tenant isolation
 - [x] CI/CD (GitHub Actions) + live deploy on Render

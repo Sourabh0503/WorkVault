@@ -181,7 +181,7 @@
             </div>
             <div class="field">
               <label for="dateOfBirth">Date of birth</label>
-              <input id="dateOfBirth" type="date" formControlName="dateOfBirth" />
+              <input id="dateOfBirth" type="date" formControlName="dateOfBirth" [max]="todayStr" />
             </div>
           </div>
 

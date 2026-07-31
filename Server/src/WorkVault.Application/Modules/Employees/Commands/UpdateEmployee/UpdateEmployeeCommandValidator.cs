@@ -36,6 +36,11 @@ public class UpdateEmployeeCommandValidator : AbstractValidator<UpdateEmployeeCo
             .When(x => !string.IsNullOrWhiteSpace(x.PhotoUrl))
             .WithMessage("Photo URL must be a valid URL.");
 
+        RuleFor(x => x.DateOfBirth)
+            .LessThan(DateOnly.FromDateTime(DateTime.UtcNow))
+            .When(x => x.DateOfBirth.HasValue)
+            .WithMessage("Date of birth must be in the past.");
+
         RuleFor(x => x.JoinDate)
             .NotEmpty().WithMessage("Join date is required.");
 

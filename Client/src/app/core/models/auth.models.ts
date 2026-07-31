@@ -25,12 +25,12 @@ export interface LoginResponse {
 
 /**
  * POST /api/auth/register — request body
- * Matches RegisterCommand.cs
+ * Matches RegisterCommand.cs. No password — the admin sets it via the emailed
+ * invite link (same set-password flow as employees).
  */
 export interface RegisterRequest {
   companyName: string;
   email: string;
-  password: string;
   firstName: string;
   lastName: string;
   domain?: string;
@@ -40,12 +40,13 @@ export interface RegisterRequest {
 
 /**
  * POST /api/auth/register — successful response
+ * Matches RegisterResponse.cs. No tokens — the admin activates and logs in
+ * by following the emailed set-password link.
  */
 export interface RegisterResponse {
   companyId: string;
   userId: string;
-  accessToken: string;
-  refreshToken: string;
+  email: string;
 }
 
 /**

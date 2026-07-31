@@ -1,144 +1,90 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()" class="register-form">
-  <div class="header">
-    <div class="progress">
-      <span class="dash active"></span>
-      <span class="dash"></span>
-      <span class="dash"></span>
-      <span class="dash"></span>
-      <span class="dash"></span>
-    </div>
-    <h1>Create your workspace</h1>
-    <p class="subtitle">Step 1 of 5 — Company & admin details</p>
-  </div>
-
-  <!-- General error banner -->
-  @if (errorMessage()) {
-    <div class="error-banner">{{ errorMessage() }}</div>
-  }
-
-  <!-- Company info -->
-  <div class="section">
-    <div class="section-label">Company</div>
-
-    <div class="field">
-      <label for="companyName">Company name</label>
-      <input
-        id="companyName"
-        type="text"
-        formControlName="companyName"
-        placeholder="WorkVault Pvt Ltd"
-        autocomplete="organization"
-      />
-      @if (form.controls.companyName.touched && form.controls.companyName.errors?.['required']) {
-        <div class="field-error">Company name is required.</div>
-      }
-      @for (msg of fieldErrors()['CompanyName']; track msg) {
-        <div class="field-error">{{ msg }}</div>
-      }
-    </div>
-
-    <div class="field">
-      <label for="industry">Industry <span class="optional">(optional)</span></label>
-      <select id="industry" formControlName="industry">
-        <option value="">Select an industry</option>
-        @for (option of industries; track option) {
-          <option [value]="option">{{ option }}</option>
-        }
-      </select>
+@if (emailSent()) {
+  <!-- Confirmation: invite email sent, account not yet active -->
+  <div class="confirm-panel">
+    <div class="confirm-icon">✉️</div>
+    <h1>Check your email</h1>
+    <p class="subtitle">
+      We've sent a confirmation link to
+      <strong>{{ sentToEmail() }}</strong>.
+    </p>
+    <p class="confirm-hint">
+      Open it and set a password to activate your admin account and sign in.
+      The link expires in 48 hours.
+    </p>
+    <div class="alt-action">
+      Already confirmed?
+      <a routerLink="/login">Sign in</a>
     </div>
   </div>
-
-  <!-- Admin info -->
-  <div class="section">
-    <div class="section-label">Your details (admin account)</div>
-
-    <div class="row-2">
-      <div class="field">
-        <label for="firstName">First name</label>
-        <input
-          id="firstName"
-          type="text"
-          formControlName="firstName"
-          autocomplete="given-name"
-        />
-        @if (form.controls.firstName.touched && form.controls.firstName.errors?.['required']) {
-          <div class="field-error">Required.</div>
+} @else if (validatingToken()) {
+  <!-- Confirmation link — validating the token -->
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>Validating your link…</p>
+  </div>
+} @else if (invalidToken()) {
+  <!-- Confirmation link invalid / expired / used -->
+  <div class="confirm-panel">
+    <div class="confirm-icon">⚠️</div>
+    <h1>Link invalid</h1>
+    <p class="subtitle">
+      This confirmation link has expired, been used, or doesn't exist.
+    </p>
+    <p class="confirm-hint">
+      Try signing in — you can resend a fresh confirmation link from there.
+    </p>
+    <a routerLink="/login" class="alt-action-btn">Go to sign in</a>
+  </div>
+} @else {
+  <div class="register-wizard">
+    <div class="header">
+      <div class="progress">
+        @for (step of steps; track step.label; let i = $index) {
+          <span
+            class="dash"
+            [class.active]="i + 1 === currentStep()"
+            [class.done]="i + 1 < currentStep()"
+            [class.upcoming]="!step.available"
+          ></span>
         }
       </div>
-
-      <div class="field">
-        <label for="lastName">Last name</label>
-        <input
-          id="lastName"
-          type="text"
-          formControlName="lastName"
-          autocomplete="family-name"
-        />
-        @if (form.controls.lastName.touched && form.controls.lastName.errors?.['required']) {
-          <div class="field-error">Required.</div>
-        }
-      </div>
+      <h1>Create your workspace</h1>
+      <p class="subtitle">Step {{ currentStep() }} of {{ totalSteps }} — {{ activeStep().label }}</p>
     </div>
 
-    <div class="field">
-      <label for="email">Work email</label>
-      <input
-        id="email"
-        type="email"
-        formControlName="email"
-        placeholder="you@company.com"
-        autocomplete="email"
-      />
-      @if (form.controls.email.touched && form.controls.email.invalid) {
-        <div class="field-error">
-          @if (form.controls.email.errors?.['required']) {
-            Email is required.
-          } @else if (form.controls.email.errors?.['email']) {
-            Please enter a valid email.
-          }
-        </div>
-      }
-      @for (msg of fieldErrors()['Email']; track msg) {
-        <div class="field-error">{{ msg }}</div>
-      }
-    </div>
+    <!-- General error banner -->
+    @if (errorMessage()) {
+      <div class="error-banner">{{ errorMessage() }}</div>
+    }
 
-    <div class="field">
-      <label for="password">Password</label>
-      <div class="password-wrapper">
-        <input
-          id="password"
-          [type]="showPassword() ? 'text' : 'password'"
-          formControlName="password"
-          autocomplete="new-password"
-        />
-        <button type="button" class="eye-btn" (click)="togglePassword()" tabindex="-1">
-          <img [src]="showPassword() ? 'assets/eye-closed.svg' : 'assets/eye-open.svg'" alt="Toggle password visibility">
+    <!-- Active step -->
+    @switch (currentStep()) {
+      @case (1) {
+        <app-step-company [form]="form" [fieldErrors]="fieldErrors()" />
+      }
+      @case (2) {
+        <app-step-auth [form]="form" [fieldErrors]="fieldErrors()" />
+      }
+      @case (3) {
+        <app-step-password [form]="form" [invite]="invite()" />
+      }
+    }
+
+    <!-- Navigation -->
+    <div class="wizard-nav">
+      @if (canGoBack()) {
+        <button type="button" class="btn-secondary" (click)="back()" [disabled]="isSubmitting()">
+          ← Back
         </button>
-      </div>
-      @if (form.controls.password.touched && form.controls.password.invalid) {
-        <div class="field-error">
-          @if (form.controls.password.errors?.['required']) {
-            Password is required.
-          } @else if (form.controls.password.errors?.['minlength']) {
-            At least 8 characters.
-          } @else if (form.controls.password.errors?.['pattern']) {
-            Must include upper, lower, digit, and special character.
-          }
-        </div>
       }
-      @for (msg of fieldErrors()['Password']; track msg) {
-        <div class="field-error">{{ msg }}</div>
-      }
+      <button type="button" class="submit-btn" (click)="next()" [disabled]="isSubmitting()">
+        {{ primaryLabel() }}
+      </button>
+    </div>
+
+    <div class="alt-action">
+      Already have an account?
+      <a routerLink="/login">Sign in</a>
     </div>
   </div>
-
-  <button type="submit" class="submit-btn" [disabled]="isSubmitting()">
-    {{ isSubmitting() ? 'Creating workspace...' : 'Create workspace →' }}
-  </button>
-
-  <div class="alt-action">
-    Already have an account?
-    <a routerLink="/login">Sign in</a>
-  </div>
-</form>
+}

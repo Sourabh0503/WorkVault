@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using WorkVault.Application.Common.Exceptions;
 using WorkVault.Application.Common.Interfaces;
+using WorkVault.Application.Common.Messaging;
 using WorkVault.Domain.Modules.Employees;
 using WorkVault.Domain.Modules.Employees.Enums;
 using WorkVault.Domain.Modules.Employees.Interfaces;
@@ -37,7 +38,9 @@ public class CreateEmployeeHandler(
     IDepartmentRepository departmentRepository,
     IDesignationRepository designationRepository,
     IInviteTokenRepository inviteTokenRepository,
+    ICompanyRepository companyRepository,
     ICurrentUserService currentUserService,
+    IEmailPublisher emailPublisher,
     IConfiguration configuration,
     IUnitOfWork unitOfWork,
     ILogger<CreateEmployeeHandler> logger)
@@ -50,6 +53,10 @@ public class CreateEmployeeHandler(
         // 1. Check current user company
         var companyId = currentUserService.CompanyId
                         ?? throw new InvalidOperationException("No company context.");
+        
+        var company = await companyRepository.GetByIdAsync(companyId, cancellationToken);
+        if (company == null)
+            throw new ApplicationException("Company not found.");
 
         // Only a company admin can grant the CompanyAdmin role (HR can't mint admins).
         if (request.RoleId == SystemRoles.CompanyAdmin
@@ -64,11 +71,13 @@ public class CreateEmployeeHandler(
 
         // 3. Validate FK references belong to same tenant
         // Repository queries apply CompanyId filter, so cross-tenant IDs return null
+        string? departmentName = null;
         if (request.DepartmentId.HasValue)
         {
             var dept = await departmentRepository.GetByIdAsync(request.DepartmentId.Value, cancellationToken);
             if (dept is null)
                 throw new NotFoundException($"Department with ID '{request.DepartmentId}' not found.");
+            departmentName = dept.Name;
         }
 
         if (request.DesignationId.HasValue)
@@ -128,12 +137,29 @@ public class CreateEmployeeHandler(
         // 8. Single SaveChanges — all 3 inserts in one transaction
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // 9. Stub the email — log the link to console for now
+        // 9. Send the invite email — name the inviter when we can resolve them.
+        var inviter = currentUserService.UserId is { } inviterId
+            ? await userRepository.GetByIdAsync(inviterId, cancellationToken)
+            : null;
+        var inviterName = inviter is null
+            ? null
+            : $"{inviter.FirstName} {inviter.LastName}".Trim();
+
         var frontendUrl = configuration["AppSettings:FrontendUrl"];
         var inviteLink = $"{frontendUrl}/set-password?token={inviteToken.Token}";
-        logger.LogInformation(
-            "Invite created for {Email}. Link: {InviteLink}",
-            user.Email, inviteLink);
+        await emailPublisher.PublishAsync(new EmailMessage(
+            To: user.Email,
+            Subject: $"You're invited to join {company.Name} on WorkVault",
+            Body: EmailTemplate.Invite(
+                companyName: company.Name,
+                roleName: (SystemRoles.FromId(request.RoleId)?.ToString()) ?? "Employee",
+                department: departmentName,
+                employeeCode: employeeCode,
+                ctaUrl: inviteLink,
+                expiryText: "This invitation expires in 48 hours. You'll set your password after accepting.",
+                inviterName: inviterName),
+            Type: EmailType.Invite
+        ), cancellationToken);
 
         // 10. Return result
         return new CreateEmployeeResult(

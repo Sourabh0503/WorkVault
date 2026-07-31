@@ -1,0 +1,30 @@
+<div class="section" [formGroup]="form">
+  <div class="section-label">Company</div>
+
+  <div class="field">
+    <label for="companyName">Company name</label>
+    <input
+      id="companyName"
+      type="text"
+      formControlName="companyName"
+      placeholder="WorkVault Pvt Ltd"
+      autocomplete="organization"
+    />
+    @if (form.get('companyName')?.touched && form.get('companyName')?.errors?.['required']) {
+      <div class="field-error">Company name is required.</div>
+    }
+    @for (msg of fieldErrors['CompanyName']; track msg) {
+      <div class="field-error">{{ msg }}</div>
+    }
+  </div>
+
+  <div class="field">
+    <label for="industry">Industry <span class="optional">(optional)</span></label>
+    <select id="industry" formControlName="industry">
+      <option value="">Select an industry</option>
+      @for (option of industries; track option) {
+        <option [value]="option">{{ option }}</option>
+      }
+    </select>
+  </div>
+</div>

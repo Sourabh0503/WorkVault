@@ -23,6 +23,11 @@
 
   <!-- Right form column -->
   <main class="form-column">
+    <!-- Shown only on small screens, where the brand panel is hidden -->
+    <a routerLink="/" class="mobile-logo">
+      <app-logo variant="full" tagline [height]="40" />
+    </a>
+
     <router-outlet />
   </main>
 </div>

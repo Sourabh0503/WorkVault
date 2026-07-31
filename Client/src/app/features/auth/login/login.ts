@@ -26,6 +26,12 @@ export class Login {
   errorMessage = signal<string | null>(null);
   showPassword = signal(false);
 
+  // Set when login fails because the account (a self-registered admin) isn't
+  // activated yet — we then offer to resend the confirmation link.
+  notActivated = signal(false);
+  // 'idle' | 'sending' | 'sent' — drives the resend button state.
+  resendState = signal<'idle' | 'sending' | 'sent'>('idle');
+
   togglePassword(): void {
     this.showPassword.update(v => !v);
   }
@@ -37,8 +43,10 @@ export class Login {
   });
 
   onSubmit(): void {
-    // Clear any previous error
+    // Clear any previous error / resend state
     this.errorMessage.set(null);
+    this.notActivated.set(false);
+    this.resendState.set('idle');
 
     // Trigger validation display
     if (this.form.invalid) {
@@ -57,11 +65,32 @@ export class Login {
         this.isSubmitting.set(false);
         const apiError = err.error as ApiError;
 
-        // Prefer the backend's title, fall back to generic message
+        // Unactivated admin — offer to resend the confirmation link instead of
+        // pretending it's a wrong password.
+        if (err.status === 403 && apiError?.type === 'AccountNotActivated') {
+          this.notActivated.set(true);
+          this.errorMessage.set(apiError.title);
+          return;
+        }
+
+        // Everything else: generic message, don't reveal account state.
         this.errorMessage.set(
           apiError?.title || 'Login failed. Check your email and password.'
         );
       }
+    });
+  }
+
+  /** Resend the account-confirmation email to the address in the form. */
+  resendConfirmation(): void {
+    const email = this.form.controls.email.value;
+    if (!email || this.resendState() === 'sending') return;
+
+    this.resendState.set('sending');
+    this.authService.resendConfirmation(email).subscribe({
+      // Always resolves (server returns 204 regardless) — show a sent state either way.
+      next: () => this.resendState.set('sent'),
+      error: () => this.resendState.set('sent')
     });
   }
 }

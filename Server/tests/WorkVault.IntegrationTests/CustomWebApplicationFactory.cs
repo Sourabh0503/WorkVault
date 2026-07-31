@@ -3,7 +3,11 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Testcontainers.PostgreSql;
+using WorkVault.Application.Common.Interfaces;
+using WorkVault.Application.Common.Messaging;
+using WorkVault.Infrastructure.Messaging;
 using WorkVault.Infrastructure.Persistence;
 
 namespace WorkVault.IntegrationTests;
@@ -72,7 +76,29 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             {
                 options.UseNpgsql(_dbContainer.GetConnectionString());
             });
+
+            // Tests must be hermetic — no real RabbitMQ/SMTP. Drop the background
+            // email consumer and swap the publisher for a no-op, so registering /
+            // inviting doesn't open a broker connection or send real emails.
+            var emailConsumers = services
+                .Where(d => d.ServiceType == typeof(IHostedService)
+                            && d.ImplementationType == typeof(EmailConsumerService))
+                .ToList();
+            foreach (var descriptor in emailConsumers)
+                services.Remove(descriptor);
+
+            var publisher = services.SingleOrDefault(d => d.ServiceType == typeof(IEmailPublisher));
+            if (publisher != null)
+                services.Remove(publisher);
+            services.AddSingleton<IEmailPublisher, NoOpEmailPublisher>();
         });
+    }
+
+    /// <summary>No-op email publisher so integration tests never touch RabbitMQ/SMTP.</summary>
+    private sealed class NoOpEmailPublisher : IEmailPublisher
+    {
+        public Task PublishAsync(EmailMessage message, CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
     }
 
     public new async Task DisposeAsync()

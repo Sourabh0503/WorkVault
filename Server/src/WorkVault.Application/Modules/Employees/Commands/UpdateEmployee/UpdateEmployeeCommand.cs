@@ -38,4 +38,5 @@ public record UpdateEmployeeCommand : IRequest<UpdateEmployeeResult>
     public EmployeeStatus Status { get; init; }
 }
 
+/// <summary>Result of an employee update: the employee's id and code.</summary>
 public record UpdateEmployeeResult(Guid Id, string EmployeeCode);

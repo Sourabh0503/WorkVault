@@ -1,5 +1,8 @@
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using WorkVault.Application.Common.Interfaces;
+using WorkVault.Application.Common.Messaging;
 using WorkVault.Domain.Modules.Identity;
 using WorkVault.Domain.Modules.Identity.Interfaces;
 using WorkVault.SharedKernel.Interfaces;
@@ -21,6 +24,8 @@ namespace WorkVault.Application.Modules.Identity.Commands.ForgotPassword;
 public class ForgotPasswordHandler(
     IUserRepository userRepository,
     IPasswordResetTokenRepository resetTokenRepository,
+    IEmailPublisher emailPublisher,
+    IConfiguration configuration,
     IUnitOfWork unitOfWork,
     ILogger<ForgotPasswordHandler> logger)
     : IRequestHandler<ForgotPasswordCommand>
@@ -61,10 +66,18 @@ public class ForgotPasswordHandler(
         // 5. Save changes
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // 6. Log the link (real email later)
-        var resetLink = $"http://localhost:4200/reset-password?token={newToken.Token}";
-        logger.LogInformation(
-            "Password reset link generated for {Email}. Link: {ResetLink}",
-            user.Email, resetLink);
+        // 6. send the link
+        var frontendUrl = configuration["AppSettings:FrontendUrl"];
+        var resetLink = $"{frontendUrl}/reset-password?token={newToken.Token}";
+        await emailPublisher.PublishAsync(new EmailMessage(
+            To: user.Email,
+            Subject: "Reset your WorkVault password",
+            Body: EmailTemplate.PasswordReset(
+                firstName: user.FirstName,
+                email: user.Email,
+                ctaUrl: resetLink,
+                expiryText: "This link expires in 2 hours and can be used once."),
+            Type: EmailType.PasswordReset
+        ), cancellationToken);
     }
 }

@@ -40,3 +40,11 @@ public class ConflictException(string message) : AppException(message);
 /// Maps to HTTP 400 Bad Request.
 /// </summary>
 public class BusinessRuleException(string message) : AppException(message);
+
+/// <summary>
+/// Thrown when a user tries to log in with an account that exists but hasn't
+/// been activated yet (registered admin who never set a password).
+/// Maps to HTTP 403 Forbidden with type "AccountNotActivated" so the login page
+/// can offer a "resend confirmation" action.
+/// </summary>
+public class AccountNotActivatedException(string message) : AppException(message);

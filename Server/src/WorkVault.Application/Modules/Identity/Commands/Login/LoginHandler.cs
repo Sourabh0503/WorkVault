@@ -1,9 +1,11 @@
 using MediatR;
 using Microsoft.Extensions.Options;
+using WorkVault.Application.Common.Exceptions;
 using WorkVault.Application.Common.Interfaces;
 using WorkVault.Application.Common.Settings;
 using WorkVault.Domain.Modules.Identity;
 using WorkVault.Domain.Modules.Identity.Interfaces;
+using WorkVault.SharedKernel.Constants;
 using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Identity.Commands.Login;
@@ -37,8 +39,22 @@ public class LoginHandler(
     {
         var user = await userRepository.GetByEmailAsync(request.Email, cancellationToken);
 
-        if (user is null || !user.IsActive)
+        // Unknown email → generic failure (don't reveal whether the email exists).
+        if (user is null)
             return null;
+
+        // Registered but not activated. A self-registered company admin has no one
+        // to resend their invite, so we surface a distinct signal that lets the
+        // login page offer a "resend confirmation" action. Invited employees fall
+        // through to the generic failure — HR resends their invite for them.
+        if (!user.IsActive)
+        {
+            if (user.RoleId == SystemRoles.CompanyAdmin)
+                throw new AccountNotActivatedException(
+                    "Your account isn't activated yet. Please confirm your email to continue.");
+
+            return null;
+        }
 
         if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             return null;

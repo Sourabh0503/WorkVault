@@ -1,9 +1,8 @@
 using MediatR;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 using WorkVault.Application.Common.Exceptions;
 using WorkVault.Application.Common.Interfaces;
-using WorkVault.Application.Common.Settings;
-using WorkVault.Application.Modules.Identity.Commands.RegisterCompany;
+using WorkVault.Application.Common.Messaging;
 using WorkVault.Domain.Modules.Employees;
 using WorkVault.Domain.Modules.Employees.Enums;
 using WorkVault.Domain.Modules.Employees.Interfaces;
@@ -16,23 +15,35 @@ namespace WorkVault.Application.Modules.Identity.Commands.Register;
 
 /// <summary>
 /// Handles company registration with admin user creation.
-/// The admin is also created as an Employee record so they appear
-/// in the employee directory with sensible defaults.
 /// </summary>
+/// <remarks>
+/// Registration is now invite-based (mirrors the employee onboarding flow):
+/// 1. Enforce one company per email — reject if the email is already in use.
+/// 2. Create the Company (tenant).
+/// 3. Create the admin User with no password (IsActive = false).
+/// 4. Create an Employee record for the admin (Status = Pending).
+/// 5. Create an InviteToken (48h expiry).
+/// 6. Save everything in a single transaction.
+/// 7. Publish the invite email with the set-password link.
+///
+/// The admin activates and logs in by following the emailed link
+/// (handled by <c>SetPasswordHandler</c>) — no tokens are issued here.
+/// </remarks>
 public class RegisterHandler(
     ICompanyRepository companyRepository,
     IUserRepository userRepository,
     IEmployeeRepository employeeRepository,
-    IUnitOfWork unitOfWork,
-    IJwtTokenService jwtTokenService,
-    IRefreshTokenRepository refreshTokenRepository,
-    IOptions<JwtSettings> jwtSettings)
+    IInviteTokenRepository inviteTokenRepository,
+    IEmailPublisher emailPublisher,
+    IConfiguration configuration,
+    IUnitOfWork unitOfWork)
     : IRequestHandler<RegisterCommand, RegisterResponse>
 {
     public async Task<RegisterResponse> Handle(
         RegisterCommand request,
         CancellationToken cancellationToken)
     {
+        // 1. One company per email — an admin can own only one company.
         var existingUser = await userRepository.GetByEmailAsync(request.Email, cancellationToken);
         if (existingUser != null)
             throw new ConflictException("User already exists with this email.");
@@ -49,24 +60,25 @@ public class RegisterHandler(
         await companyRepository.AddAsync(company, cancellationToken);
         var companyGuid = company.Id;
 
-        // ---- Create the admin User ----
+        // ---- Create the admin User — no password, inactive until invite accepted ----
         var user = new User
         {
             CompanyId = companyGuid,
             FirstName = request.FirstName,
             LastName = request.LastName,
             Email = request.Email,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            PasswordHash = string.Empty,   // set later via the invite/set-password flow
+            IsActive = false,              // activated when password is set
             RoleId = SystemRoles.CompanyAdmin
         };
         await userRepository.AddAsync(user, cancellationToken);
 
         // ---- Also create an Employee record for the admin ----
         // They're a real person at the company — should appear in the directory.
-        // Sparse by default: no department/designation/manager yet. They can
-        // fill those in later via the employee edit page.
+        // Sparse by default: no department/designation/manager yet. Pending until
+        // they accept the invite (SetPasswordHandler flips this to Active).
         var year = DateTime.UtcNow.Year;
-        var countSoFar = await employeeRepository.GetCountForYearAsync(user.CompanyId,year, cancellationToken);
+        var countSoFar = await employeeRepository.GetCountForYearAsync(user.CompanyId, year, cancellationToken);
         var employeeCode = $"EMP-{year}-{(countSoFar + 1):D4}";
 
         var employee = new Employee
@@ -75,25 +87,37 @@ public class RegisterHandler(
             UserId = user.Id,
             EmployeeCode = employeeCode,
             JoinDate = DateOnly.FromDateTime(DateTime.UtcNow),
-            Status = EmployeeStatus.Active   // admin is already active, no invite needed
+            Status = EmployeeStatus.Pending   // activated when the invite is accepted
         };
         await employeeRepository.AddAsync(employee, cancellationToken);
 
-        // ---- Tokens ----
-        var accessToken = jwtTokenService.GenerateAccessToken(user, SystemRoles.CompanyAdminRole);
-        var refreshTokenString = jwtTokenService.GenerateRefreshToken();
-
-        var refreshToken = new RefreshToken
+        // ---- Invite token (48h expiry from entity defaults) ----
+        var inviteToken = new InviteToken
         {
-            UserId = user.Id,
-            Token = refreshTokenString,
-            ExpiresAt = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpirationDays)
+            UserId = user.Id
+            // Token and ExpiresAt have defaults on the entity
         };
-        await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+        await inviteTokenRepository.AddAsync(inviteToken, cancellationToken);
 
         // ---- Single atomic save ----
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new RegisterResponse(companyGuid, user.Id, accessToken, refreshTokenString);
+        // ---- Send the confirmation email with the set-password link ----
+        // Points back into the registration wizard (step 3), not the employee
+        // invite page — the admin finishes signup where they started.
+        var frontendUrl = configuration["AppSettings:FrontendUrl"];
+        var inviteLink = $"{frontendUrl}/register/{inviteToken.Token}";
+        await emailPublisher.PublishAsync(new EmailMessage(
+            To: user.Email,
+            Subject: $"Verify your email to activate {company.Name} on WorkVault",
+            Body: EmailTemplate.VerifyEmail(
+                firstName: user.FirstName,
+                companyName: company.Name,
+                ctaUrl: inviteLink,
+                expiryText: "This link expires in 48 hours. If you didn't create this account, you can safely ignore this email."),
+            Type: EmailType.Registration
+        ), cancellationToken);
+
+        return new RegisterResponse(companyGuid, user.Id, user.Email);
     }
 }

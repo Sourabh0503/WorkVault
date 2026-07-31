@@ -26,7 +26,14 @@ public record EmployeeDto(
     DateTime CreatedAt
 );
 
+/// <summary>The employee's department (id + name).</summary>
 public record DepartmentInfo(Guid Id, string Name);
+
+/// <summary>The employee's designation (id, title, seniority level).</summary>
 public record DesignationInfo(Guid Id, string Title, int Level);
+
+/// <summary>The employee's reporting manager (id, code, name).</summary>
 public record ManagerInfo(Guid Id, string EmployeeCode, string FullName);
+
+/// <summary>The employee's access role (id + name).</summary>
 public record RoleInfo(Guid Id, string Name);

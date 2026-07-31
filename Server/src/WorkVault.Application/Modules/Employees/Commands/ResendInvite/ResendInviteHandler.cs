@@ -2,10 +2,13 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using WorkVault.Application.Common.Exceptions;
+using WorkVault.Application.Common.Interfaces;
+using WorkVault.Application.Common.Messaging;
 using WorkVault.Domain.Modules.Employees.Enums;
 using WorkVault.Domain.Modules.Employees.Interfaces;
 using WorkVault.Domain.Modules.Identity;
 using WorkVault.Domain.Modules.Identity.Interfaces;
+using WorkVault.SharedKernel.Constants;
 using WorkVault.SharedKernel.Interfaces;
 
 namespace WorkVault.Application.Modules.Employees.Commands.ResendInvite;
@@ -25,6 +28,8 @@ namespace WorkVault.Application.Modules.Employees.Commands.ResendInvite;
 public class ResendInviteHandler(
     IEmployeeRepository employeeRepository,
     IInviteTokenRepository inviteTokenRepository,
+    ICompanyRepository companyRepository,
+    IEmailPublisher emailPublisher,
     IUnitOfWork unitOfWork,
     IConfiguration configuration,
     ILogger<ResendInviteHandler> logger)
@@ -65,12 +70,22 @@ public class ResendInviteHandler(
         // 5. Save — both updates and new insert in one transaction
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // 6. Log link (later: send real email)
+        // 6. send link
+        var company = await companyRepository.GetByIdAsync(employee.User.CompanyId, cancellationToken);
         var frontendUrl = configuration["AppSettings:FrontendUrl"];
         var inviteLink = $"{frontendUrl}/set-password?token={newInviteToken.Token}";
-        logger.LogInformation(
-            "Invite resent for {Email}. Link: {InviteLink}",
-            employee.User.Email, inviteLink);
+        await emailPublisher.PublishAsync(new EmailMessage(
+            To: employee.User.Email,
+            Subject: $"You're invited to join {company?.Name ?? "WorkVault"} on WorkVault",
+            Body: EmailTemplate.Invite(
+                companyName: company?.Name ?? "WorkVault",
+                roleName: (SystemRoles.FromId(employee.User.RoleId)?.ToString()) ?? "Employee",
+                department: null,
+                employeeCode: employee.EmployeeCode,
+                ctaUrl: inviteLink,
+                expiryText: "This invitation expires in 48 hours. You'll set your password after accepting."),
+            Type: EmailType.Invite
+        ), cancellationToken);
 
         return new ResendInviteResult(
             EmployeeId: employee.Id,

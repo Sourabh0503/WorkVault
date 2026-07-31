@@ -171,6 +171,10 @@ namespace WorkVault.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
+                    b.HasIndex("EmployeeCode", "CompanyId")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
+
                     b.ToTable("Employees");
                 });
 
@@ -471,7 +475,8 @@ namespace WorkVault.Infrastructure.Persistence.Migrations
                     b.HasIndex("RoleId");
 
                     b.HasIndex("Email", "CompanyId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("Users");
                 });
