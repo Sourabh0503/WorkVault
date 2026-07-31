@@ -5,6 +5,12 @@
     <ProjectReference Include="..\WorkVault.Domain\WorkVault.Domain.csproj" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <!-- Brand mark embedded so emails can inline it (cid:) without depending on the client/CDN. -->
+    <EmbeddedResource Include="Messaging\Assets\workvault-mark.png" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />

@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://workvault-api.onrender.com/api'
+  apiUrl: 'https://api.workvault.co.in/api'
 };

@@ -144,27 +144,25 @@ public static class EmailTemplate
     }
 
     /// <summary>
-    /// The WorkVault brand mark — the exact vector from
-    /// <c>Client/public/assets/workvault-mark-light.svg</c>, inlined.
-    /// Note: some clients (Gmail, Outlook) strip inline SVG.
+    /// The WorkVault brand mark + wordmark. The mark is referenced as an inline
+    /// <c>cid:</c> attachment that the SMTP sender embeds (see <c>EmailAssets.LogoContentId</c>),
+    /// so it renders in Gmail/Outlook with no external URL. The wordmark text shows even
+    /// if images are blocked.
     /// </summary>
     private const string LogoMark =
         """
         <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
           <td valign="middle" style="line-height:0;font-size:0;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 52 52" role="img" aria-label="WorkVault">
-              <rect x="2" y="2" width="48" height="48" rx="13" fill="#059669"></rect>
-              <rect x="13" y="13" width="26" height="26" rx="6" fill="none" stroke="#FFFFFF" stroke-width="3.5"></rect>
-              <rect x="21" y="21" width="18" height="18" rx="4.5" fill="#FFFFFF"></rect>
-            </svg>
+            <img src="cid:workvault-logo" width="34" height="34" alt="WorkVault" style="display:block;border:0;outline:none;text-decoration:none;width:34px;height:34px;">
           </td>
           <td valign="middle" style="padding-left:10px;font-family:Arial,Helvetica,sans-serif;font-size:18px;font-weight:bold;letter-spacing:-0.02em;"><span style="color:#04241B;">work</span><span style="color:#059669;">Vault</span></td>
         </tr></table>
         """;
 
     /// <summary>
-    /// Common shell: 90vw × 90vh content column, logo header, dark title band,
-    /// white card (text pinned top, button centered, fallback link pinned bottom), footer.
+    /// Common shell: fixed 600px content column (natural height — no viewport units,
+    /// so it never forces scroll), logo header, dark title band, white card
+    /// (text, button, then fallback link stacked), footer.
     /// </summary>
     private static string Shell(
         string preheader, string kicker, string headingHtml,
@@ -178,9 +176,9 @@ public static class EmailTemplate
         </head>
         <body style="margin:0;padding:0;background-color:#F1F5F4;">
         <span style="display:none;font-size:1px;color:#F1F5F4;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">{Enc(preheader)}</span>
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" height="100%" style="background-color:#F1F5F4;min-height:100vh;">
-        <tr><td align="center" valign="middle" style="padding:5vh 16px;">
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="90%" height="100%" style="width:90vw;max-width:90vw;min-height:90vh;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#F1F5F4;">
+        <tr><td align="center" valign="top" style="padding:24px 16px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:600px;">
           <tr><td style="padding:0 4px 14px;">
             {LogoMark}
           </td></tr>
@@ -190,19 +188,12 @@ public static class EmailTemplate
               <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:bold;color:#FFFFFF;line-height:28px;letter-spacing:-0.02em;">{headingHtml}</td></tr>
             </table>
           </td></tr>
-          <tr><td height="100%" valign="top" bgcolor="#FFFFFF" style="height:100%;background-color:#FFFFFF;border-radius:0 0 16px 16px;padding:26px 30px 24px;">
-            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" height="100%" style="height:100%;">
-              <tr><td valign="top">
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-                  {topBody}
-                </table>
-              </td></tr>
-              <tr><td valign="middle" height="100%" style="height:100%;">
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-                  {ctaBody}
-                </table>
-              </td></tr>
-              <tr><td valign="bottom" style="padding-top:24px;">
+          <tr><td valign="top" bgcolor="#FFFFFF" style="background-color:#FFFFFF;border-radius:0 0 16px 16px;padding:26px 30px 24px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+              {topBody}
+              <tr><td style="font-size:0;line-height:28px;height:28px;">&nbsp;</td></tr>
+              {ctaBody}
+              <tr><td style="padding-top:24px;">
                 {FallbackInner(fallbackUrl)}
               </td></tr>
             </table>

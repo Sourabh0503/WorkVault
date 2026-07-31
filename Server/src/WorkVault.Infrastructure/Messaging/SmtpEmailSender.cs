@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Mail;
+using System.Net.Mime;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using WorkVault.Application.Common.Interfaces;
@@ -32,10 +34,26 @@ public class SmtpEmailSender : IEmailSender
         using var mail = new MailMessage();
         mail.From = new MailAddress(_settings.FromEmail, _settings.FromName);
         mail.Subject = message.Subject;
-        mail.Body = message.Body;
-        mail.IsBodyHtml = true;  // bodies are branded HTML (see EmailTemplate)
         
         mail.To.Add(message.To);
+
+        // Branded HTML body, with the brand mark embedded inline (cid:) so it renders
+        // in Gmail/Outlook without depending on the separately-hosted frontend/CDN.
+        var htmlView = AlternateView.CreateAlternateViewFromString(
+            message.Body, Encoding.UTF8, MediaTypeNames.Text.Html);
+
+        if (EmailAssets.LogoBytes is { } logoBytes
+            && message.Body.Contains($"cid:{EmailAssets.LogoContentId}", StringComparison.Ordinal))
+        {
+            var logo = new LinkedResource(new MemoryStream(logoBytes), MediaTypeNames.Image.Png)
+            {
+                ContentId = EmailAssets.LogoContentId,
+                TransferEncoding = TransferEncoding.Base64
+            };
+            htmlView.LinkedResources.Add(logo);
+        }
+
+        mail.AlternateViews.Add(htmlView);
 
         await client.SendMailAsync(mail, cancellationToken);
 
