@@ -1,11 +1,15 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using WorkVault.Application.Modules.Departments.Commands.CreateDepartment;
 using WorkVault.Application.Modules.Departments.Queries.GetDepartmentById;
 using WorkVault.Application.Modules.Departments.Queries.GetDepartments;
 using WorkVault.Application.Modules.Employees.Commands.CreateEmployee;
 using WorkVault.Application.Modules.Identity.Commands.Register;
+using WorkVault.Application.Modules.Identity.Commands.SetPassword;
+using WorkVault.Infrastructure.Persistence;
 using WorkVault.SharedKernel.Constants;
 using Xunit;
 
@@ -14,9 +18,11 @@ namespace WorkVault.IntegrationTests;
 public class TenantIsolationTests : IClassFixture<CustomWebApplicationFactory>
 {
     private readonly HttpClient _client;
+    private readonly CustomWebApplicationFactory _factory;
 
     public TenantIsolationTests(CustomWebApplicationFactory factory)
     {
+        _factory = factory;
         _client = factory.CreateClient();
     }
 
@@ -116,7 +122,12 @@ public class TenantIsolationTests : IClassFixture<CustomWebApplicationFactory>
 
     // ---- Helper Methods ----
 
-    private async Task<RegisterResponse> RegisterCompanyAsync(string companyName, string domain, string email)
+    /// <summary>
+    /// Registers a company + admin, then completes the invite/set-password step so the
+    /// caller gets an authenticated admin. Registration itself no longer auto-logs-in
+    /// (no password collected), so the access token comes from set-password.
+    /// </summary>
+    private async Task<RegisteredTenant> RegisterCompanyAsync(string companyName, string domain, string email)
     {
         var command = new RegisterCommand(
             CompanyName: companyName,
@@ -125,16 +136,42 @@ public class TenantIsolationTests : IClassFixture<CustomWebApplicationFactory>
             GstNumber: "22AAAAA0000A1Z5",
             FirstName: "Admin",
             LastName: "User",
-            Email: email,
-            Password: "SecureP@ss123!"
+            Email: email
         );
 
         var response = await _client.PostAsJsonAsync("/api/auth/register", command);
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<RegisterResponse>();
-        return result!;
+        var registered = await response.Content.ReadFromJsonAsync<RegisterResponse>();
+        Assert.NotNull(registered);
+
+        // Grab the invite token created for the new admin straight from the DB
+        // (the API doesn't expose it — it's emailed), then set the password to activate.
+        Guid inviteToken;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            inviteToken = await db.InviteTokens
+                .IgnoreQueryFilters()
+                .Where(t => t.UserId == registered!.UserId)
+                .OrderByDescending(t => t.CreatedAt)
+                .Select(t => t.Token)
+                .FirstAsync();
+        }
+
+        var setPasswordResponse = await _client.PostAsJsonAsync(
+            "/api/auth/set-password",
+            new SetPasswordCommand(inviteToken, "SecureP@ss123!"));
+        setPasswordResponse.EnsureSuccessStatusCode();
+
+        var session = await setPasswordResponse.Content.ReadFromJsonAsync<SetPasswordResult>();
+        Assert.NotNull(session);
+
+        return new RegisteredTenant(registered!.CompanyId, registered.UserId, session!.AccessToken);
     }
+
+    /// <summary>An activated admin: tenant identifiers plus a usable access token.</summary>
+    private sealed record RegisteredTenant(Guid CompanyId, Guid UserId, string AccessToken);
 
     private async Task<CreateDepartmentResult> CreateDepartmentAsync(string accessToken, CreateDepartmentCommand command)
     {
