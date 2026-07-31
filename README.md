@@ -41,11 +41,11 @@ Built for Indian SMEs with 50–500 employees. Competing with Keka, DarwinBox & 
 
 | Service | URL |
 |---|---|
-| 🖥️ **App (Angular)** | https://workvault.onrender.com |
-| ⚙️ **API (.NET)** | https://workvault-api.onrender.com |
-| ❤️ **Health check** | https://workvault-api.onrender.com/health |
+| 🖥️ **App (Angular)** | https://workvault.co.in |
+| ⚙️ **API (.NET)** | https://api.workvault.co.in |
+| ❤️ **Health check** | https://api.workvault.co.in/health |
 
-Deployed on **Render** (Docker API + static frontend + managed PostgreSQL). Every push runs the **GitHub Actions** pipeline — build, integration tests (real Postgres via Testcontainers), and a Docker image build — and deploys are **gated behind green tests**.
+Served on a **custom domain — `workvault.co.in`, registered on GoDaddy**. Its DNS maps `workvault.co.in` (app) and `api.workvault.co.in` (API) onto the underlying **Render** deployment (Docker API + static frontend + managed PostgreSQL). Every push runs the **GitHub Actions** pipeline — build, integration tests (real Postgres via Testcontainers), and a Docker image build — and deploys are **gated behind green tests**.
 
 ---
 
@@ -94,7 +94,7 @@ Deployed on **Render** (Docker API + static frontend + managed PostgreSQL). Ever
 | 🏗️ | **Modular Monolith + Clean Architecture** | Scalable without microservice complexity |
 | 📨 | **MediatR (CQRS)** | Separated commands & queries |
 | 🔐 | **JWT + Refresh Tokens + BCrypt** | Stateless, secure authentication |
-| 📧 | **RabbitMQ + SMTP** | Async email delivery — invites, account confirmations, password resets |
+| 📧 | **RabbitMQ + Brevo SMTP** | Async, branded email — invites, account confirmations, password resets |
 | 📦 | **Entity Framework Core 9** | Type-safe ORM with global tenant filters |
 
 <br/>
@@ -133,7 +133,24 @@ Pipeline in `.github/workflows/ci.yml`, runs on every push and PR to `master`:
 | **docker** | Builds the API image (Dockerfile smoke test) |
 | **deploy** | Test-gated — fires Render deploy hooks **only after** the three jobs pass, on `master` pushes |
 
-**Integration tests** ([`Server/tests/WorkVault.IntegrationTests`](Server/tests/WorkVault.IntegrationTests)) spin up a **real PostgreSQL container** via [Testcontainers](https://testcontainers.com/) and prove multi-tenant isolation end to end — Company A cannot read or write Company B's data (404 via global query filters). The app runs EF Core migrations on startup and exposes `/health` for Render's checks.
+**Integration tests** ([`Server/tests/WorkVault.IntegrationTests`](Server/tests/WorkVault.IntegrationTests)) spin up a **real PostgreSQL container** via [Testcontainers](https://testcontainers.com/) and prove multi-tenant isolation end to end — Company A cannot read or write Company B's data (404 via global query filters). Messaging (RabbitMQ/SMTP) is stubbed in the test host so runs are hermetic. The app runs EF Core migrations on startup and exposes `/health` for Render's checks.
+
+<br/>
+
+## 📧 Email
+
+Transactional emails — **admin verification, employee invites, and password resets** — are decoupled and branded:
+
+- **Async delivery** — command handlers publish an `EmailMessage` to **RabbitMQ**; a background `EmailConsumerService` drains the queue and sends via **Brevo SMTP**. The HTTP request never blocks on mail delivery.
+- **Branded HTML** — a shared `EmailTemplate` builds table-based, client-safe HTML (dark header band, kicker, CTA button, info/warning boxes) that renders consistently across **Gmail, Outlook and Apple Mail**. All dynamic values are HTML-encoded.
+- **Inline logo** — the brand mark is **embedded in the message** as a `cid:` attachment (bundled as an embedded resource in the API), so it displays even though Gmail/Outlook strip inline SVG — with **no dependency on the separately-hosted frontend/CDN**.
+- **Sending domain** — mail is sent from **`no-reply@workvault.co.in`**. The domain (registered on **GoDaddy**) has **SPF, DKIM and DMARC** records in its DNS so Brevo can authenticate as the sender and stay out of spam.
+
+| Email | Trigger | Link target |
+|---|---|---|
+| Verify your email | Company registration · resend confirmation | `/register/{token}` (reopens the signup wizard at "Setup password") |
+| You're invited | HR adds an employee · resend invite | `/set-password?token=…` |
+| Reset your password | Forgot-password request | `/reset-password?token=…` |
 
 <br/>
 

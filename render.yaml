@@ -5,14 +5,14 @@
 # build/test/docker jobs pass — see .github/workflows/ci.yml.
 # Docs: https://render.com/docs/blueprint-spec
 #
-# Live URLs:
-#   API    → https://workvault-api.onrender.com   (service "WorkVault-Api")
-#   Client → https://workvault.onrender.com        (service "WorkVault")
+# Live URLs (custom domain on GoDaddy, mapped onto these Render services):
+#   App → https://workvault.co.in       (Render service "WorkVault"     → workvault.onrender.com)
+#   API → https://api.workvault.co.in   (Render service "WorkVault-Api"  → workvault-api.onrender.com)
 #
-# NOTE on names: the static site is named "WorkVault", so its host is
-# workvault.onrender.com (NOT workvault-client). The API's CORS/FrontendUrl
-# and Client/src/environments/environment.prod.ts must stay consistent with
-# these hosts.
+# NOTE: AppSettings__FrontendUrl and CorsSettings__AllowedOrigins below must match the
+# public origin the browser actually uses (workvault.co.in) and stay consistent with
+# Client/src/environments/environment.prod.ts (which calls https://api.workvault.co.in/api).
+# CORS allows the apex + www custom-domain origins; the *.onrender.com origin is disabled.
 
 version: "1"
 
@@ -54,11 +54,31 @@ projects:
                 value: "15"
               - key: JwtSettings__RefreshTokenExpirationDays
                 value: "7"
-              # Full scheme+host of the client; CORS matches Origin exactly.
+              # Full scheme+host of the client; used to build email links and matched
+              # by CORS. Apex + www of the GoDaddy custom domain are allowed.
               - key: AppSettings__FrontendUrl
-                value: https://workvault.onrender.com
+                value: https://workvault.co.in
               - key: CorsSettings__AllowedOrigins__0
-                value: https://workvault.onrender.com
+                value: https://workvault.co.in
+              - key: CorsSettings__AllowedOrigins__1
+                value: https://www.workvault.co.in
+
+              # Async email — RabbitMQ (CloudAMQP) publisher + Brevo SMTP consumer.
+              # Secrets (broker URI, SMTP creds) are set in the Render dashboard, not committed.
+              - key: RabbitMQ__ConnectionString
+                sync: false
+              - key: EmailSettings__SmtpHost
+                value: smtp-relay.brevo.com
+              - key: EmailSettings__SmtpPort
+                value: "587"
+              - key: EmailSettings__SmtpUser
+                sync: false
+              - key: EmailSettings__SmtpKey
+                sync: false
+              - key: EmailSettings__FromEmail
+                value: no-reply@workvault.co.in
+              - key: EmailSettings__FromName
+                value: WorkVault
 
           # -----------------------------------------------------------
           # Angular client — static site. rootDir is Client, so paths
