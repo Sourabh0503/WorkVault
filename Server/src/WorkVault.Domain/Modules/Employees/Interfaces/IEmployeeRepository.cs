@@ -29,17 +29,18 @@ public interface IEmployeeRepository : IRepository<Employee>
         CancellationToken cancellationToken);
 
     /// <summary>
-    /// Counts employees created in a specific year for the given company.
+    /// Atomically allocates the next employee-code sequence number for a company + year.
     /// </summary>
-    /// <param name="companyId">The company to count for; the global tenant query filter is bypassed and this value is applied explicitly.</param>
-    /// <param name="year">The year to count employees for.</param>
+    /// <param name="companyId">The tenant to allocate for.</param>
+    /// <param name="year">The year the code is scoped to.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>The count of employees created that year.</returns>
+    /// <returns>The freshly allocated number, e.g. <c>5</c> → <c>EMP-{year}-0005</c>.</returns>
     /// <remarks>
-    /// Used to generate sequential EmployeeCode: EMP-{year}-{count+1:D4}
-    /// Note: Has a potential race condition under concurrent requests.
+    /// Backed by an atomic upsert on <c>EmployeeCodeCounter</c>, so concurrent adds never
+    /// get the same number and soft-deletes never cause reuse. Replaces the old
+    /// count-based approach, which raced and collided after deletes.
     /// </remarks>
-    Task<int> GetCountForYearAsync(Guid companyId, int year, CancellationToken cancellationToken);
+    Task<int> AllocateNextCodeNumberAsync(Guid companyId, int year, CancellationToken cancellationToken);
 
     /// <summary>
     /// Finds an employee by their linked User account ID.

@@ -1,3 +1,4 @@
+using System.Data;
 using Microsoft.EntityFrameworkCore;
 using WorkVault.Domain.Modules.Employees;
 using WorkVault.Domain.Modules.Employees.Enums;
@@ -90,17 +91,50 @@ public class EmployeeRepository(AppDbContext context) : IEmployeeRepository
     }
 
     /// <summary>
-    /// Counts a company's employees created in a given year, ignoring the tenant query
-    /// filter (companyId is passed explicitly) — used to generate sequential employee codes.
+    /// Atomically allocates the next employee-code number for a company + year using a
+    /// single <c>INSERT … ON CONFLICT … RETURNING</c> upsert on the counter row. Postgres
+    /// row-locks the counter, so concurrent allocations serialize and each gets a distinct
+    /// value — no race, no collision after deletes, no retries.
     /// </summary>
-    public async Task<int> GetCountForYearAsync(Guid companyId, int year, CancellationToken cancellationToken)
+    public async Task<int> AllocateNextCodeNumberAsync(Guid companyId, int year, CancellationToken cancellationToken)
     {
-        return await context.Employees
-            .IgnoreQueryFilters()
-            .CountAsync(e => e.CompanyId == companyId 
-                             && e.CreatedAt.Year == year 
-                             && !e.IsDeleted, 
-                cancellationToken);
+        // Run as a raw command (not EF SqlQuery, which wraps the SQL in a subquery that
+        // Postgres rejects for INSERT … RETURNING). The upsert row-locks the counter, so
+        // concurrent callers serialize and each gets a distinct value.
+        var connection = context.Database.GetDbConnection();
+        await using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            INSERT INTO "EmployeeCodeCounters" ("CompanyId", "Year", "LastValue")
+            VALUES (@companyId, @year, 1)
+            ON CONFLICT ("CompanyId", "Year")
+            DO UPDATE SET "LastValue" = "EmployeeCodeCounters"."LastValue" + 1
+            RETURNING "LastValue";
+            """;
+
+        var companyParam = command.CreateParameter();
+        companyParam.ParameterName = "companyId";
+        companyParam.Value = companyId;
+        command.Parameters.Add(companyParam);
+
+        var yearParam = command.CreateParameter();
+        yearParam.ParameterName = "year";
+        yearParam.Value = year;
+        command.Parameters.Add(yearParam);
+
+        var wasClosed = connection.State != ConnectionState.Open;
+        if (wasClosed)
+            await connection.OpenAsync(cancellationToken);
+        try
+        {
+            var result = await command.ExecuteScalarAsync(cancellationToken);
+            return Convert.ToInt32(result);
+        }
+        finally
+        {
+            if (wasClosed)
+                await connection.CloseAsync();
+        }
     }
 
     /// <summary>Finds the employee record linked to a given user id (department, designation, and manager eager-loaded).</summary>

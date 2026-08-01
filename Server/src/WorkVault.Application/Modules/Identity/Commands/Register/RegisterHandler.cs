@@ -78,8 +78,8 @@ public class RegisterHandler(
         // Sparse by default: no department/designation/manager yet. Pending until
         // they accept the invite (SetPasswordHandler flips this to Active).
         var year = DateTime.UtcNow.Year;
-        var countSoFar = await employeeRepository.GetCountForYearAsync(user.CompanyId, year, cancellationToken);
-        var employeeCode = $"EMP-{year}-{(countSoFar + 1):D4}";
+        var seq = await employeeRepository.AllocateNextCodeNumberAsync(user.CompanyId, year, cancellationToken);
+        var employeeCode = $"EMP-{year}-{seq:D4}";
 
         var employee = new Employee
         {

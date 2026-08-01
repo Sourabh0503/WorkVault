@@ -107,10 +107,11 @@ public class CreateEmployeeHandler(
         };
         await userRepository.AddAsync(user, cancellationToken);
 
-        // 5. Generate EmployeeCode: EMP-{year}-{0001}
+        // 5. Generate EmployeeCode: EMP-{year}-{0001}. The number is allocated atomically
+        //    so concurrent adds / prior deletes can't produce a duplicate code.
         var year = DateTime.UtcNow.Year;
-        var countSoFar = await employeeRepository.GetCountForYearAsync(user.CompanyId,year, cancellationToken);
-        var employeeCode = $"EMP-{year}-{(countSoFar + 1):D4}";
+        var seq = await employeeRepository.AllocateNextCodeNumberAsync(user.CompanyId, year, cancellationToken);
+        var employeeCode = $"EMP-{year}-{seq:D4}";
 
         // 6. Create Employee record linked to User
         var employee = new Employee

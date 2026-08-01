@@ -41,6 +41,7 @@ public class AppDbContext(
     public DbSet<Designation> Designations => Set<Designation>();
     public DbSet<InviteToken> InviteTokens => Set<InviteToken>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
+    public DbSet<EmployeeCodeCounter> EmployeeCodeCounters => Set<EmployeeCodeCounter>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -111,6 +112,13 @@ public class AppDbContext(
             .HasFilter("\"IsDeleted\" = false");
         
         modelBuilder.Entity<RefreshToken>().HasQueryFilter(rt => !rt.User.IsDeleted);
+
+        // Employee-code counter: composite key, no tenant filter/soft-delete (not a BaseEntity).
+        modelBuilder.Entity<EmployeeCodeCounter>(b =>
+        {
+            b.ToTable("EmployeeCodeCounters");
+            b.HasKey(c => new { c.CompanyId, c.Year });
+        });
     }
 
     private void SeedRolesData(ModelBuilder modelBuilder)

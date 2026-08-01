@@ -120,6 +120,46 @@ public class TenantIsolationTests : IClassFixture<CustomWebApplicationFactory>
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
+    [Fact]
+    public async Task EmployeeCodes_AreUnique_UnderConcurrentCreates()
+    {
+        // 1. One tenant + an activated admin token.
+        var tenant = await RegisterCompanyAsync("Concurrent Co", "concurrent.com", "admin@concurrent.com");
+
+        // 2. Fire many "add employee" requests in parallel (the multi-HR race).
+        const int count = 15;
+        var tasks = Enumerable.Range(0, count).Select(async i =>
+        {
+            var command = new CreateEmployeeCommand(
+                Email: $"emp{i}@concurrent.com",
+                FirstName: "Emp",
+                LastName: $"{i}",
+                Phone: "9876543210",
+                JoinDate: DateOnly.FromDateTime(DateTime.UtcNow),
+                DepartmentId: null,
+                DesignationId: null,
+                ManagerId: null,
+                RoleId: SystemRoles.Employee);
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "/api/employees")
+            {
+                Content = JsonContent.Create(command)
+            };
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tenant.AccessToken);
+
+            var response = await _client.SendAsync(request);
+            response.EnsureSuccessStatusCode(); // no 500 from a duplicate-code collision
+            var result = await response.Content.ReadFromJsonAsync<CreateEmployeeResult>();
+            return result!.EmployeeCode;
+        });
+
+        var codes = await Task.WhenAll(tasks);
+
+        // 3. Every create succeeded and every code is distinct (atomic counter held).
+        Assert.Equal(count, codes.Length);
+        Assert.Equal(count, codes.Distinct().Count());
+    }
+
     // ---- Helper Methods ----
 
     /// <summary>
