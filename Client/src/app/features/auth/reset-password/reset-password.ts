@@ -1,9 +1,22 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ApiError, ResetTokenInfo } from '../../../core/models/auth.models';
+
+/** Group validator: flags a mismatch between `password` and `confirmPassword`. */
+function passwordsMatch(group: AbstractControl): ValidationErrors | null {
+  const password = group.get('password')?.value;
+  const confirm = group.get('confirmPassword')?.value;
+  return password && confirm && password !== confirm ? { passwordMismatch: true } : null;
+}
 
 @Component({
   selector: 'app-reset-password',
@@ -29,6 +42,7 @@ export class ResetPassword {
   isSuccess = signal(false);
   errorMessage = signal<string | null>(null);
   showPassword = signal(false);
+  showConfirmPassword = signal(false);
 
   // User info from token validation
   userInfo = signal<ResetTokenInfo | null>(null);
@@ -53,8 +67,9 @@ export class ResetPassword {
       Validators.pattern(/[a-z]/),
       Validators.pattern(/[0-9]/),
       Validators.pattern(/[^a-zA-Z0-9]/)
-    ]]
-  });
+    ]],
+    confirmPassword: ['', [Validators.required]]
+  }, { validators: passwordsMatch });
 
   private token: string | null = null;
 
@@ -121,5 +136,9 @@ export class ResetPassword {
 
   togglePassword(): void {
     this.showPassword.update(v => !v);
+  }
+
+  toggleConfirmPassword(): void {
+    this.showConfirmPassword.update(v => !v);
   }
 }

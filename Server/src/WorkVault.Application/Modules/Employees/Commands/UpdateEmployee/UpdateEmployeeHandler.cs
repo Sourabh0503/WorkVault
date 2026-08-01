@@ -16,7 +16,9 @@ namespace WorkVault.Application.Modules.Employees.Commands.UpdateEmployee;
 /// via repository lookups that apply tenant filtering. This prevents cross-tenant
 /// data injection where a valid GUID from Company B could be assigned to an
 /// employee in Company A. A user also cannot change their own role (which would let an
-/// admin self-demote and lock the company out) — that's blocked up front.
+/// admin self-demote and lock the company out) — that's blocked up front. Likewise a
+/// Company Admin's employment status can't be changed (no offboarding/suspending an
+/// admin), so a tenant can never be left without an active admin.
 /// </remarks>
 public class UpdateEmployeeHandler(
     IEmployeeRepository employeeRepository,
@@ -78,6 +80,14 @@ public class UpdateEmployeeHandler(
             if (request.ManagerId == employee.Id)
                 throw new BusinessRuleException("An employee cannot be their own manager.");
         }
+
+        // A Company Admin's employment status can't be changed. Offboarding/suspending
+        // an admin — including yourself — could leave the tenant with no active admin.
+        // If an admin is truly leaving, reassign their role to a non-admin first, then
+        // update their status.
+        if (employee.User?.RoleId == SystemRoles.CompanyAdmin && request.Status != employee.Status)
+            throw new BusinessRuleException(
+                "A company admin's status can't be changed. Reassign their role first, then update status.");
 
         // Block transitions that break the lifecycle model
         if (employee.Status == EmployeeStatus.OffBoarded && request.Status != EmployeeStatus.OffBoarded)

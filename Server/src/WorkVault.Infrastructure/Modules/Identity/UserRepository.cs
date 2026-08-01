@@ -28,8 +28,12 @@ public class UserRepository(AppDbContext context) : IUserRepository
     /// <summary>Loads a user by email with the Role eager-loaded (used at login).</summary>
     public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
+        // Emails are stored normalized (trimmed + lowercased), so normalize the
+        // lookup too — this makes login and the uniqueness checks case-insensitive.
+        var normalized = (email ?? string.Empty).Trim().ToLowerInvariant();
+
         return await context.Users
             .Include(u => u.Role)
-            .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Email == normalized, cancellationToken);
     }
 }

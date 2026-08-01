@@ -18,11 +18,18 @@ namespace WorkVault.Domain.Modules.Identity;
 /// </remarks>
 public class User : BaseEntity
 {
+    private string _email = string.Empty;
+
     /// <summary>
     /// User's email address. Used for login and communication.
-    /// Unique per company (same email can exist in different tenants).
+    /// Stored trimmed and lowercased so lookups and the (Email, CompanyId) uniqueness
+    /// constraint are effectively case-insensitive. Unique per company.
     /// </summary>
-    public string Email { get; set; } = string.Empty;
+    public string Email
+    {
+        get => _email;
+        set => _email = value?.Trim().ToLowerInvariant() ?? string.Empty;
+    }
 
     /// <summary>
     /// BCrypt-hashed password. Empty string for users who haven't set password yet

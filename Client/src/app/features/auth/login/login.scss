@@ -37,10 +37,10 @@ h1 {
   font-size: 14px;
   font-weight: 500;
 
-  // Not-activated is informational, not a hard error — tone it down.
+  // Not-activated is informational, not a hard error — brand-tinted, theme-aware.
   &.info {
-    background: var(--color-surface-muted, #f1f5f9);
-    border-color: var(--color-border-strong);
+    background: var(--color-primary-tint);
+    border-color: var(--color-primary-border);
     color: var(--color-ink-strong);
   }
 }
