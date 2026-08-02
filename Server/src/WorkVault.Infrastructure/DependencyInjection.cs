@@ -5,10 +5,12 @@ using WorkVault.Application.Common.Interfaces;
 using WorkVault.Application.Common.Settings;
 using WorkVault.Domain.Modules.Employees.Interfaces;
 using WorkVault.Domain.Modules.Identity.Interfaces;
+using WorkVault.Domain.Modules.Performance.Interfaces;
 using WorkVault.Infrastructure.Auth;
 using WorkVault.Infrastructure.Messaging;
 using WorkVault.Infrastructure.Modules.Employees;
 using WorkVault.Infrastructure.Modules.Identity;
+using WorkVault.Infrastructure.Modules.Performance;
 using WorkVault.Infrastructure.Persistence;
 using WorkVault.SharedKernel.Interfaces;
 
@@ -48,6 +50,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
         services.AddScoped<IDepartmentRepository, DepartmentRepository>();
         services.AddScoped<IDesignationRepository, DesignationRepository>();
+        services.AddScoped<IReviewRepository, ReviewRepository>();
 
         return services;
     }

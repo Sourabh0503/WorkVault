@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using WorkVault.Application.Common.Interfaces;
 using WorkVault.Domain.Modules.Employees;
 using WorkVault.Domain.Modules.Identity;
+using WorkVault.Domain.Modules.Performance;
 using WorkVault.SharedKernel;
 using WorkVault.SharedKernel.Constants;
 
@@ -42,6 +43,7 @@ public class AppDbContext(
     public DbSet<InviteToken> InviteTokens => Set<InviteToken>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<EmployeeCodeCounter> EmployeeCodeCounters => Set<EmployeeCodeCounter>();
+    public DbSet<Review> Reviews => Set<Review>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -112,6 +114,26 @@ public class AppDbContext(
             .HasFilter("\"IsDeleted\" = false");
         
         modelBuilder.Entity<RefreshToken>().HasQueryFilter(rt => !rt.User.IsDeleted);
+
+        // ---- Performance reviews ----
+        // Soft-delete + tenant query filters are applied automatically (Review is a BaseEntity).
+        modelBuilder.Entity<Review>(b =>
+        {
+            // Many reviews per employee. No collection nav on Employee (keeps it decoupled);
+            // reviews are historical and preserved, so restrict rather than cascade.
+            b.HasOne(r => r.Employee)
+                .WithMany()
+                .HasForeignKey(r => r.EmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Rating 0–5 with one decimal; salary as money.
+            b.Property(r => r.Rating).HasPrecision(3, 2);
+            b.Property(r => r.NewSalary).HasPrecision(18, 2);
+            b.Property(r => r.ReviewName).HasMaxLength(200);
+
+            // List/charts always query by employee, newest first.
+            b.HasIndex(r => new { r.EmployeeId, r.ReviewDate });
+        });
 
         // Employee-code counter: composite key, no tenant filter/soft-delete (not a BaseEntity).
         modelBuilder.Entity<EmployeeCodeCounter>(b =>
