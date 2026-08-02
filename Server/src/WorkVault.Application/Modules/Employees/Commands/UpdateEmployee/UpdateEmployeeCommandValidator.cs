@@ -7,7 +7,9 @@ namespace WorkVault.Application.Modules.Employees.Commands.UpdateEmployee;
 /// <summary>
 /// Validates <see cref="UpdateEmployeeCommand"/>: required identity fields, optional
 /// phone/photo-URL formats, chronological date ordering (join ≤ resignation ≤ last-working-day),
-/// and status-dependent rules (resignation required for OnNotice, last working day for Offboarded).
+/// and a valid status enum. Status-dependent field requirements (resignation date for OnNotice,
+/// last working day for Offboarded) are enforced in <see cref="UpdateEmployeeHandler"/> so they
+/// run after the admin-status guard.
 /// </summary>
 public class UpdateEmployeeCommandValidator : AbstractValidator<UpdateEmployeeCommand>
 {
@@ -62,14 +64,9 @@ public class UpdateEmployeeCommandValidator : AbstractValidator<UpdateEmployeeCo
         RuleFor(x => x.Status)
             .IsInEnum().WithMessage("Invalid employee status.");
 
-        RuleFor(x => x.ResignationDate)
-            .NotNull()
-            .When(x => x.Status == EmployeeStatus.OnNotice)
-            .WithMessage("Resignation date is required when status is OnNotice.");
-
-        RuleFor(x => x.LastWorkingDay)
-            .NotNull()
-            .When(x => x.Status == EmployeeStatus.OffBoarded)
-            .WithMessage("Last working day is required when status is Offboarded.");
+        // NOTE: The "resignation date required for OnNotice" and "last working day required
+        // for Offboarded" rules live in UpdateEmployeeHandler, not here. They must run AFTER
+        // the admin-status guard so that editing a company admin surfaces the specific admin
+        // rule rather than a generic validation failure.
     }
 }

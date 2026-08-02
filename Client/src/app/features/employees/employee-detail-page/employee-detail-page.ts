@@ -116,6 +116,11 @@ export class EmployeeDetailPage implements OnInit {
   // Is this employee still pending (invite not accepted)?
   isPending = computed(() => this.employee()?.status === EmployeeStatus.Pending);
 
+  // A company admin's employment status can't be changed (offboarding/suspending an
+  // admin could leave the tenant with no active admin). Lock the status control for
+  // admin records — the server enforces the same rule.
+  isAdminEmployee = computed(() => this.employee()?.role?.id === COMPANY_ADMIN_ROLE_ID);
+
   private employeeId!: string;
 
   form = this.fb.nonNullable.group({
@@ -241,6 +246,14 @@ export class EmployeeDetailPage implements OnInit {
       this.form.controls.roleId.disable({ emitEvent: false });
     } else {
       this.form.controls.roleId.enable({ emitEvent: false });
+    }
+
+    // A company admin's status can't be changed — lock the control so it submits
+    // the current (unchanged) status. getRawValue() still includes disabled fields.
+    if (this.isAdminEmployee()) {
+      this.form.controls.status.disable({ emitEvent: false });
+    } else {
+      this.form.controls.status.enable({ emitEvent: false });
     }
 
     this.saveError.set(null);

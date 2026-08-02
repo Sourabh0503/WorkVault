@@ -89,6 +89,15 @@ public class UpdateEmployeeHandler(
             throw new BusinessRuleException(
                 "A company admin's status can't be changed. Reassign their role first, then update status.");
 
+        // Status-dependent field requirements. Enforced here (rather than in the validator)
+        // so the admin-status guard above wins first — otherwise editing a company admin would
+        // surface a generic "Validation Failed" instead of the specific admin rule.
+        if (request.Status == EmployeeStatus.OnNotice && request.ResignationDate is null)
+            throw new BusinessRuleException("Resignation date is required when status is OnNotice.");
+
+        if (request.Status == EmployeeStatus.OffBoarded && request.LastWorkingDay is null)
+            throw new BusinessRuleException("Last working day is required when status is Offboarded.");
+
         // Block transitions that break the lifecycle model
         if (employee.Status == EmployeeStatus.OffBoarded && request.Status != EmployeeStatus.OffBoarded)
             throw new BusinessRuleException("Cannot change status of an offBoarded employee.");

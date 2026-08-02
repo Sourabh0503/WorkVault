@@ -251,6 +251,9 @@
                   <option [value]="s">{{ statusLabel(s) }}</option>
                 }
               </select>
+              @if (isAdminEmployee()) {
+                <div class="field-hint">A company admin's status can't be changed — reassign their role first.</div>
+              }
             </div>
           }
         </section>
