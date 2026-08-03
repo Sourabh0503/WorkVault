@@ -1,4 +1,4 @@
-<div class="employee-detail-page">
+<div class="employee-detail-page" [class.wide]="showPerformance() && !editing()">
   <!-- Loading -->
   @if (loading()) {
     <div class="state-panel">

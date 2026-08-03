@@ -4,14 +4,16 @@
 
 .chart-canvas-wrap {
   position: relative;
-  height: 240px;
+  width: 100%;
+  height: clamp(200px, 22vw, 340px);
 }
 
 .chart-empty {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 240px;
+  width: 100%;
+  height: clamp(200px, 22vw, 340px);
   color: var(--color-ink-faint);
   font-size: 0.875rem;
   background: var(--color-surface-alt);
