@@ -3,8 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ApiError } from '../../core/models/auth.models';
 import { Review, hasVisibleSalary } from '../../core/models/review.models';
 import { ReviewService } from '../../core/services/review.service';
-import { formatInr } from '../../shared/utils/currency';
-import { formatHike } from '../../shared/utils/hike';
+import { averageRating, currentSalaryLabel, currentSalaryValue, salaryBefore } from './review-stats';
 import { ReviewFormMode, ReviewFormValue } from './review-form/review-form';
 
 /**
@@ -40,6 +39,8 @@ export class ReviewsStore {
   readonly editingReview = signal<Review | null>(null);
   readonly saving = signal(false);
   readonly saveError = signal<string | null>(null);
+  // Salary the form's hike% is measured against (prior salary); null hides the % field.
+  readonly formPreviousSalary = signal<number | null>(null);
 
   // ---- Delete ----
   readonly pendingDelete = signal<Review | null>(null);
@@ -50,21 +51,8 @@ export class ReviewsStore {
   readonly isEmpty = computed(() => this.reviews().length === 0);
   readonly showSalaryChart = computed(() => hasVisibleSalary(this.reviews()));
 
-  readonly avgRating = computed<string | null>(() => {
-    const rated = this.reviews().filter((r) => !r.isBaseline);
-    if (rated.length === 0) return null;
-    const mean = rated.reduce((sum, r) => sum + r.rating, 0) / rated.length;
-    return (Math.round(mean * 10) / 10).toString();
-  });
-  readonly currentSalary = computed<string | null>(() => {
-    // reviews are newest-first, so the first salaried one is the current salary.
-    const salary = this.reviews().find((r) => r.newSalary != null)?.newSalary;
-    return salary != null ? formatInr(salary) : null;
-  });
-  readonly salaryDelta = computed<string | null>(() => {
-    const withHike = this.reviews().find((r) => r.incrementPercent != null);
-    return withHike ? formatHike(withHike.incrementPercent!) : null;
-  });
+  readonly avgRating = computed(() => averageRating(this.reviews()));
+  readonly currentSalary = computed(() => currentSalaryLabel(this.reviews()));
 
   /** Update per-employee context. Resets view state when the employee changes. */
   setContext(employeeId: string, canManage: boolean, addLocked: boolean, defaultDate: string): void {
@@ -116,7 +104,10 @@ export class ReviewsStore {
     if (this.addLocked()) return; // suspended/offboarded — no new reviews
     this.editingReview.set(null);
     // No reviews yet → the first entry must be the baseline; otherwise a regular review.
-    this.formMode.set(this.isEmpty() ? 'baseline' : 'regular');
+    const baseline = this.isEmpty();
+    this.formMode.set(baseline ? 'baseline' : 'regular');
+    // A new regular review's hike is measured against the current salary.
+    this.formPreviousSalary.set(baseline ? null : currentSalaryValue(this.reviews()));
     this.saveError.set(null);
     this.formOpen.set(true);
   }
@@ -124,6 +115,8 @@ export class ReviewsStore {
   openEdit(review: Review): void {
     this.editingReview.set(review);
     this.formMode.set(review.isBaseline ? 'baseline' : 'regular');
+    // When editing, the hike is measured against the salary in effect just before it.
+    this.formPreviousSalary.set(review.isBaseline ? null : salaryBefore(this.reviews(), review.id));
     this.saveError.set(null);
     this.formOpen.set(true);
   }

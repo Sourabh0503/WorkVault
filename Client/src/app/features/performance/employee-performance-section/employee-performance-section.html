@@ -13,6 +13,7 @@
           [mode]="store.formMode()"
           [review]="store.editingReview()"
           [defaultDate]="store.defaultDate()"
+          [previousSalary]="store.formPreviousSalary()"
           [saving]="store.saving()"
           [errorMessage]="store.saveError()"
           (save)="store.save($event)"
@@ -64,9 +65,7 @@
                     <h3>Salary progression</h3>
                     <p class="card-sub">Only reviews that revised salary are plotted</p>
                   </div>
-                  @if (store.salaryDelta(); as delta) {
-                    <span class="stat-chip">{{ delta }}</span>
-                  }
+                  <app-salary-growth-chip [reviews]="store.reviews()" />
                 </div>
                 <app-salary-line-chart [reviews]="store.reviews()" />
               </div>

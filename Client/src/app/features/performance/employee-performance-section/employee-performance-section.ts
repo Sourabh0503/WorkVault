@@ -10,6 +10,7 @@ import { SalaryLineChart } from '../charts/salary-line-chart/salary-line-chart';
 import { RecentReviewCard } from '../recent-review-card/recent-review-card';
 import { ReviewHistoryList } from '../review-history-list/review-history-list';
 import { ReviewForm } from '../review-form/review-form';
+import { SalaryGrowthChip } from '../salary-growth-chip/salary-growth-chip';
 import { ReviewsStore } from '../reviews-store';
 
 /**
@@ -20,7 +21,7 @@ import { ReviewsStore } from '../reviews-store';
  */
 @Component({
   selector: 'app-employee-performance-section',
-  imports: [RatingBarChart, SalaryLineChart, RecentReviewCard, ReviewHistoryList, ReviewForm],
+  imports: [RatingBarChart, SalaryLineChart, RecentReviewCard, ReviewHistoryList, ReviewForm, SalaryGrowthChip],
   templateUrl: './employee-performance-section.html',
   styleUrl: './employee-performance-section.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

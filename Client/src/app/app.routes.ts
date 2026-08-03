@@ -101,6 +101,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/employees/my-team/my-team').then((m) => m.MyTeam),
       },
       {
+        path: 'my-performance',
+        data: { title: 'My Performance' },
+        loadComponent: () =>
+          import('./features/performance/my-performance-page/my-performance-page').then(
+            (m) => m.MyPerformancePage,
+          ),
+      },
+      {
         path: 'departments',
         canActivate: [roleGuard],
         data: { title: 'Departments', roles: HR_ADMIN },

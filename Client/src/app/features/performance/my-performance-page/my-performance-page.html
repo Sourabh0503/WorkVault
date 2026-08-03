@@ -1,0 +1,71 @@
+<div class="my-perf">
+  <!-- Header -->
+  <div class="perf-hero">
+    <div class="perf-hero-body">
+      <h1>My performance</h1>
+      <p>Your ratings, salary progression, and review history.</p>
+    </div>
+    @if (!loading() && currentSalary(); as salary) {
+      <div class="hero-salary">
+        <div class="hero-salary-label">Current salary</div>
+        <div class="hero-salary-value">{{ salary }}</div>
+      </div>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="perf-state">Loading…</div>
+  } @else if (error()) {
+    <div class="perf-state error">{{ error() }}</div>
+  } @else if (isEmpty()) {
+    <div class="perf-empty">
+      <div class="empty-title">No reviews yet</div>
+      <p class="empty-note">Your performance history will appear here once your first review is recorded.</p>
+    </div>
+  } @else {
+    <div class="perf-grid">
+      <!-- Left: charts -->
+      <div class="perf-col">
+        <div class="perf-card">
+          <div class="card-head">
+            <div>
+              <h3>Rating history</h3>
+              <p class="card-sub">Out of 5, per review cycle</p>
+            </div>
+            @if (avgRating(); as avg) {
+              <span class="stat-chip">{{ avg }} avg</span>
+            }
+          </div>
+          <app-rating-bar-chart [reviews]="reviews()" />
+        </div>
+
+        @if (showSalaryChart()) {
+          <div class="perf-card">
+            <div class="card-head">
+              <div>
+                <h3>Salary progression</h3>
+                <p class="card-sub">Only reviews that revised salary are plotted</p>
+              </div>
+              <app-salary-growth-chip [reviews]="reviews()" />
+            </div>
+            <app-salary-line-chart [reviews]="reviews()" />
+          </div>
+        }
+      </div>
+
+      <!-- Right: recent + history -->
+      <div class="perf-col">
+        @if (mostRecent(); as recent) {
+          <app-recent-review-card [review]="recent" />
+        }
+        <div class="perf-card no-pad">
+          <div class="card-head history-head">
+            <h3>Review history</h3>
+            <span class="card-sub">newest first</span>
+          </div>
+          <app-review-history-list [reviews]="reviews()" [canManage]="false" />
+        </div>
+      </div>
+    </div>
+  }
+</div>

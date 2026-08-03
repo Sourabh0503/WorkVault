@@ -39,21 +39,38 @@
     }
   </div>
 
-  <div class="field">
-    <label for="newSalary">
-      Salary{{ isBaseline ? '' : ' (optional)' }}
-    </label>
-    <input id="newSalary" type="number" formControlName="newSalary" min="0" step="1" placeholder="₹" />
-    @if (form.controls.newSalary.touched && form.controls.newSalary.errors?.['required']) {
-      <div class="field-error">A starting salary is required.</div>
-    }
-    @if (form.controls.newSalary.touched && form.controls.newSalary.errors?.['min']) {
-      <div class="field-error">Salary can't be negative.</div>
-    }
-    @if (!isBaseline) {
-      <div class="field-hint">Leave blank if the salary didn't change this cycle.</div>
-    }
-  </div>
+  @if (showHike()) {
+    <!-- Regular review with a known prior salary: enter either salary or hike% -->
+    <div class="row-2">
+      <div class="field">
+        <label for="newSalary">New salary (optional)</label>
+        <input id="newSalary" type="number" formControlName="newSalary" min="0" step="1" placeholder="₹" />
+        @if (form.controls.newSalary.touched && form.controls.newSalary.errors?.['min']) {
+          <div class="field-error">Salary can't be negative.</div>
+        }
+      </div>
+      <div class="field">
+        <label for="hikePercent">Hike %</label>
+        <input id="hikePercent" type="number" formControlName="hikePercent" step="0.1" placeholder="%" />
+      </div>
+    </div>
+    <div class="field-hint">
+      Fill either — the other updates automatically. Based on current salary {{ prevSalaryLabel() }}.
+      Leave both blank if the salary didn't change.
+    </div>
+  } @else {
+    <!-- Baseline (or no prior salary): plain salary field -->
+    <div class="field">
+      <label for="newSalary">Salary{{ isBaseline ? '' : ' (optional)' }}</label>
+      <input id="newSalary" type="number" formControlName="newSalary" min="0" step="1" placeholder="₹" />
+      @if (form.controls.newSalary.touched && form.controls.newSalary.errors?.['required']) {
+        <div class="field-error">A starting salary is required.</div>
+      }
+      @if (form.controls.newSalary.touched && form.controls.newSalary.errors?.['min']) {
+        <div class="field-error">Salary can't be negative.</div>
+      }
+    </div>
+  }
 
   <div class="field">
     <label for="summary">Summary</label>

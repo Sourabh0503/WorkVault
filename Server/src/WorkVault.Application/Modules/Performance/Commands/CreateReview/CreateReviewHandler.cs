@@ -1,5 +1,6 @@
 using MediatR;
 using WorkVault.Application.Common.Exceptions;
+using WorkVault.Domain.Modules.Employees.Enums;
 using WorkVault.Domain.Modules.Employees.Interfaces;
 using WorkVault.Domain.Modules.Performance;
 using WorkVault.Domain.Modules.Performance.Interfaces;
@@ -17,6 +18,7 @@ namespace WorkVault.Application.Modules.Performance.Commands.CreateReview;
 ///   review can't be added until a baseline exists.</item>
 ///   <item>There's exactly one baseline per employee.</item>
 ///   <item>A baseline has no rating — it's stored as 0 and never shown.</item>
+///   <item>No new reviews for a suspended or offboarded employee.</item>
 /// </list>
 /// </remarks>
 public class CreateReviewHandler(
@@ -33,6 +35,11 @@ public class CreateReviewHandler(
         var employee = await employeeRepository.GetByIdAsync(request.EmployeeId, cancellationToken);
         if (employee is null)
             throw new NotFoundException($"Employee with ID '{request.EmployeeId}' not found.");
+
+        // Suspended/offboarded employees are no longer active — no new reviews.
+        if (employee.Status is EmployeeStatus.Suspended or EmployeeStatus.OffBoarded)
+            throw new BusinessRuleException(
+                "Reviews can't be added for a suspended or offboarded employee.");
 
         var hasReviews = await reviewRepository.HasAnyAsync(request.EmployeeId, cancellationToken);
 
