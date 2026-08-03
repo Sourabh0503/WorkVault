@@ -1,0 +1,10 @@
+<div class="growth">
+  <select class="growth-select" [value]="period()" (change)="setPeriod($any($event.target).value)" aria-label="Growth period">
+    @for (opt of options; track opt.value) {
+      <option [value]="opt.value">{{ opt.label }}</option>
+    }
+  </select>
+  @if (label(); as value) {
+    <span class="stat-chip">{{ value }}</span>
+  }
+</div>

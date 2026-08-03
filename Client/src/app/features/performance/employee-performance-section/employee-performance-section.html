@@ -1,0 +1,121 @@
+@if (!store.forbidden()) {
+  <section class="perf">
+    <!-- Current salary + "Add review" live in the page hero (Performance tab). -->
+    @if (store.loading()) {
+      <div class="perf-state">Loading performance…</div>
+    } @else if (store.loadError()) {
+      <div class="perf-state error">{{ store.loadError() }}</div>
+    } @else {
+
+      <!-- Add / edit form -->
+      @if (store.formOpen()) {
+        <app-review-form
+          [mode]="store.formMode()"
+          [review]="store.editingReview()"
+          [defaultDate]="store.defaultDate()"
+          [previousSalary]="store.formPreviousSalary()"
+          [saving]="store.saving()"
+          [errorMessage]="store.saveError()"
+          (save)="store.save($event)"
+          (cancel)="store.closeForm()" />
+      }
+
+      @if (store.isEmpty()) {
+        @if (!store.formOpen()) {
+          <!-- Empty state -->
+          <div class="perf-empty">
+            <div class="empty-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m7 15 4-5 3 3 5-7"></path></svg>
+            </div>
+            <div class="empty-title">No reviews yet</div>
+            @if (store.canManage()) {
+              <p class="empty-note">Performance history will appear here once the first review is recorded.</p>
+              <button type="button" class="primary-btn" (click)="store.openAdd()" [disabled]="store.addLocked()">Add first review</button>
+              @if (store.addLocked()) {
+                <p class="empty-warn">Reviews can't be added for a suspended or offboarded employee.</p>
+              } @else {
+                <p class="empty-warn">The first review must record a starting salary.</p>
+              }
+            } @else {
+              <p class="empty-note">Performance history will appear here once a review is recorded.</p>
+            }
+          </div>
+        }
+      } @else {
+        <div class="perf-grid">
+          <!-- Left: charts -->
+          <div class="perf-col">
+            <div class="perf-card">
+              <div class="card-head">
+                <div>
+                  <h3>Rating history</h3>
+                  <p class="card-sub">Out of 5, per review cycle</p>
+                </div>
+                @if (store.avgRating(); as avg) {
+                  <span class="stat-chip">{{ avg }} avg</span>
+                }
+              </div>
+              <app-rating-bar-chart [reviews]="store.reviews()" />
+            </div>
+
+            @if (store.showSalaryChart()) {
+              <div class="perf-card">
+                <div class="card-head">
+                  <div>
+                    <h3>Salary progression</h3>
+                    <p class="card-sub">Only reviews that revised salary are plotted</p>
+                  </div>
+                  <app-salary-growth-chip [reviews]="store.reviews()" />
+                </div>
+                <app-salary-line-chart [reviews]="store.reviews()" />
+              </div>
+            } @else {
+              <!-- Manager: salary stripped server-side -->
+              <div class="perf-card restricted">
+                <div class="restricted-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <div>
+                  <div class="restricted-title">Salary details are restricted</div>
+                  <div class="restricted-note">Compensation is visible to HR and admins only. You can see ratings for your team.</div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Right: recent + history -->
+          <div class="perf-col">
+            @if (store.mostRecent(); as recent) {
+              <app-recent-review-card [review]="recent" />
+            }
+
+            @if (store.pendingDelete(); as target) {
+              <div class="delete-confirm">
+                <span>Delete "{{ target.reviewName }}"?</span>
+                <div class="confirm-actions">
+                  <button type="button" class="cancel-btn" (click)="store.cancelDelete()" [disabled]="store.deleting()">Cancel</button>
+                  <button type="button" class="danger-btn" (click)="store.confirmDelete()" [disabled]="store.deleting()">
+                    {{ store.deleting() ? 'Deleting…' : 'Delete' }}
+                  </button>
+                </div>
+              </div>
+            }
+
+            <div class="perf-card no-pad">
+              <div class="card-head history-head">
+                <h3>Review history</h3>
+                <span class="card-sub">newest first</span>
+              </div>
+              <app-review-history-list
+                [reviews]="store.reviews()"
+                [canManage]="store.canManage()"
+                (edit)="store.openEdit($event)"
+                (remove)="store.askDelete($event)" />
+              <div class="history-foot">Reviews lock 30 days after creation and can no longer be edited or deleted.</div>
+            </div>
+          </div>
+        </div>
+      }
+    }
+  </section>
+}

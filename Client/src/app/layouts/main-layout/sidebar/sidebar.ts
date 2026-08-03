@@ -33,6 +33,7 @@ export class Sidebar {
   private allNavItems: NavItem[] = [
     { label: 'Dashboard',   route: '/dashboard',   icon: '⌂', roles: [] },
     { label: 'My Team',     route: '/my-team',     icon: '◎', roles: [] },
+    { label: 'My Performance', route: '/my-performance', icon: '▲', roles: [] },
     { label: 'My Profile',  route: '/profile',     icon: '☺', roles: ['Manager', 'Employee'] },
     { label: 'Employees',   route: '/employees',   icon: '☰', roles: ['HR', 'CompanyAdmin'] },
     { label: 'Departments', route: '/departments', icon: '⊞', roles: ['HR', 'CompanyAdmin'] },

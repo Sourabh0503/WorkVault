@@ -32,6 +32,14 @@
   --color-error-border: #FECACA;
   --color-error-text: #991B1B;
 
+  // ---- Warning (amber notices) ----
+  --color-warning-bg: #FFFBEB;
+  --color-warning-border: #FDE9C8;
+  --color-warning-text: #B45309;
+
+  // Rating star.
+  --color-star: #F59E0B;
+
   // ---- Ink (text) ----
   --color-ink: #0F172A;          // headings
   --color-ink-strong: #334155;   // labels
@@ -111,6 +119,13 @@
     --color-error-bg: #2A1618;
     --color-error-border: #5C2626;
     --color-error-text: #FCA5A5;
+
+    // ---- Warning (muted amber for dark surfaces) ----
+    --color-warning-bg: #2A2110;
+    --color-warning-border: #4A3A18;
+    --color-warning-text: #FBBF24;
+
+    --color-star: #FBBF24;
 
     // ---- Ink (text) — scale inverted to light-on-dark ----
     --color-ink: #F1F5F9;          // headings

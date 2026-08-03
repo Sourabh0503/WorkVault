@@ -1,0 +1,119 @@
+:host {
+  display: block;
+}
+
+.history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.history-row {
+  padding: 14px 22px;
+  border-top: 1px solid var(--color-border);
+}
+
+.row-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.row-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row-chip {
+  flex-shrink: 0;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--color-primary);
+  background: var(--color-primary-tint);
+  border-radius: 6px;
+  padding: 2px 8px;
+
+  &.is-base {
+    color: var(--color-ink-muted);
+    background: var(--color-surface-chip);
+  }
+}
+
+.row-actions {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--color-border-button, var(--color-border));
+  background: var(--color-surface);
+  border-radius: 7px;
+  cursor: pointer;
+  color: var(--color-ink-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover { background: var(--color-surface-alt); color: var(--color-ink); }
+  &.danger { color: var(--color-error-text); }
+  &.danger:hover { background: var(--color-error-bg); }
+}
+
+.row-lock {
+  flex-shrink: 0;
+  display: flex;
+  color: var(--color-ink-faint);
+}
+
+.row-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--color-ink-faint);
+
+  .dot { color: var(--color-ink-faint); }
+  .row-salary { font-weight: 700; color: var(--color-ink-body); }
+}
+
+.hike-chip {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+
+  &.hike-up {
+    color: var(--color-primary);
+    background: var(--color-primary-tint);
+  }
+  &.hike-down {
+    color: var(--color-error-text);
+    background: var(--color-error-bg);
+  }
+  &.hike-flat {
+    color: var(--color-ink-muted);
+    background: var(--color-surface-chip);
+  }
+}
+
+.row-summary {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: var(--color-ink-muted);
+  line-height: 1.55;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}

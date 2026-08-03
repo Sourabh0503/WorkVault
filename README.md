@@ -161,6 +161,7 @@ Transactional emails — **admin verification, employee invites, and password re
 | 🔐 Identity | Email-confirmed company registration (invite/set-password), JWT auth, roles, multi-tenancy, `/auth/me` profile | 🟢 Core done |
 | 👥 Employees | Profiles (incl. DOB), lifecycle, roles, invite flow, org placement (dept/designation/manager) | 🟡 Building |
 | 🏢 Org Structure | Departments & Designations (full CRUD + UI) | 🟢 Core done |
+| 📈 Performance | Reviews, ratings + salary progression (charts), salary-baseline model, role-based salary access, My Performance page | 🟢 Core done |
 | 💻 Assets | Asset register, assignment, service requests | ⬜ Planned |
 | ⏰ Attendance | Clock in/out, leave, timesheets, shifts | ⬜ Planned |
 | 🏢 Bookings | Meeting rooms, desk booking, visitor mgmt | ⬜ Planned |
@@ -198,7 +199,7 @@ public abstract class BaseEntity
 }
 ```
 
-**Current tables:** `Companies` · `Users` · `Roles` (5 seeded system roles) · `RefreshTokens` · `InviteTokens` · `PasswordResetTokens` · `Employees` · `Departments` · `Designations`
+**Current tables:** `Companies` · `Users` · `Roles` (5 seeded system roles) · `RefreshTokens` · `InviteTokens` · `PasswordResetTokens` · `Employees` · `Departments` · `Designations` · `EmployeeCodeCounters` · `Reviews`
 
 <br/>
 
@@ -419,6 +420,18 @@ POST /api/auth/refresh
 
 <br/>
 
+### Performance / Reviews (`/api/employees/{id}/reviews`)
+
+| Method | Endpoint | Description |
+|:---:|---|---|
+| GET | `/api/employees/{id}/reviews` | List an employee's reviews (role-shaped: managers get ratings only, salary nulled) |
+| POST | `/api/employees/{id}/reviews` | Create a review or the salary baseline (HR/Admin) |
+| PUT | `/api/employees/{id}/reviews/{reviewId}` | Edit a review within the 30-day window (HR/Admin) |
+| DELETE | `/api/employees/{id}/reviews/{reviewId}` | Soft-delete within the window; baseline is protected (HR/Admin) |
+| GET | `/api/me/performance` | Current user's own reviews (ratings + own salary) |
+
+<br/>
+
 ## 🗺️ Roadmap
 
 ### Phase 1 — Identity & Employees `In Progress`
@@ -444,6 +457,7 @@ POST /api/auth/refresh
 - [x] Angular frontend — auth, dashboard, employees, departments, designations, profile
 - [x] Integration tests (Testcontainers) proving tenant isolation
 - [x] CI/CD (GitHub Actions) + live deploy on Render
+- [x] Performance / Reviews module (Phase 4, built early) — ratings + salary progression, baseline model, role-based salary access, My Performance page
 - [ ] Employee ID card with QR code
 - [ ] Attendance / leave (Phase 1 stretch)
 

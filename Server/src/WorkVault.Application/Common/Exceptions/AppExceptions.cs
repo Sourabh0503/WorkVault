@@ -48,3 +48,10 @@ public class BusinessRuleException(string message) : AppException(message);
 /// can offer a "resend confirmation" action.
 /// </summary>
 public class AccountNotActivatedException(string message) : AppException(message);
+
+/// <summary>
+/// Thrown when an authenticated user tries to access a resource they're not permitted
+/// to see (e.g. a manager requesting reviews for someone outside their department).
+/// Maps to HTTP 403 Forbidden.
+/// </summary>
+public class ForbiddenException(string message) : AppException(message);
