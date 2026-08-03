@@ -14,26 +14,24 @@ public class GetMyPerformanceHandler(
     IEmployeeRepository employeeRepository,
     IReviewRepository reviewRepository,
     ICurrentUserService currentUser)
-    : IRequestHandler<GetMyPerformanceQuery, EmployeeReviewsResult>
+    : IRequestHandler<GetMyPerformanceQuery, IReadOnlyList<ReviewDto>>
 {
-    public async Task<EmployeeReviewsResult> Handle(
+    public async Task<IReadOnlyList<ReviewDto>> Handle(
         GetMyPerformanceQuery request,
         CancellationToken cancellationToken)
     {
         // Endpoint is authorized, but guard anyway.
         if (currentUser.UserId is not { } userId)
-            return new EmployeeReviewsResult(SalaryVisible: true, Reviews: []);
+            return [];
 
         // Resolve the caller's own employee record. No record → no reviews.
         var me = await employeeRepository.GetByUserIdAsync(userId, cancellationToken);
         if (me is null)
-            return new EmployeeReviewsResult(SalaryVisible: true, Reviews: []);
+            return [];
 
         var reviews = await reviewRepository.GetByEmployeeAsync(me.Id, cancellationToken);
 
         // Own performance: salary always visible, with derived hike%.
-        var dtos = ReviewMapper.ToDtos(reviews, salaryVisible: true, DateTime.UtcNow);
-
-        return new EmployeeReviewsResult(SalaryVisible: true, Reviews: dtos);
+        return ReviewMapper.ToDtos(reviews, salaryVisible: true, DateTime.UtcNow);
     }
 }

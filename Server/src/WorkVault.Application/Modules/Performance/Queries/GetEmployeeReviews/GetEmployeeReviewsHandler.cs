@@ -26,9 +26,9 @@ public class GetEmployeeReviewsHandler(
     IEmployeeRepository employeeRepository,
     IReviewRepository reviewRepository,
     ICurrentUserService currentUser)
-    : IRequestHandler<GetEmployeeReviewsQuery, EmployeeReviewsResult>
+    : IRequestHandler<GetEmployeeReviewsQuery, IReadOnlyList<ReviewDto>>
 {
-    public async Task<EmployeeReviewsResult> Handle(
+    public async Task<IReadOnlyList<ReviewDto>> Handle(
         GetEmployeeReviewsQuery request,
         CancellationToken cancellationToken)
     {
@@ -37,14 +37,15 @@ public class GetEmployeeReviewsHandler(
         if (employee is null)
             throw new NotFoundException($"Employee with ID '{request.EmployeeId}' not found.");
 
+        // Whether salary may be seen is resolved server-side; it never leaves as a flag.
+        // For a manager it's false, so the mapper nulls salary + hike — a raw API call
+        // gets nulls, not the figures. The client infers "hide the salary chart" from the
+        // data (reviews present but no salaried entry), not from any visibility flag.
         var salaryVisible = await ResolveSalaryVisibility(employee, cancellationToken);
 
         var reviews = await reviewRepository.GetByEmployeeAsync(request.EmployeeId, cancellationToken);
 
-        // Mapper applies salary stripping and the derived hike% consistently.
-        var dtos = ReviewMapper.ToDtos(reviews, salaryVisible, DateTime.UtcNow);
-
-        return new EmployeeReviewsResult(salaryVisible, dtos);
+        return ReviewMapper.ToDtos(reviews, salaryVisible, DateTime.UtcNow);
     }
 
     /// <summary>

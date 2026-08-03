@@ -1,0 +1,69 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="review-form">
+  <h4 class="form-title">
+    @if (review()) {
+      {{ isBaseline ? 'Edit starting salary' : 'Edit review' }}
+    } @else {
+      {{ isBaseline ? 'Add starting salary' : 'Add review' }}
+    }
+  </h4>
+
+  @if (errorMessage()) {
+    <div class="error-banner">{{ errorMessage() }}</div>
+  }
+
+  <div class="field">
+    <label for="reviewName">Name</label>
+    <input id="reviewName" type="text" formControlName="reviewName" placeholder="e.g. H1 2026 Review" />
+    @if (form.controls.reviewName.touched && form.controls.reviewName.errors?.['required']) {
+      <div class="field-error">Name is required.</div>
+    }
+  </div>
+
+  <div class="row-2">
+    <div class="field">
+      <label for="reviewDate">Date</label>
+      <input id="reviewDate" type="date" formControlName="reviewDate" [max]="todayStr" />
+      @if (form.controls.reviewDate.touched && form.controls.reviewDate.errors?.['required']) {
+        <div class="field-error">Date is required.</div>
+      }
+    </div>
+
+    @if (!isBaseline) {
+      <div class="field">
+        <label for="rating">Rating (0–5)</label>
+        <input id="rating" type="number" formControlName="rating" min="0" max="5" step="0.1" />
+        @if (form.controls.rating.touched && form.controls.rating.invalid) {
+          <div class="field-error">Enter a rating between 0 and 5.</div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="field">
+    <label for="newSalary">
+      Salary{{ isBaseline ? '' : ' (optional)' }}
+    </label>
+    <input id="newSalary" type="number" formControlName="newSalary" min="0" step="1" placeholder="₹" />
+    @if (form.controls.newSalary.touched && form.controls.newSalary.errors?.['required']) {
+      <div class="field-error">A starting salary is required.</div>
+    }
+    @if (form.controls.newSalary.touched && form.controls.newSalary.errors?.['min']) {
+      <div class="field-error">Salary can't be negative.</div>
+    }
+    @if (!isBaseline) {
+      <div class="field-hint">Leave blank if the salary didn't change this cycle.</div>
+    }
+  </div>
+
+  <div class="field">
+    <label for="summary">Summary</label>
+    <textarea id="summary" formControlName="summary" rows="3" placeholder="Optional notes"></textarea>
+  </div>
+
+  <div class="form-actions">
+    <button type="button" class="cancel-btn" (click)="cancel.emit()" [disabled]="saving()">Cancel</button>
+    <button type="submit" class="primary-btn" [disabled]="saving()">
+      {{ saving() ? 'Saving...' : 'Save' }}
+    </button>
+  </div>
+</form>

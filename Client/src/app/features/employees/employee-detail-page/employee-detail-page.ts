@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -18,12 +18,17 @@ import { Department } from '../../../core/models/department.models';
 import { Designation } from '../../../core/models/designation.models';
 import { ASSIGNABLE_ROLES, COMPANY_ADMIN_ROLE_ID, EMPLOYEE_ROLE_ID } from '../../../core/models/role.models';
 import { ApiError } from '../../../core/models/auth.models';
+import { EmployeePerformanceSection } from '../../performance/employee-performance-section/employee-performance-section';
+import { ReviewsStore } from '../../performance/reviews-store';
+import { avatarColor, initials } from '../../../shared/utils/avatar';
 
 @Component({
   selector: 'app-employee-detail-page',
-  imports: [ReactiveFormsModule, RouterLink, DatePipe],
+  imports: [ReactiveFormsModule, RouterLink, DatePipe, EmployeePerformanceSection],
   templateUrl: './employee-detail-page.html',
-  styleUrl: './employee-detail-page.scss'
+  styleUrl: './employee-detail-page.scss',
+  // One store instance per detail page, shared by the hero and the performance section.
+  providers: [ReviewsStore]
 })
 /**
  * Employee detail/edit page. Loads an employee by the route `:id`, renders their
@@ -72,6 +77,23 @@ export class EmployeeDetailPage implements OnInit {
   isSaving = signal(false);
   saveError = signal<string | null>(null);
 
+  // Switches the detail body between the Overview and Performance tabs.
+  showPerformance = signal(false);
+
+  // Shared review state — the hero reads current salary / Add review from it, the
+  // performance section renders it. Provided on this component (see decorator).
+  readonly reviewsStore = inject(ReviewsStore);
+
+  // Deterministic avatar colour + initials for the hero card.
+  avatarColor = computed(() => {
+    const emp = this.employee();
+    return emp ? avatarColor(emp.employeeCode || emp.id) : 'var(--color-primary)';
+  });
+  initials = computed(() => {
+    const emp = this.employee();
+    return emp ? initials(emp.firstName, emp.lastName) : '';
+  });
+
   departments = signal<Department[]>([]);
   private allDesignations = signal<Designation[]>([]);
   deptMembers = signal<DepartmentMember[]>([]);
@@ -116,6 +138,12 @@ export class EmployeeDetailPage implements OnInit {
   // Is this employee still pending (invite not accepted)?
   isPending = computed(() => this.employee()?.status === EmployeeStatus.Pending);
 
+  // Suspended/offboarded employees can't get new reviews — lock the Add button.
+  reviewsLocked = computed(() => {
+    const status = this.employee()?.status;
+    return status === EmployeeStatus.Suspended || status === EmployeeStatus.Offboarded;
+  });
+
   // A company admin's employment status can't be changed (offboarding/suspending an
   // admin could leave the tenant with no active admin). Lock the status control for
   // admin records — the server enforces the same rule.
@@ -136,6 +164,17 @@ export class EmployeeDetailPage implements OnInit {
     roleId: [EMPLOYEE_ROLE_ID, [Validators.required]],
     status: [EmployeeStatus.Active, [Validators.required]]
   });
+
+  constructor() {
+    // Keep the shared reviews store in sync with the current employee, and lazily load
+    // its reviews the first time the Performance tab is opened.
+    effect(() => {
+      const emp = this.employee();
+      if (!emp || this.isPending()) return;
+      this.reviewsStore.setContext(emp.id, this.canManage(), this.reviewsLocked(), emp.joinDate);
+      if (this.showPerformance()) this.reviewsStore.ensureLoaded();
+    });
+  }
 
   ngOnInit(): void {
     this.employeeId = this.route.snapshot.paramMap.get('id') ?? '';

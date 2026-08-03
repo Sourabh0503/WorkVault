@@ -1,0 +1,19 @@
+:host {
+  display: block;
+}
+
+.chart-canvas-wrap {
+  position: relative;
+  height: 240px;
+}
+
+.chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 240px;
+  color: var(--color-ink-faint);
+  font-size: 0.875rem;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+}

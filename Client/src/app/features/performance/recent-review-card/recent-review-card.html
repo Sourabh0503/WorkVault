@@ -1,0 +1,33 @@
+<article class="recent-card">
+  <header class="recent-head">
+    <div class="recent-eyebrow">Most recent review</div>
+    <div class="recent-title">
+      <span class="recent-name">{{ review().reviewName }}</span>
+      <span class="recent-date">{{ dateLabel() }}</span>
+    </div>
+  </header>
+
+  <div class="recent-body">
+    @if (showRating()) {
+      <div class="rating-row">
+        <span class="rating-big">{{ review().rating }}<span class="rating-max"> / 5</span></span>
+        <div class="rating-bar"><div class="rating-fill" [style.width.%]="ratingPct()"></div></div>
+      </div>
+    }
+
+    @if (showSalary()) {
+      <div class="salary-row">
+        <span class="salary-value">{{ salaryLabel() }}</span>
+        @if (review().isBaseline) {
+          <span class="badge badge-base">Starting salary</span>
+        } @else if (hike()) {
+          <span class="chip chip-{{ hike()!.direction }}">{{ hike()!.label }}</span>
+        }
+      </div>
+    }
+
+    @if (review().summary) {
+      <p class="recent-summary">{{ review().summary }}</p>
+    }
+  </div>
+</article>
