@@ -38,11 +38,10 @@ projects:
             envVars:
               - key: ASPNETCORE_ENVIRONMENT
                 value: Production
-              # Injected from the managed database below.
+              # External Postgres (not Render-managed). Set the full connection
+              # string as a secret in the Render dashboard — not committed.
               - key: ConnectionStrings__DefaultConnection
-                fromDatabase:
-                  name: workvault-db
-                  property: connectionString
+                sync: false
               # Strong random value generated once and kept stable.
               - key: JwtSettings__SecretKey
                 generateValue: true
@@ -97,14 +96,3 @@ projects:
               - type: rewrite
                 source: /*
                 destination: /index.html
-
-        databases:
-          - name: workvault-db
-            databaseName: workvault
-            user: workvault
-            plan: free
-            region: singapore
-            postgresMajorVersion: "18"
-            ipAllowList:
-              - source: 0.0.0.0/0
-                description: everywhere
