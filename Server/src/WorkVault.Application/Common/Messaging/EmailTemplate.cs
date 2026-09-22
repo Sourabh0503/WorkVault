@@ -144,16 +144,15 @@ public static class EmailTemplate
     }
 
     /// <summary>
-    /// The WorkVault brand mark + wordmark. The mark is referenced as an inline
-    /// <c>cid:</c> attachment that the SMTP sender embeds (see <c>EmailAssets.LogoContentId</c>),
-    /// so it renders in Gmail/Outlook with no external URL. The wordmark text shows even
-    /// if images are blocked.
+    /// The WorkVault brand mark + wordmark. The mark is loaded from a hosted URL on the
+    /// public frontend (workvault.co.in), so it renders over the Brevo HTTP API without
+    /// needing an inline attachment. The wordmark text shows even if images are blocked.
     /// </summary>
     private const string LogoMark =
         """
         <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
           <td valign="middle" style="line-height:0;font-size:0;">
-            <img src="cid:workvault-logo" width="34" height="34" alt="WorkVault" style="display:block;border:0;outline:none;text-decoration:none;width:34px;height:34px;">
+            <img src="https://workvault.co.in/assets/workvault-mark.png" width="34" height="34" alt="WorkVault" style="display:block;border:0;outline:none;text-decoration:none;width:34px;height:34px;">
           </td>
           <td valign="middle" style="padding-left:10px;font-family:Arial,Helvetica,sans-serif;font-size:18px;font-weight:bold;letter-spacing:-0.02em;"><span style="color:#04241B;">work</span><span style="color:#059669;">Vault</span></td>
         </tr></table>

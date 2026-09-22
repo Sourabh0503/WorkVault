@@ -74,6 +74,11 @@ projects:
                 sync: false
               - key: EmailSettings__SmtpKey
                 sync: false
+              # Brevo HTTP API key (xkeysib-…) — the sender now calls the Brevo REST API
+              # over HTTPS (443) instead of SMTP, since Render's free plan blocks outbound
+              # SMTP ports. Set the value as a secret in the Render dashboard.
+              - key: EmailSettings__ApiKey
+                sync: false
               - key: EmailSettings__FromEmail
                 value: no-reply@workvault.co.in
               - key: EmailSettings__FromName

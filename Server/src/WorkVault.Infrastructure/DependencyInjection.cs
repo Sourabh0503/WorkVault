@@ -63,8 +63,11 @@ public static class DependencyInjection
         // Email settings from config
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
 
-        // The SMTP sender (scoped — resolved per message in the consumer's scope)
-        services.AddScoped<IEmailSender, SmtpEmailSender>();
+        // The email sender. Brevo's HTTP API (443) is used in place of SMTP because
+        // the host (Render free plan) blocks outbound SMTP ports (25/465/587).
+        // AddHttpClient registers it as a typed client with a pooled HttpClient.
+        // SmtpEmailSender is kept in the codebase as a fallback but is no longer wired up.
+        services.AddHttpClient<IEmailSender, BrevoApiEmailSender>();
 
         // The background consumer that drains the queue
         services.AddHostedService<EmailConsumerService>();
