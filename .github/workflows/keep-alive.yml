@@ -1,0 +1,36 @@
+name: Keep-alive
+
+# Pings the production health endpoint on a schedule so the free Render service
+# doesn't spin down when idle. A cold spin-down is also what rotates Render's
+# outbound IP, which breaks Brevo's authorised-IPs allowlist — keeping the
+# service warm keeps that IP stable too.
+#
+# NOTE: GitHub's cron is best-effort — runs are frequently delayed 5–20 min under
+# load, so treat "every 5 min" as approximate. GitHub also auto-DISABLES scheduled
+# workflows after 60 days with no repo activity; a push (or clicking "Enable
+# workflow" in the Actions tab) re-arms it. Scheduled runs only fire from the
+# default branch (master), so this must be merged to master to take effect.
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # every 5 minutes (approximate; GitHub best-effort)
+  workflow_dispatch:         # allow manual runs from the Actions tab
+
+# Don't stack runs if one is slow.
+concurrency:
+  group: keep-alive
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ping health endpoint
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 \
+            https://api.workvault.co.in/health)
+          echo "Health check returned HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "::error::Expected HTTP 200 but got $code"
+            exit 1
+          fi
